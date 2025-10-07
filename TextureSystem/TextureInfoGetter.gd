@@ -22,8 +22,15 @@ func setArray() -> void:
 			tileArrayTex.set_pixelv(Vector2i(x, y), Color((index + 1.0) * 0.1, 0.0, 0.0, 1.0))
 	
 	var imTex : ImageTexture = ImageTexture.create_from_image(tileArrayTex)
-	material.set_shader_parameter("tileArrayTex", imTex)
-	#material.set_shader_parameter("RESOLUTION", Vector2(100, 100))
+	
+	RenderingServer.global_shader_parameter_set("TILE_ARRAY_TEXTURE", imTex)
+
 
 func _ready() -> void:
 	setArray()
+
+func _process(_delta: float) -> void:
+	if !Engine.is_editor_hint():
+		setArray()
+	else:
+		setArray()

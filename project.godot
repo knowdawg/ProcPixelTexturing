@@ -24,3 +24,10 @@ window/stretch/mode="viewport"
 [rendering]
 
 2d/sdf/scale=0
+
+[shader_globals]
+
+TILE_ARRAY_TEXTURE={
+"type": "sampler2D",
+"value": ""
+}
