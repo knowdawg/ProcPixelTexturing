@@ -21,4 +21,3 @@ noise = SubResource("FastNoiseLite_mtg6t")
 seamless = true
 as_normal_map = true
 seamless_blend_skirt = 0.3
-bump_strength = 1.0

@@ -1,6 +1,5 @@
 shader_type canvas_item;
 
-
 uniform vec2 RESOLUTION;
 global uniform vec2 WORLD_POSITION;
 global uniform sampler2D TILE_ARRAY_TEXTURE : filter_nearest, repeat_disable;
@@ -28,6 +27,13 @@ uniform sampler2D WOOD_TEX : filter_nearest, repeat_enable;
 uniform sampler2D WOOD_NORMAL : filter_nearest, repeat_enable;
 uniform sampler2D WOOD_GRAD;
 uniform vec4 WOOD_BORDER_COLOR : source_color;
+
+group_uniforms lighting;
+uniform float brightness : hint_range(0.0, 1.0);
+uniform float falloff : hint_range(0.0, 0.1);
+
+varying vec2 screenSize;
+varying vec4 screen;
 
 int getPixelType(sampler2D tex, vec2 uv, vec2 stepAmount){
 	vec4 center = texture(TILE_ARRAY_TEXTURE, uv);
@@ -91,24 +97,77 @@ void fragment() {
 	sdfVal = clamp(sdfVal, 0.0, 1.0);
 	sdfVal = 1.0 - sdfVal;
 	
+	
+	vec4 c = vec4(1.0);
 	if(self.r < 0.05){
-		COLOR.a = 0.0;
+		c.a = 0.0;
 	}else if(self.r < 0.15){
-		COLOR = getColor(type, qUV, STONE_TEX, STONE_NORMAL, STONE_GRAD, STONE_BORDER_COLOR, NORMAL_MAP);
+		c = getColor(type, qUV, STONE_TEX, STONE_NORMAL, STONE_GRAD, STONE_BORDER_COLOR, NORMAL_MAP);
 	}else if(self.r < 0.25){
-		COLOR = getColor(type, qUV, GRASS_TEX, GRASS_NORMAL, GRASS_GRAD, GRASS_BORDER_COLOR, NORMAL_MAP);
+		c = getColor(type, qUV, GRASS_TEX, GRASS_NORMAL, GRASS_GRAD, GRASS_BORDER_COLOR, NORMAL_MAP);
 	}else if(self.r < 0.35){
-		COLOR = getColor(type, qUV, DIRT_TEX, DIRT_NORMAL, DIRT_GRAD, DIRT_BORDER_COLOR, NORMAL_MAP);
+		c = getColor(type, qUV, DIRT_TEX, DIRT_NORMAL, DIRT_GRAD, DIRT_BORDER_COLOR, NORMAL_MAP);
 	}else if(self.r < 0.45){
-		COLOR = getColor(type, qUV, WOOD_TEX, WOOD_NORMAL, WOOD_GRAD, WOOD_BORDER_COLOR, NORMAL_MAP);
+		c = getColor(type, qUV, WOOD_TEX, WOOD_NORMAL, WOOD_GRAD, WOOD_BORDER_COLOR, NORMAL_MAP);
 	}
 	
-	COLOR.rgb *= sdfVal;
+	//COLOR.rgb *= sdfVal;
 	
 	if(type == 1){
-		COLOR = vec4(0.0, 0.0, 0.0, 1.0);
+		c = vec4(0.0, 0.0, 0.0, 1.0);
 	}
 	
-	//COLOR.rgb = NORMAL_MAP;
+	screenSize = SCREEN_PIXEL_SIZE;
+	screen = c;
+	c.rgb *= brightness;
 	
+	COLOR = c;
+}
+
+
+void light() {
+	//Setup the variables for SDF Raymarching
+	vec2 lightPosNormalized = LIGHT_POSITION.xy * screenSize;
+	vec2 angleVector = normalize(lightPosNormalized - SCREEN_UV);
+	float sdfVal = 0.0;
+	float intensity = 1.0;
+	float distanceNeededToTravel = length(lightPosNormalized - SCREEN_UV);
+	float disTraveled = 0.0;
+	//float falloff = 0.01; //0.01
+
+	float finished = 0.0;
+
+	//Marching Algorithm
+	for(int i = 0; i < 80; i++){
+		if(distanceNeededToTravel > 0.7){
+			break;
+		}
+		if(disTraveled > distanceNeededToTravel){
+			finished = 1.0;
+			break;
+		}
+		if(intensity <= 0.0){
+			break;
+		}
+		vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
+		sdfVal = texture_sdf(screen_uv_to_sdf(curPos));
+		intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
+		disTraveled += abs(sdfVal) * screenSize.x;
+
+		disTraveled += 0.001;//0.001//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
+		//intensity += 0.005;
+		
+		//if(sdfVal <= 0.0){
+			//intensity = 0.0;
+			//break;
+		//}
+	}
+	intensity *= finished;
+
+	intensity = clamp(intensity, 0.0, 1.0);
+
+	//intensity = smoothstep(0.0, 1.0, intensity);
+	
+	float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));
+	LIGHT = vec4(LIGHT_COLOR.rgb * screen.rgb * intensity * LIGHT_ENERGY * cNdotL, LIGHT_COLOR.a);
 }

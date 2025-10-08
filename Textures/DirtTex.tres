@@ -2,7 +2,7 @@
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_6r0k1"]
 noise_type = 2
-frequency = 0.1
+frequency = 0.05
 fractal_octaves = 4
 cellular_return_type = 6
 domain_warp_enabled = true

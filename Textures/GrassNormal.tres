@@ -15,4 +15,4 @@ noise = SubResource("FastNoiseLite_5cr4c")
 seamless = true
 as_normal_map = true
 seamless_blend_skirt = 0.3
-bump_strength = 1.0
+bump_strength = 0.5
