@@ -1,8 +1,10 @@
 shader_type canvas_item;
 
+varying vec2 screenSize;
+
 uniform vec2 RESOLUTION;
 global uniform vec2 WORLD_POSITION;
-global uniform sampler2D TILE_ARRAY_TEXTURE : filter_nearest, repeat_disable;
+global uniform sampler2D TILE_ARRAY_TEXTURE_BACKGROUND : filter_nearest, repeat_disable;
 global uniform sampler2D SDF_LIGHT_TEXTURE : filter_nearest;
 
 group_uniforms dirt;
@@ -30,19 +32,15 @@ uniform sampler2D WOOD_GRAD;
 uniform vec4 WOOD_BORDER_COLOR : source_color;
 
 group_uniforms lighting;
-global uniform float WORLD_BRIGHTNESS;
-uniform float falloff : hint_range(0.0, 0.1);
-
-varying vec2 screenSize;
-varying vec4 screen;
+uniform float falloff : hint_range(0.0, 0.1) = 0.03;
 
 int getPixelType(sampler2D tex, vec2 uv, vec2 stepAmount){
-	vec4 center = texture(TILE_ARRAY_TEXTURE, uv);
+	vec4 center = texture(TILE_ARRAY_TEXTURE_BACKGROUND, uv);
 	
-	vec4 left = texture(TILE_ARRAY_TEXTURE, uv + vec2(-stepAmount.x * 1.0, 0.0));
-	vec4 right = texture(TILE_ARRAY_TEXTURE, uv + vec2(stepAmount.x * 1.0, 0.0));
-	vec4 up = texture(TILE_ARRAY_TEXTURE, uv + vec2(0.0, -stepAmount.y * 1.0));
-	vec4 down = texture(TILE_ARRAY_TEXTURE, uv + vec2(0.0, stepAmount.y * 1.0));
+	vec4 left = texture(TILE_ARRAY_TEXTURE_BACKGROUND, uv + vec2(-stepAmount.x * 1.0, 0.0));
+	vec4 right = texture(TILE_ARRAY_TEXTURE_BACKGROUND, uv + vec2(stepAmount.x * 1.0, 0.0));
+	vec4 up = texture(TILE_ARRAY_TEXTURE_BACKGROUND, uv + vec2(0.0, -stepAmount.y * 1.0));
+	vec4 down = texture(TILE_ARRAY_TEXTURE_BACKGROUND, uv + vec2(0.0, stepAmount.y * 1.0));
 	
 	bool hasNonPopulatedNieghbor = left.r * right.r * up.r * down.r == 0.0;
 	bool hasPopulatedNieghbor = left.r + right.r + up.r + down.r > 0.0;
@@ -88,8 +86,15 @@ vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D g
 void fragment() {
 	vec2 qUV = UV;//floor(UV * RESOLUTION) / RESOLUTION;
 	
-	vec4 self = texture(TILE_ARRAY_TEXTURE, qUV);
-	int type = getPixelType(TILE_ARRAY_TEXTURE, qUV, 1.0 / RESOLUTION);
+	vec4 self = texture(TILE_ARRAY_TEXTURE_BACKGROUND, qUV);
+	int type = getPixelType(TILE_ARRAY_TEXTURE_BACKGROUND, qUV, 1.0 / RESOLUTION);
+	
+	float sdfVal = texture_sdf(screen_uv_to_sdf(SCREEN_UV));
+	sdfVal = abs(sdfVal);
+	sdfVal /= 10.0;
+	sdfVal *= 0.5;
+	sdfVal = clamp(sdfVal, 0.0, 1.0);
+	sdfVal = 1.0 - sdfVal;
 	
 	
 	vec4 c = vec4(1.0);
@@ -105,34 +110,32 @@ void fragment() {
 		c = getColor(type, qUV, WOOD_TEX, WOOD_NORMAL, WOOD_GRAD, WOOD_BORDER_COLOR, NORMAL_MAP);
 	}
 	
-	
 	if(type == 1){
 		c = vec4(0.0, 0.0, 0.0, 1.0);
 	}
 	
-	screenSize = SCREEN_PIXEL_SIZE;
-	screen = c;
-	c.rgb *= WORLD_BRIGHTNESS;
-	
 	COLOR = c;
-	//COLOR.rgb = texture(SDF_LIGHT_TEXTURE, UV).rgb / SCREEN_PIXEL_SIZE.x;
-	//COLOR.rgb = vec3(texture_sdf(screen_uv_to_sdf(SCREEN_UV)));
+	
+	screenSize = SCREEN_PIXEL_SIZE;
+	
+	//vec4 backgroundVal = textureLod(TILE_ARRAY_TEXTURE_BACKGROUND, UV, 2.0);
+	//COLOR = backgroundVal;
 }
 
-
+//Called for each light for each pixel
 void light() {
-	
 	//Setup the variables for SDF Raymarching
 	vec2 lightPosNormalized = LIGHT_POSITION.xy * screenSize;
 	vec2 angleVector = normalize(lightPosNormalized - SCREEN_UV);
 	float sdfVal = 0.0;
-	float intensity = 1.0;
+	float finished = 0.0;
 	float distanceNeededToTravel = length(lightPosNormalized - SCREEN_UV);
 	float disTraveled = 0.0;
-	//float falloff = 0.01; //0.01
-
-	float finished = 0.0;
-
+	float intensity = 1.0;
+	
+	float closestSdfVal = 1.0;
+		
+		
 	if(LIGHT_IS_DIRECTIONAL){
 		angleVector = LIGHT_DIRECTION.xy;
 		for(int i = 0; i < 40; i++){
@@ -143,15 +146,15 @@ void light() {
 			
 			disTraveled += abs(combinedSDF);
 			if(combinedSDF <= 0.0){
-				intensity -= abs(combinedSDF) * 15.0;//If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
+				intensity -= abs(combinedSDF) * 30.0;//If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
 			
 			}
 			//disTraveled += lightSdf;
 			
-			float moveAmount = length(screenSize * angleVector);
+			float moveAmount = length(screenSize * angleVector) * 1.0;
 			disTraveled += moveAmount;//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
 			if(combinedSDF <= 0.0){
-				intensity -= moveAmount * 20.0;
+				intensity -= moveAmount;
 			}
 			
 			
@@ -170,38 +173,43 @@ void light() {
 		}
 		finished = 1.0;
 		float lightVal = texture(SDF_LIGHT_TEXTURE, SCREEN_UV).r;
-		lightVal = 1.0 - smoothstep(0.0, 0.1, lightVal);
+		lightVal = 1.0 - smoothstep(0.0, 0.25, lightVal);
 		lightVal *= 0.5;
 		intensity = max(intensity * 1.0, lightVal);
 		
 	}else{
-		for(int i = 0; i < 20; i++){
-			if(distanceNeededToTravel > 0.4){
+		for(int i = 0; i < 40; i++){
+			if(distanceNeededToTravel > 0.5){
+				finished = 0.0;
+				break;
+			}
+			
+			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
+			sdfVal = texture_sdf(screen_uv_to_sdf(curPos));
+			disTraveled += screenSize.x * abs(sdfVal);
+			
+			closestSdfVal = min(sdfVal, closestSdfVal);
+			
+			if(sdfVal <= 0.0){
+				finished = 0.0;
 				break;
 			}
 			if(disTraveled > distanceNeededToTravel){
-				finished = 1.0;
+				finished = closestSdfVal;//10.0 / (float(i));
 				break;
 			}
-			if(intensity <= 0.0){
-				break;
-			}
-			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
-			sdfVal = texture_sdf(screen_uv_to_sdf(curPos));
-			intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
-			disTraveled += abs(sdfVal) * screenSize.x;
-			
-			float moveAmount = length(screenSize * angleVector) * 5.0;
-			disTraveled += moveAmount;//0.05;//0.001//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
-			intensity += moveAmount * clamp(floor(sdfVal), -1.0, 0.0);
-			
+			//if(i == 10){
+				//finished = 1.0 - (disTraveled / distanceNeededToTravel);
+				//break;
+			//}
 		}
+		
 	}
 	
-	intensity *= finished;
-	intensity = clamp(intensity, 0.0, 1.0);
-	//intensity = smoothstep(0.0, 0.8, intensity);
 	
+	finished = clamp(finished, 0.0, 1.0);
+	
+	vec3 finalCol = COLOR.rgb * LIGHT_COLOR.rgb * LIGHT_ENERGY;
 	float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));
-	LIGHT = vec4(LIGHT_COLOR.rgb * screen.rgb * intensity * LIGHT_ENERGY * cNdotL, LIGHT_COLOR.a);
+	LIGHT = vec4(((finalCol * finished * cNdotL * 0.8) + finalCol * 0.2) * intensity, LIGHT_COLOR.a);
 }

@@ -1,0 +1,74 @@
+[gd_scene load_steps=10 format=3 uid="uid://ydywcrrxdtpd"]
+
+[ext_resource type="Script" uid="uid://b71txaw1jxtgr" path="res://JumpFloodSDFGenerator/sdf_generator.gd" id="1_6i7ej"]
+[ext_resource type="Shader" uid="uid://t1cnfl6jkgjq" path="res://LightmapSDFGenerator/LightmapSeed.gdshader" id="2_6i7ej"]
+[ext_resource type="Shader" uid="uid://bk834ck4x8tub" path="res://JumpFloodSDFGenerator/JumpFloodPass.gdshader" id="3_gwohw"]
+[ext_resource type="Shader" uid="uid://bl58uk4smy41r" path="res://JumpFloodSDFGenerator/sdf_generator.gdshader" id="4_1uny2"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_5mdis"]
+resource_local_to_scene = true
+shader = ExtResource("2_6i7ej")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_6i7ej"]
+viewport_path = NodePath("Seed")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6i7ej"]
+resource_local_to_scene = true
+shader = ExtResource("3_gwohw")
+shader_parameter/image = SubResource("ViewportTexture_6i7ej")
+shader_parameter/offset = 0.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_kkkuo"]
+viewport_path = NodePath("Seed")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kkkuo"]
+resource_local_to_scene = true
+shader = ExtResource("4_1uny2")
+shader_parameter/image = SubResource("ViewportTexture_kkkuo")
+
+[node name="LightmapSDFGenerator" type="Node"]
+script = ExtResource("1_6i7ej")
+resolution = Vector2i(320, 320)
+
+[node name="Output" type="Sprite2D" parent="."]
+visible = false
+
+[node name="Seed" type="SubViewport" parent="."]
+unique_name_in_owner = true
+size = Vector2i(320, 321)
+render_target_update_mode = 4
+
+[node name="SeedRect" type="ColorRect" parent="Seed"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_5mdis")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="JumpFloodPass" type="SubViewport" parent="."]
+unique_name_in_owner = true
+size = Vector2i(320, 320)
+render_target_update_mode = 4
+
+[node name="JumpFloodPassRect" type="ColorRect" parent="JumpFloodPass"]
+material = SubResource("ShaderMaterial_6i7ej")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SDFGenerator" type="SubViewport" parent="."]
+unique_name_in_owner = true
+size = Vector2i(320, 320)
+render_target_update_mode = 4
+
+[node name="SDFGeneratorRect" type="ColorRect" parent="SDFGenerator"]
+material = SubResource("ShaderMaterial_kkkuo")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

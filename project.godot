@@ -56,6 +56,12 @@ ui_down={
 ]
 }
 
+[layer_names]
+
+2d_render/layer_1="Background"
+2d_render/layer_2="Foreground"
+2d_render/layer_3="Directional"
+
 [rendering]
 
 2d/sdf/scale=0
@@ -69,4 +75,16 @@ TILE_ARRAY_TEXTURE={
 WORLD_POSITION={
 "type": "vec2",
 "value": Vector2(0, 0)
+}
+TILE_ARRAY_TEXTURE_BACKGROUND={
+"type": "sampler2D",
+"value": ""
+}
+WORLD_BRIGHTNESS={
+"type": "float",
+"value": 1.0
+}
+SDF_LIGHT_TEXTURE={
+"type": "sampler2D",
+"value": ""
 }

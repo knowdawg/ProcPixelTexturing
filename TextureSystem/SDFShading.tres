@@ -1,0 +1,6 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cpoaha3w43gmg"]
+
+[ext_resource type="Shader" uid="uid://drrg7yrpbsfuo" path="res://TextureSystem/SDFLighting.gdshader" id="1_jo4uk"]
+
+[resource]
+shader = ExtResource("1_jo4uk")

@@ -20,3 +20,4 @@ invert = true
 as_normal_map = true
 normalize = false
 seamless_blend_skirt = 0.3
+bump_strength = 4.0

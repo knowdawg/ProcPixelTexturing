@@ -1,6 +1,7 @@
 @tool
 extends Sprite2D
 
+@export var disabled : bool = true
 
 @export var tm : TileMapLayer
 
@@ -11,7 +12,9 @@ var offsetVec : Vector2i = Vector2i(-160, -90)
 var tileArrayTex : Image
 
 func setArray() -> void:
-	tileArrayTex = Image.create_empty(320, 180, true, Image.FORMAT_BPTC_RGBA)
+	if disabled:
+		return
+	tileArrayTex = Image.create_empty(320, 180, false, Image.FORMAT_BPTC_RGBA)
 	tileArrayTex.decompress()
 	
 	for x in range(320):
@@ -20,10 +23,9 @@ func setArray() -> void:
 			tileArrayTex.set_pixelv(Vector2i(x, y), Color((index + 1.0) * 0.1, 0.0, 0.0, 1.0))
 			if index == -1:
 				tileArrayTex.set_pixelv(Vector2i(x, y), Color(0.0, 0.0, 0.0, 0.0))
-			
 	var imTex : ImageTexture = ImageTexture.create_from_image(tileArrayTex)
 	
-	RenderingServer.global_shader_parameter_set("TILE_ARRAY_TEXTURE", imTex)
+	RenderingServer.global_shader_parameter_set("TILE_ARRAY_TEXTURE_BACKGROUND", imTex)
 
 
 func _ready() -> void:
