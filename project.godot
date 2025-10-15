@@ -15,6 +15,10 @@ run/main_scene="uid://yvsw2gjesxni"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[debug]
+
+settings/profiler/max_timestamp_query_elements=512
+
 [display]
 
 window/size/viewport_width=320
@@ -85,6 +89,14 @@ WORLD_BRIGHTNESS={
 "value": 1.0
 }
 SDF_LIGHT_TEXTURE={
+"type": "sampler2D",
+"value": ""
+}
+SUN_DIRECTION={
+"type": "float",
+"value": 0.0
+}
+GLOBAL_ILLUMINATION={
 "type": "sampler2D",
 "value": ""
 }

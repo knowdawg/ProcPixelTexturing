@@ -1,0 +1,817 @@
+[gd_scene load_steps=88 format=3 uid="uid://bao8l5iswnbru"]
+
+[ext_resource type="Script" uid="uid://dysnc1swri4o" path="res://GlobalIllumination/global_illumination_texture_generator.gd" id="1_0qrdb"]
+[ext_resource type="Shader" uid="uid://t1cnfl6jkgjq" path="res://LightmapSDFGenerator/LightmapSeed.gdshader" id="1_v8s1c"]
+[ext_resource type="Shader" uid="uid://bk834ck4x8tub" path="res://JumpFloodSDFGenerator/JumpFloodPass.gdshader" id="2_oonil"]
+[ext_resource type="Shader" uid="uid://bl58uk4smy41r" path="res://JumpFloodSDFGenerator/sdf_generator.gdshader" id="3_gt1x7"]
+[ext_resource type="Shader" uid="uid://bpqb4guro1oou" path="res://GlobalIllumination/LightRays.gdshader" id="4_gt1x7"]
+[ext_resource type="Shader" uid="uid://knu6iu1wt1vd" path="res://GlobalIllumination/EnvirementSDFSeed.gdshader" id="4_sdpdl"]
+[ext_resource type="Shader" uid="uid://djbj25kloku05" path="res://GlobalIllumination/BlurLighting.gdshader" id="6_c0mvw"]
+[ext_resource type="Shader" uid="uid://c2swnjyqlo5u1" path="res://JumpFloodSDFGenerator/JumpFloodSeed.gdshader" id="7_06hwh"]
+[ext_resource type="Shader" uid="uid://b7177we7hw7m7" path="res://GlobalIllumination/FinalLight.gdshader" id="8_btrmd"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_sdpdl"]
+viewport_path = NodePath("LightRayPass/SDF")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_mq8dn"]
+viewport_path = NodePath("EnvirementPass/SDF")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_08amm"]
+viewport_path = NodePath("LightRays")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_wyswo"]
+viewport_path = NodePath("LightPass2/SDF")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_nr244"]
+viewport_path = NodePath("FinalLight")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_ehtfj"]
+viewport_path = NodePath("Blur")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vgi4b"]
+resource_local_to_scene = true
+shader = ExtResource("1_v8s1c")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_c0mvw"]
+viewport_path = NodePath("LightRayPass/Seed")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sdpdl"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_c0mvw")
+shader_parameter/offset = 256.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_0qrdb"]
+viewport_path = NodePath("LightRayPass/Pass1")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c0mvw"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_0qrdb")
+shader_parameter/offset = 128.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_06hwh"]
+viewport_path = NodePath("LightRayPass/Pass2")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0qrdb"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_06hwh")
+shader_parameter/offset = 64.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_btrmd"]
+viewport_path = NodePath("LightRayPass/Pass3")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_06hwh"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_btrmd")
+shader_parameter/offset = 32.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_enf5k"]
+viewport_path = NodePath("LightRayPass/Pass4")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_btrmd"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_enf5k")
+shader_parameter/offset = 16.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_ijo74"]
+viewport_path = NodePath("LightRayPass/Pass5")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_enf5k"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_ijo74")
+shader_parameter/offset = 8.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_cbwwt"]
+viewport_path = NodePath("LightRayPass/Pass6")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ijo74"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_cbwwt")
+shader_parameter/offset = 4.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_jm03h"]
+viewport_path = NodePath("LightRayPass/Pass7")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cbwwt"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_jm03h")
+shader_parameter/offset = 2.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_qnnqs"]
+viewport_path = NodePath("LightRayPass/Pass8")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jm03h"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_qnnqs")
+shader_parameter/offset = 1.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_betad"]
+viewport_path = NodePath("LightRayPass/Pass9")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qnnqs"]
+resource_local_to_scene = true
+shader = ExtResource("3_gt1x7")
+shader_parameter/image = SubResource("ViewportTexture_betad")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_betad"]
+shader = ExtResource("4_sdpdl")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_einex"]
+viewport_path = NodePath("EnvirementPass/Seed")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_einex"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_einex")
+shader_parameter/offset = 256.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_wbiee"]
+viewport_path = NodePath("EnvirementPass/Pass1")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wbiee"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_wbiee")
+shader_parameter/offset = 128.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_o1kqx"]
+viewport_path = NodePath("EnvirementPass/Pass2")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_o1kqx"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_o1kqx")
+shader_parameter/offset = 64.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_a3fk2"]
+viewport_path = NodePath("EnvirementPass/Pass3")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_a3fk2"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_a3fk2")
+shader_parameter/offset = 32.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_pento"]
+viewport_path = NodePath("EnvirementPass/Pass4")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pento"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_pento")
+shader_parameter/offset = 16.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_efpff"]
+viewport_path = NodePath("EnvirementPass/Pass5")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_efpff"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_efpff")
+shader_parameter/offset = 8.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_ioh4d"]
+viewport_path = NodePath("EnvirementPass/Pass6")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ioh4d"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_ioh4d")
+shader_parameter/offset = 4.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_1juf7"]
+viewport_path = NodePath("EnvirementPass/Pass7")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1juf7"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_1juf7")
+shader_parameter/offset = 2.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_08d13"]
+viewport_path = NodePath("EnvirementPass/Pass8")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_08d13"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_08d13")
+shader_parameter/offset = 1.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_c0q61"]
+viewport_path = NodePath("EnvirementPass/Pass9")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c0q61"]
+resource_local_to_scene = true
+shader = ExtResource("3_gt1x7")
+shader_parameter/image = SubResource("ViewportTexture_c0q61")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_w6w7m"]
+viewport_path = NodePath("EnvirementPass/SDF")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_kq0hj"]
+viewport_path = NodePath("LightRayPass/SDF")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mq8dn"]
+resource_local_to_scene = true
+shader = ExtResource("4_gt1x7")
+shader_parameter/lightSDF = SubResource("ViewportTexture_kq0hj")
+shader_parameter/envirementalSDF = SubResource("ViewportTexture_w6w7m")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_ky1mt"]
+viewport_path = NodePath("LightRays")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wyswo"]
+resource_local_to_scene = true
+shader = ExtResource("7_06hwh")
+shader_parameter/image = SubResource("ViewportTexture_ky1mt")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_ekiet"]
+viewport_path = NodePath("LightPass2/Seed")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_08amm"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_ekiet")
+shader_parameter/offset = 256.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_fguec"]
+viewport_path = NodePath("LightPass2/Pass1")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_w6w7m"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_fguec")
+shader_parameter/offset = 128.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_g8mcp"]
+viewport_path = NodePath("LightPass2/Pass2")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kq0hj"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_g8mcp")
+shader_parameter/offset = 64.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_w684p"]
+viewport_path = NodePath("LightPass2/Pass3")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ehtfj"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_w684p")
+shader_parameter/offset = 32.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_1r188"]
+viewport_path = NodePath("LightPass2/Pass4")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ky1mt"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_1r188")
+shader_parameter/offset = 16.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_m6doh"]
+viewport_path = NodePath("LightPass2/Pass5")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nr244"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_m6doh")
+shader_parameter/offset = 8.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_g5eit"]
+viewport_path = NodePath("LightPass2/Pass6")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ekiet"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_g5eit")
+shader_parameter/offset = 4.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_twtd6"]
+viewport_path = NodePath("LightPass2/Pass7")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fguec"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_twtd6")
+shader_parameter/offset = 2.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_i348d"]
+viewport_path = NodePath("LightPass2/Pass8")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_g8mcp"]
+resource_local_to_scene = true
+shader = ExtResource("2_oonil")
+shader_parameter/image = SubResource("ViewportTexture_i348d")
+shader_parameter/offset = 1.0
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_sp0ri"]
+viewport_path = NodePath("LightPass2/Pass9")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6s2hg"]
+resource_local_to_scene = true
+shader = ExtResource("3_gt1x7")
+shader_parameter/image = SubResource("ViewportTexture_sp0ri")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_py77d"]
+viewport_path = NodePath("LightRays")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_6s2hg"]
+viewport_path = NodePath("LightPass2/SDF")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_py77d"]
+resource_local_to_scene = true
+shader = ExtResource("8_btrmd")
+shader_parameter/lightSDF = SubResource("ViewportTexture_6s2hg")
+shader_parameter/lightRaySDF = SubResource("ViewportTexture_py77d")
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_km63m"]
+viewport_path = NodePath("FinalLight")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_km63m"]
+resource_local_to_scene = true
+shader = ExtResource("6_c0mvw")
+shader_parameter/light = SubResource("ViewportTexture_km63m")
+
+[node name="GlobalIlluminationTextureGenerator" type="Node"]
+script = ExtResource("1_0qrdb")
+
+[node name="Sprites" type="Node2D" parent="."]
+visible = false
+
+[node name="LightOutput" type="Sprite2D" parent="Sprites"]
+texture_filter = 1
+texture = SubResource("ViewportTexture_sdpdl")
+
+[node name="EnvirementalOutput" type="Sprite2D" parent="Sprites"]
+texture_filter = 1
+position = Vector2(340, 0)
+texture = SubResource("ViewportTexture_mq8dn")
+
+[node name="LightRayOutput" type="Sprite2D" parent="Sprites"]
+texture_filter = 1
+position = Vector2(1, 190)
+texture = SubResource("ViewportTexture_08amm")
+
+[node name="LightPass2" type="Sprite2D" parent="Sprites"]
+texture_filter = 2
+position = Vector2(-21, 394)
+texture = SubResource("ViewportTexture_wyswo")
+
+[node name="FINAL LIGHT" type="Sprite2D" parent="Sprites"]
+texture_filter = 2
+position = Vector2(342, 396)
+texture = SubResource("ViewportTexture_nr244")
+
+[node name="FINAL BLUR" type="Sprite2D" parent="Sprites"]
+texture_filter = 2
+position = Vector2(712, 392)
+scale = Vector2(2, 2)
+texture = SubResource("ViewportTexture_ehtfj")
+
+[node name="LightRayPass" type="Node" parent="."]
+
+[node name="Seed" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Seed"]
+material = SubResource("ShaderMaterial_vgi4b")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass1" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Pass1"]
+material = SubResource("ShaderMaterial_sdpdl")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass2" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Pass2"]
+material = SubResource("ShaderMaterial_c0mvw")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass3" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Pass3"]
+material = SubResource("ShaderMaterial_0qrdb")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass4" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Pass4"]
+material = SubResource("ShaderMaterial_06hwh")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass5" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Pass5"]
+material = SubResource("ShaderMaterial_btrmd")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass6" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Pass6"]
+material = SubResource("ShaderMaterial_enf5k")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass7" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Pass7"]
+material = SubResource("ShaderMaterial_ijo74")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass8" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Pass8"]
+material = SubResource("ShaderMaterial_cbwwt")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass9" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/Pass9"]
+material = SubResource("ShaderMaterial_jm03h")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SDF" type="SubViewport" parent="LightRayPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRayPass/SDF"]
+material = SubResource("ShaderMaterial_qnnqs")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="EnvirementPass" type="Node" parent="."]
+
+[node name="Seed" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Seed"]
+material = SubResource("ShaderMaterial_betad")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass1" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Pass1"]
+material = SubResource("ShaderMaterial_einex")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass2" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Pass2"]
+material = SubResource("ShaderMaterial_wbiee")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass3" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Pass3"]
+material = SubResource("ShaderMaterial_o1kqx")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass4" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Pass4"]
+material = SubResource("ShaderMaterial_a3fk2")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass5" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Pass5"]
+material = SubResource("ShaderMaterial_pento")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass6" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Pass6"]
+material = SubResource("ShaderMaterial_efpff")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass7" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Pass7"]
+material = SubResource("ShaderMaterial_ioh4d")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass8" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Pass8"]
+material = SubResource("ShaderMaterial_1juf7")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass9" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/Pass9"]
+material = SubResource("ShaderMaterial_08d13")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SDF" type="SubViewport" parent="EnvirementPass"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="EnvirementPass/SDF"]
+material = SubResource("ShaderMaterial_c0q61")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LightRays" type="SubViewport" parent="."]
+transparent_bg = true
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightRays"]
+material = SubResource("ShaderMaterial_mq8dn")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LightPass2" type="Node" parent="."]
+
+[node name="Seed" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Seed"]
+material = SubResource("ShaderMaterial_wyswo")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass1" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Pass1"]
+material = SubResource("ShaderMaterial_08amm")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass2" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Pass2"]
+material = SubResource("ShaderMaterial_w6w7m")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass3" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Pass3"]
+material = SubResource("ShaderMaterial_kq0hj")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass4" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Pass4"]
+material = SubResource("ShaderMaterial_ehtfj")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass5" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Pass5"]
+material = SubResource("ShaderMaterial_ky1mt")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass6" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Pass6"]
+material = SubResource("ShaderMaterial_nr244")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass7" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Pass7"]
+material = SubResource("ShaderMaterial_ekiet")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass8" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Pass8"]
+material = SubResource("ShaderMaterial_fguec")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Pass9" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/Pass9"]
+material = SubResource("ShaderMaterial_g8mcp")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SDF" type="SubViewport" parent="LightPass2"]
+size = Vector2i(320, 180)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="LightPass2/SDF"]
+material = SubResource("ShaderMaterial_6s2hg")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="FinalLight" type="SubViewport" parent="."]
+size = Vector2i(320, 180)
+
+[node name="ColorRect" type="ColorRect" parent="FinalLight"]
+material = SubResource("ShaderMaterial_py77d")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Blur" type="SubViewport" parent="."]
+size = Vector2i(160, 90)
+render_target_update_mode = 4
+
+[node name="ColorRect" type="ColorRect" parent="Blur"]
+material = SubResource("ShaderMaterial_km63m")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

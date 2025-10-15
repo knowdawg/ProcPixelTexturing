@@ -1,7 +1,8 @@
 shader_type canvas_item;
 
 varying vec2 screenSize;
-global uniform sampler2D SDF_LIGHT_TEXTURE;
+global uniform sampler2D GLOBAL_ILLUMINATION : filter_linear;
+
 
 void fragment(){
 	screenSize = SCREEN_PIXEL_SIZE;
@@ -22,45 +23,10 @@ void light() {
 	
 	
 	if(LIGHT_IS_DIRECTIONAL){
+		
 		angleVector = LIGHT_DIRECTION.xy;
-		for(int i = 0; i < 40; i++){
-			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
-			sdfVal = texture_sdf(screen_uv_to_sdf(curPos)) * screenSize.x;
-			float lightSdf = texture(SDF_LIGHT_TEXTURE, curPos).r;
-			float combinedSDF = min(sdfVal, lightSdf);
-			
-			disTraveled += abs(combinedSDF);
-			if(combinedSDF <= 0.0){
-				intensity -= abs(combinedSDF) * 30.0;//If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
-			
-			}
-			//disTraveled += lightSdf;
-			
-			float moveAmount = length(screenSize * angleVector) * 1.0;
-			disTraveled += moveAmount;//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
-			if(combinedSDF <= 0.0){
-				intensity -= moveAmount;
-			}
-			
-			
-			if(lightSdf < 0.01){
-				//finished = 1.0;
-				break;
-			}
-			if(intensity <= 0.0){
-				//finished = 0.0;
-				break;
-			}
-			if(i == 39){
-				intensity = 0.0;
-				break;
-			}
-		}
 		finished = 1.0;
-		float lightVal = texture(SDF_LIGHT_TEXTURE, SCREEN_UV).r;
-		lightVal = 1.0 - smoothstep(0.0, 0.25, lightVal);
-		lightVal *= 0.5;
-		intensity = max(intensity, lightVal);
+		intensity = texture(GLOBAL_ILLUMINATION, SCREEN_UV).r;
 		
 	}else{
 		for(int i = 0; i < 40; i++){
