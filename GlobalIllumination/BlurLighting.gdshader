@@ -21,7 +21,7 @@ void fragment() {
 	c = max(c, texture(light, UV).r);
 	
 	if(c > 0.8){
-		c *= 1.5;
+		c *= 2.0;
 	}
 	c /= 2.0;
 	
