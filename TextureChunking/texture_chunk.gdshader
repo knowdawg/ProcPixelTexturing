@@ -63,9 +63,15 @@ void fragment() {
 	
 	float disToEdge;
 	vec2 vecToEdge = getNearestEdgeAngle(UV, SCREEN_PIXEL_SIZE, UVRatio, 5, disToEdge);
-	float angleToEdge = atan(vecToEdge.y / vecToEdge.x) / (2.0 * PI);
-	angleToEdge += 1.0;
-	angleToEdge *= 0.5;
+	float angleToEdge = atan(vecToEdge.y / vecToEdge.x) / TAU;
+	angleToEdge += 0.5; //now in 0-1 range
+	
+	angleToEdge *= 0.5;//range: 0-0.5
+	if(vecToEdge.x < 0.0){
+		angleToEdge += 0.5;//range: 0.5-1
+	}
+	
+	
 	
 	//COLOR = vec4(0.0, 0.0, 0.0, 1.0);
 	COLOR.r = sampleTileTex(UV, UVRatio).r;

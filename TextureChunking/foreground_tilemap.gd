@@ -53,7 +53,7 @@ func addTileRadius(pos : Vector2, tileIndex : int, radius : int):
 	for x in range(-radius, radius + 1):
 		for y in range(-radius, radius + 1):
 			var offset = Vector2(x, y)
-			if offset.length() <= radius:
+			if offset.length() <= radius + 0.5:
 				var p = pos + offset
 				addTile(p, tileIndex)
 
@@ -84,11 +84,11 @@ func _process(_delta: float) -> void:
 	
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		var pos : Vector2 = local_to_map(get_global_mouse_position())
-		addTileRadius(pos, 0, 5)
+		addTileRadius(pos, 0, 6)
 		
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		var pos : Vector2 = local_to_map(get_global_mouse_position())
-		addTileRadius(pos, -1, 5)
+		addTileRadius(pos, -1, 6)
 
 func updateChunks() -> void:
 	for x in chunks:

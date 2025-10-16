@@ -65,12 +65,24 @@ vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D g
 }
 
 vec2 angleToVec2(float angle){
-	float angRad = angle * TAU;
+	float angRad = angle;
+	if(angle < 0.5){
+		angRad *= 2.0; //back to 0-1
+		angRad -= 0.5; //back to -0.5-0.5
+		angRad *= PI; //Final: -PI/2 to PI/2
+	}else{
+		angRad -= 0.5; //back to 0-0.5
+		angRad *= 2.0; //back to 0-1
+		angRad *= PI; //back to 0 to PI
+		angRad += PI / 2.0; //PI/2 to 3PI/2
+	}
+	
+	//angle * TAU;
 	return(vec2(cos(angRad), sin(angRad)));
 }
 
 vec3 directionToNormal(vec2 direction) {
-	vec2 inverted_direction = ((direction.xy * vec2(1.0, -1.0)) + 1.0) * 0.5;
+	vec2 inverted_direction = ((direction * vec2(1.0, -1.0)) + 1.0) * 0.5;
 	float z = sqrt(1.0 - clamp(dot(inverted_direction, inverted_direction), 0.0, 1.0));
 	
 	return normalize(vec3(inverted_direction, z));
@@ -112,7 +124,9 @@ void fragment() {
 	vec3 nVal = directionToNormal(dir);
 	NORMAL_MAP = mix(nVal, NORMAL_MAP, disToEdge);
 	
-	//COLOR.rgb = NORMAL_MAP;
+	//NORMAL_MAP = nVal;
+	//COLOR.rg = NORMAL_MAP.xy;
+	//COLOR.b = 1.0;
 }
 
 
