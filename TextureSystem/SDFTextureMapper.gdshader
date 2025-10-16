@@ -154,6 +154,7 @@ void fragment() {
 	vec3 nVal = directionToNormal(dir);
 	//nVal.z = 0.0;
 	NORMAL_MAP = mix(nVal, NORMAL_MAP, disToEdge);
+	//NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, 1.0 - length(dir));
 	//COLOR.rgb = NORMAL_MAP;
 }
 

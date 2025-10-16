@@ -33,18 +33,6 @@ var moveSpeed = 60.0
 
 func _process(_delta: float) -> void:
 	if !Engine.is_editor_hint():
-		#if Input.is_action_pressed("ui_left"):
-			#position.x -= 1.0#delta * moveSpeed
-		#if Input.is_action_pressed("ui_right"):
-			#position.x += 1.0#delta * moveSpeed
-		#if Input.is_action_pressed("ui_up"):
-			#position.y -= 1.0#delta * moveSpeed
-		#if Input.is_action_pressed("ui_down"):
-			#position.y += 1.0#delta * moveSpeed
-			#
-		#RenderingServer.global_shader_parameter_set("WORLD_POSITION", global_position)
-		#offsetVec = Vector2i(-160, -90) + Vector2i(floor(global_position))
-		#
 		var c : Camera2D = get_viewport().get_camera_2d()
 		if c:
 			var cPos : Vector2i = floor(c.global_position)
