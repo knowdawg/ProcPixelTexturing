@@ -6,11 +6,12 @@ uniform sampler2D lightRaySDF : filter_nearest;
 void fragment() {
 
 	float lightVal = texture(lightSDF, SCREEN_UV).r;
-	lightVal = 1.0 - smoothstep(0.0, 0.1, lightVal);
+	lightVal = 1.0 - smoothstep(0.0, 0.2, lightVal);
 	//lightVal = step(0.3, lightVal);
 	
 	float lightRayVal = texture(lightRaySDF, SCREEN_UV).r;
 	
+	//lightVal = max(lightVal * 0.5, pow(lightVal, 10.0));
 	lightVal = max(lightRayVal, lightVal * 0.5);
 	
 	//lightVal = mix(lightVal, lightVal * lightVal, 0.8);

@@ -4,7 +4,7 @@ uniform vec2 RESOLUTION;
 global uniform vec2 WORLD_POSITION;
 global uniform sampler2D TILE_ARRAY_TEXTURE : filter_nearest, repeat_disable;
 global uniform sampler2D SDF_LIGHT_TEXTURE : filter_nearest;
-global uniform sampler2D GLOBAL_ILLUMINATION : filter_linear;
+global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest;
 
 group_uniforms dirt;
 uniform sampler2D DIRT_TEX : filter_nearest, repeat_enable;
@@ -86,6 +86,36 @@ vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D g
 	return c;
 }
 
+vec2 getNearestEdgeAngle(sampler2D tex, vec2 uv, vec2 texel_size, int radiusSize, inout float dis) {
+	// Search in expanding rings around center
+	for (int radius = 0; radius <= radiusSize; radius++) {
+		for (int x = -radius; x <= radius; x++) {
+			for (int y = -radius; y <= radius; y++) {
+				// Only check the outer ring at each radius
+				if (abs(x) == radius || abs(y) == radius) {
+					ivec2 offset = ivec2(x, y);
+					vec2 sample_uv = uv + vec2(offset) * texel_size;
+					float sample_value = texture(tex, sample_uv).a;
+					
+					if (sample_value < 0.5) {
+						dis = length(vec2(offset)) / float(radiusSize);
+						return normalize(vec2(offset));
+					}
+				}
+			}
+		}
+	}
+	dis = 1.0;
+	return vec2(0.0);
+}
+
+vec3 directionToNormal(vec2 direction) {
+	vec2 inverted_direction = ((direction.xy * vec2(1.0, -1.0)) + 1.0) * 0.5;
+	float z = sqrt(1.0 - clamp(dot(inverted_direction, inverted_direction), 0.0, 1.0));
+	
+	return normalize(vec3(inverted_direction, z));
+}
+
 void fragment() {
 	vec2 qUV = UV;//floor(UV * RESOLUTION) / RESOLUTION;
 	
@@ -118,6 +148,13 @@ void fragment() {
 	COLOR = c;
 	//COLOR.rgb = texture(SDF_LIGHT_TEXTURE, UV).rgb / SCREEN_PIXEL_SIZE.x;
 	//COLOR.rgb = vec3(texture_sdf(screen_uv_to_sdf(SCREEN_UV)));
+	
+	float disToEdge;
+	vec2 dir = getNearestEdgeAngle(TILE_ARRAY_TEXTURE, UV, TEXTURE_PIXEL_SIZE, 5, disToEdge);
+	vec3 nVal = directionToNormal(dir);
+	//nVal.z = 0.0;
+	NORMAL_MAP = mix(nVal, NORMAL_MAP, disToEdge);
+	//COLOR.rgb = NORMAL_MAP;
 }
 
 
@@ -130,56 +167,20 @@ void light() {
 	float intensity = 1.0;
 	float distanceNeededToTravel = length(lightPosNormalized - SCREEN_UV);
 	float disTraveled = 0.0;
-	//float falloff = 0.01; //0.01
 
 	float finished = 0.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		//angleVector = LIGHT_DIRECTION.xy;
-		//for(int i = 0; i < 40; i++){
-			//vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
-			//sdfVal = texture_sdf(screen_uv_to_sdf(curPos)) * screenSize.x;
-			//float lightSdf = texture(SDF_LIGHT_TEXTURE, curPos).r;
-			//float combinedSDF = min(sdfVal, lightSdf);
-			//
-			//disTraveled += abs(combinedSDF);
-			//if(combinedSDF <= 0.0){
-				//intensity -= abs(combinedSDF) * 15.0;//If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
-			//
-			//}
-			////disTraveled += lightSdf;
-			//
-			//float moveAmount = length(screenSize * angleVector);
-			//disTraveled += moveAmount;//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
-			//if(combinedSDF <= 0.0){
-				//intensity -= moveAmount * 20.0;
-			//}
-			//
-			//
-			//if(lightSdf < 0.01){
-				////finished = 1.0;
-				//break;
-			//}
-			//if(intensity <= 0.0){
-				////finished = 0.0;
-				//break;
-			//}
-			//if(i == 39){
-				//intensity = 0.0;
-				//break;
-			//}
-		//}
-		//finished = 1.0;
-		//float lightVal = texture(SDF_LIGHT_TEXTURE, SCREEN_UV).r;
-		//lightVal = 1.0 - smoothstep(0.0, 0.1, lightVal);
-		//lightVal *= 0.5;
-		//intensity = max(intensity * 1.0, lightVal);
-		
 		angleVector = LIGHT_DIRECTION.xy;
-		finished = 1.0;
-		intensity = texture(GLOBAL_ILLUMINATION, SCREEN_UV).r;
-		intensity = intensity * intensity;
-		intensity = smoothstep(0.1, 0.9, intensity);
+		float sdfVal = texture_sdf(screen_uv_to_sdf(SCREEN_UV));
+		sdfVal *= 0.02;
+		
+		intensity = texture(GLOBAL_ILLUMINATION, SCREEN_UV).r * 2.0;
+		if(abs(sdfVal) < 0.05 && intensity > 0.6){
+			intensity += 1.0;
+		}
+		intensity += sdfVal;
+		intensity = clamp(intensity, 0.0, 1.0);
 		
 	}else{
 		for(int i = 0; i < 20; i++){
@@ -203,10 +204,10 @@ void light() {
 			intensity += moveAmount * clamp(floor(sdfVal), -1.0, 0.0);
 			
 		}
+		intensity *= finished;
+		intensity = clamp(intensity, 0.0, 1.0);
 	}
 	
-	intensity *= finished;
-	intensity = clamp(intensity, 0.0, 1.0);
 	//intensity = smoothstep(0.0, 0.8, intensity);
 	
 	float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));

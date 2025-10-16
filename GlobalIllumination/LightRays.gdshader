@@ -13,19 +13,19 @@ void fragment() {
 	float intensity = 1.0;
 	float disTraveled = 0.0;
 
-	float finished = 1.0;
+	float finished = 0.0;
 
-	for(int i = 0; i < 25; i++){
+	for(int i = 0; i < 40; i++){
 		vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
 		envirementSDFVal = texture(envirementalSDF, curPos).r;
 		lightSDFVal = texture(lightSDF, curPos).r;
 		float combinedSDF = min(envirementSDFVal, lightSDFVal);
 		
-		if(combinedSDF > 0.0){
+		if(combinedSDF > 0.007){
 			disTraveled += abs(combinedSDF);
-			//intensity -= abs(combinedSDF) * 15.0;//If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
+			//intensity -= abs(combinedSDF) * 0.1;//If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
 		}else{
-			float moveAmount = length(SCREEN_PIXEL_SIZE.x * angleVector);
+			float moveAmount = length(SCREEN_PIXEL_SIZE * angleVector);
 			disTraveled += moveAmount;//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
 			intensity -= moveAmount * 10.0;
 		}
@@ -33,14 +33,11 @@ void fragment() {
 		
 		
 		if(lightSDFVal < 0.01){
+			finished = 1.0;
 			break;
 		}
 		if(intensity <= 0.0){
 			finished = 1.0;
-			break;
-		}
-		if(i == 24){
-			intensity = 0.0;
 			break;
 		}
 	}
@@ -50,8 +47,9 @@ void fragment() {
 	//intensity = max(intensity * 1.0, lightVal);
 	
 	intensity *= finished;
+	//intensity = step(0.1, intensity);
 	intensity = clamp(intensity, 0.0, 1.0);
-	//intensity = smoothstep(0.0, 0.8, intensity);
+	//intensity = smoothstep(0.0, 1.0, intensity);
 	
 	COLOR = vec4(vec3(intensity), intensity);
 	
