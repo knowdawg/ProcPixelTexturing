@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://hr5hn6jcr2g0"
+path="res://.godot/imported/ComputerTest.glsl-f7c2917acd4e519d0c37da4de9dae1ca.res"
+
+[deps]
+
+source_file="res://TextureChunking/ComputerTest.glsl"
+dest_files=["res://.godot/imported/ComputerTest.glsl-f7c2917acd4e519d0c37da4de9dae1ca.res"]
+
+[params]
+

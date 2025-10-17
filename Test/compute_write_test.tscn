@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://b07653js5p5a2"]
+
+[ext_resource type="Script" uid="uid://cnij2hp7kyolg" path="res://Test/compute_write_test.gd" id="1_dofdp"]
+
+[node name="ComputeWriteTest" type="Sprite2D"]
+script = ExtResource("1_dofdp")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.2, 0.2)

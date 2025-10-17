@@ -2,7 +2,6 @@ shader_type canvas_item;
 
 uniform vec2 RESOLUTION;
 global uniform vec2 WORLD_POSITION;
-uniform sampler2D TILE_ARRAY_TEXTURE : filter_nearest, repeat_disable;
 global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest;
 
 group_uniforms dirt;
@@ -91,7 +90,7 @@ vec3 directionToNormal(vec2 direction) {
 void fragment() {
 	vec2 qUV = UV;//floor(UV * RESOLUTION) / RESOLUTION;
 	
-	vec4 self = texture(TILE_ARRAY_TEXTURE, qUV);
+	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
 	
 	

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dvrxg8j3h7sl"
+path="res://.godot/imported/GenerateTextureChunk.glsl-7a54127b663b170a05dfb6685a7237a4.res"
+
+[deps]
+
+source_file="res://TextureChunking/GenerateTextureChunk.glsl"
+dest_files=["res://.godot/imported/GenerateTextureChunk.glsl-7a54127b663b170a05dfb6685a7237a4.res"]
+
+[params]
+

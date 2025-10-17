@@ -1,4 +1,4 @@
-[gd_scene load_steps=48 format=4 uid="uid://c726gqd04n3yb"]
+[gd_scene load_steps=46 format=4 uid="uid://c726gqd04n3yb"]
 
 [ext_resource type="Texture2D" uid="uid://cggo1js6exgbg" path="res://TextureSystem/Material1Tile.png" id="1_1jidv"]
 [ext_resource type="Texture2D" uid="uid://qv3pqu6rkh5d" path="res://TextureSystem/Material2Tile.png" id="2_lmwuq"]
@@ -255,15 +255,6 @@ shader_parameter/WOOD_GRAD = SubResource("GradientTexture1D_xgidd")
 shader_parameter/WOOD_BORDER_COLOR = Color(0.53333336, 0.29411766, 0.16862746, 1)
 shader_parameter/falloff = 0.030000001425
 
-[sub_resource type="Gradient" id="Gradient_05vta"]
-offsets = PackedFloat32Array(1)
-colors = PackedColorArray(1, 1, 1, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_y8k62"]
-gradient = SubResource("Gradient_05vta")
-width = 512
-height = 512
-
 [sub_resource type="Gradient" id="Gradient_2b3lv"]
 interpolation_mode = 2
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
@@ -282,6 +273,7 @@ script = ExtResource("5_lmwuq")
 outlineBufferSize = 6
 
 [node name="ColorRect" type="ColorRect" parent="."]
+visible = false
 material = ExtResource("6_u65yy")
 offset_right = 512.0
 offset_bottom = 277.0
@@ -292,12 +284,15 @@ visible = false
 script = ExtResource("6_x7jdo")
 
 [node name="Camera2D" type="Camera2D" parent="Sprite2D2"]
+zoom = Vector2(0.3, 0.3)
 
 [node name="ForegroundTexture" type="Sprite2D" parent="."]
 light_mask = 2
 material = SubResource("ShaderMaterial_7ewyy")
 position = Vector2(256, 256)
-texture = SubResource("GradientTexture2D_y8k62")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-249, 5)
 
 [node name="MouseLight" type="PointLight2D" parent="."]
 visible = false

@@ -6,7 +6,7 @@ var outlineBufferSize : int #6
 var totalChunkSize : int
 
 var dirty : bool = true
-var tilemapArrayTex : ImageTexture
+var tilemapArrayTex : Image
 var tilemap : ChunkedTilemap
 var chunkCoord : Vector2
 
@@ -31,11 +31,11 @@ func makeDirty():
 
 func updateBuffer():
 	tilemapArrayTex = tilemap.getArrayTexture(chunkCoord)
-	
-	%ColorRect.material.set_shader_parameter("texSize", Vector2(totalChunkSize, totalChunkSize))
-	%ColorRect.material.set_shader_parameter("tileArrayTex", tilemapArrayTex)
-	%SubViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
-	
+	tilemap.executeTextureChunkShader(chunkCoord, tilemapArrayTex)
+	#%ColorRect.material.set_shader_parameter("texSize", Vector2(totalChunkSize, totalChunkSize))
+	#%ColorRect.material.set_shader_parameter("tileArrayTex", tilemapArrayTex)
+	#%SubViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	#$DisableUpdateTimer.start()
 	#$Sprite2D.texture = tilemapArrayTex
 
 func updateChunk():
@@ -51,7 +51,6 @@ func getBuffer() -> Image:
 func _ready() -> void:
 	%SubViewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 
-#func _process(_delta: float) -> void:
-	#if !dirty and %SubViewport.render_target_update_mode == SubViewport.UPDATE_ONCE:
-		#print("CHANGING!")
-		#%SubViewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+func _on_disable_update_timer_timeout() -> void:
+	if !dirty and %SubViewport.render_target_update_mode == SubViewport.UPDATE_ONCE:
+		%SubViewport.render_target_update_mode = SubViewport.UPDATE_DISABLED

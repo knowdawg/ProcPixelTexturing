@@ -49,3 +49,9 @@ texture_filter = 1
 texture_repeat = 1
 texture = SubResource("ViewportTexture_3udm2")
 offset = Vector2(32, 32)
+
+[node name="DisableUpdateTimer" type="Timer" parent="."]
+wait_time = 0.05
+one_shot = true
+
+[connection signal="timeout" from="DisableUpdateTimer" to="." method="_on_disable_update_timer_timeout"]
