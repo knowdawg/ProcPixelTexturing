@@ -13,9 +13,9 @@ layout(set = 0, binding = 0, std430) readonly buffer ChunkData {
 }
 chunkData;
 
-layout(set = 0, binding = 1, rgba32f) uniform image2D TileImage;
+layout(set = 0, binding = 1, rgba32f) uniform readonly image2D TileImage;
 
-layout(set = 0, binding = 2, rgba32f) uniform image2D OutputBuffer;
+layout(set = 0, binding = 2, rgba32f) uniform writeonly image2D OutputBuffer;
 
 
 int getPixelType(ivec2 uv, float tileTexVal){
@@ -70,30 +70,25 @@ void main() {
     ivec2 outputSize = imageSize(OutputBuffer);
 
     ivec2 UV = ivec2(gl_GlobalInvocationID.xy);
-    // ivec2 TILE_IMAGE_UV = UV - ivec2(chunkData.outlineBufferSize);
-	// float tileTexVal = imageLoad(TileImage, TILE_IMAGE_UV).r;
+    ivec2 TILE_IMAGE_UV = UV + ivec2(chunkData.outlineBufferSize);
+	float tileTexVal = imageLoad(TileImage, TILE_IMAGE_UV).r;
 	
-	// int pixelType = getPixelType(TILE_IMAGE_UV, tileTexVal);
+	int pixelType = getPixelType(TILE_IMAGE_UV, tileTexVal);
 	
-	// float disToEdge;
-	// vec2 vecToEdge = getNearestEdgeAngle(TILE_IMAGE_UV, 5, disToEdge);
-	// float angleToEdge = atan(vecToEdge.y / vecToEdge.x) / TAU;
-	// angleToEdge += 0.5; //now in 0-1 range
-	// angleToEdge *= 0.5;//range: 0-0.5
-	// if(vecToEdge.x < 0.0){
-	// 	angleToEdge += 0.5;//range: 0.5-1
-	// }
+	float disToEdge;
+	vec2 vecToEdge = getNearestEdgeAngle(TILE_IMAGE_UV, 5, disToEdge);
+	float angleToEdge = atan(vecToEdge.y / vecToEdge.x) / TAU;
+	angleToEdge += 0.5; //now in 0-1 range
+	angleToEdge *= 0.5;//range: 0-0.5
+	if(vecToEdge.x < 0.0){
+		angleToEdge += 0.5;//range: 0.5-1
+	}
 	
-	// vec4 COLOR = vec4(0.0);
-	// COLOR.r = tileTexVal;
-	// COLOR.g = float(pixelType) / 3.0;
-	// COLOR.b = angleToEdge;
-	// COLOR.a = (disToEdge * 0.5) + 0.5;
-
-    vec4 COLOR = vec4(1.0, 1.0, 1.0, 1.0);
-    if(chunkData.chunkCoordX == 8 && chunkData.chunkCoordY == 4){
-        COLOR = vec4(0.0, 1.0, 1.0, 1.0);
-    }
+	vec4 COLOR = vec4(0.0);
+	COLOR.r = tileTexVal;
+	COLOR.g = float(pixelType) / 3.0;
+	COLOR.b = angleToEdge;
+	COLOR.a = (disToEdge * 0.5) + 0.5;
 
     ivec2 chunkOffsetUV = ivec2(chunkData.chunkCoordX, chunkData.chunkCoordY) * chunkData.chunkSize;
     chunkOffsetUV += UV;

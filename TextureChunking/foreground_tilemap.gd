@@ -9,6 +9,9 @@ class_name ChunkedTilemap
 @export_group("Tilemap Details")
 @export var numOfTileIndexes : int = 10
 
+@export_group("External Nodes")
+@export var forgroundTexture : Sprite2D
+
 var chunks : Array = []
 var dirtyChunks : Array[TextureChunk] = []
 var chunk = preload("res://TextureChunking/texture_chunk.tscn")
@@ -23,10 +26,12 @@ func isChunkInBounds(chunkCoord):
 
 func addTile(pos : Vector2, tileIndex : int):
 	dirty = true
-	set_cell(pos, tileIndex, Vector2i(0, 0), 0)
+	var tilePos : Vector2 = local_to_map(pos)
+	set_cell(tilePos, tileIndex, Vector2i(0, 0), 0)
+	
 	
 	#Dirty the chunk with the tile
-	var chunkPos : Vector2i = pos / float(chunkSize)
+	var chunkPos : Vector2 = tilePos / float(chunkSize)
 	var chunkCoord : Vector2i = floor(chunkPos)
 	if isChunkInBounds(chunkCoord):
 		chunks[chunkCoord.x][chunkCoord.y].makeDirty()
@@ -37,18 +42,28 @@ func addTile(pos : Vector2, tileIndex : int):
 	#Dirty adjacent chunks if you are close enough to the border
 	var chunkToOutlineRatio = float(outlineBufferSize) / float(chunkSize)
 	var fract : Vector2 = chunkPos - floor(chunkPos)
-	if fract.x < chunkToOutlineRatio:
-		if isChunkInBounds(chunkCoord + Vector2i(-1, 0)):
-			chunks[chunkCoord.x - 1][chunkCoord.y].makeDirty()
-	if fract.x + chunkToOutlineRatio >= 1.0:
-		if isChunkInBounds(chunkCoord + Vector2i(1, 0)):
-			chunks[chunkCoord.x + 1][chunkCoord.y].makeDirty()
-	if fract.y < chunkToOutlineRatio:
-		if isChunkInBounds(chunkCoord + Vector2i(0, -1)):
-			chunks[chunkCoord.x][chunkCoord.y - 1].makeDirty()
-	if fract.y + chunkToOutlineRatio >= 1.0:
-		if isChunkInBounds(chunkCoord + Vector2i(0, 1)):
-			chunks[chunkCoord.x][chunkCoord.y + 1].makeDirty()
+	
+	var updateLeft : bool = (fract.x < chunkToOutlineRatio) and isChunkInBounds(chunkCoord + Vector2i(-1, 0))
+	var updateRight : bool = (fract.x + chunkToOutlineRatio >= 1.0) and isChunkInBounds(chunkCoord + Vector2i(1, 0))
+	var updateUp : bool = (fract.y < chunkToOutlineRatio) and isChunkInBounds(chunkCoord + Vector2i(0, -1))
+	var updateDown : bool = (fract.y + chunkToOutlineRatio >= 1.0) and isChunkInBounds(chunkCoord + Vector2i(0, 1))
+	
+	if updateLeft:
+		chunks[chunkCoord.x - 1][chunkCoord.y].makeDirty() #Always Happening
+	if updateRight:
+		chunks[chunkCoord.x + 1][chunkCoord.y].makeDirty()
+	if updateUp:
+		chunks[chunkCoord.x][chunkCoord.y - 1].makeDirty() #Always happening
+	if updateDown:
+		chunks[chunkCoord.x][chunkCoord.y + 1].makeDirty()
+	if updateLeft and updateUp:
+		chunks[chunkCoord.x - 1][chunkCoord.y - 1].makeDirty()
+	if updateLeft and updateDown:
+		chunks[chunkCoord.x - 1][chunkCoord.y + 1].makeDirty()
+	if updateRight and updateUp:
+		chunks[chunkCoord.x + 1][chunkCoord.y - 1].makeDirty()
+	if updateRight and updateDown:
+		chunks[chunkCoord.x + 1][chunkCoord.y + 1].makeDirty()
 
 func addTileRadius(pos : Vector2, tileIndex : int, radius : int):
 	for x in range(-radius, radius + 1):
@@ -88,8 +103,7 @@ func _process(_delta: float) -> void:
 		dirty = false
 	
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		var pos : Vector2 = local_to_map(get_global_mouse_position())
-		addTileRadius(pos, 0, 6)
+		addTileRadius(get_global_mouse_position(), 0, 6)
 		
 	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		var pos : Vector2 = local_to_map(get_global_mouse_position())
@@ -99,15 +113,6 @@ func updateChunks() -> void:
 	for x in chunks:
 		for c : TextureChunk in x:
 			c.updateChunk()
-
-func updateCombinedTexture():
-	for c in dirtyChunks:
-		var i : Image = c.getBuffer()
-		combinedImage.blit_rect(i, Rect2i(0, 0, chunkSize, chunkSize), chunkSize * c.chunkCoord)
-	dirtyChunks.clear()
-	
-	var tex : ImageTexture = ImageTexture.create_from_image(combinedImage)
-	$ForegroundTexture.material.set_shader_parameter("TILE_ARRAY_TEXTURE", tex)
 
 func getArrayTexture(coord : Vector2i) -> Image:
 	var offset = (coord * chunkSize) - Vector2i(outlineBufferSize, outlineBufferSize)
@@ -159,15 +164,15 @@ func setupRenderingDevice():
 	
 	var tex2DRD : Texture2DRD = Texture2DRD.new()
 	tex2DRD.set_texture_rd_rid(enviermentalDataTextureRID)
-	$ForegroundTexture.texture = tex2DRD
+	forgroundTexture.texture = tex2DRD
 	$Sprite2D.texture = tex2DRD
 	
 	
 
 func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
+	#print(chunkCoord)
 	#Chunk Data Setup
-	print(chunkCoord)
-	var chunkData := PackedFloat32Array([chunkCoord.x, chunkCoord.y, chunkSize, outlineBufferSize]).to_byte_array()
+	var chunkData := PackedInt32Array([chunkCoord.x, chunkCoord.y, chunkSize, outlineBufferSize]).to_byte_array()
 	var chunkDataRID : RID = rd.storage_buffer_create(chunkData.size(), chunkData)
 	var chunkDataUniform := RDUniform.new()
 	chunkDataUniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
@@ -199,19 +204,6 @@ func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	rd.free_rid(chunkDataRID)
 	rd.free_rid(tileImageRID)
 	
-	print(chunkCoord)
-	
-	#var imageData := rd.texture_get_data(enviermentalDataTextureRID, 0)
-	#var outputImage := Image.create_from_data(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF, imageData)
-	#$Sprite2D.texture = ImageTexture.create_from_image(outputImage)
-	#
-	#rd.texture_get_data_async(enviermentalDataTextureRID, 0, getDataAsycn)
-
-#func getDataAsycn(data):
-	#var outputImage := Image.create_from_data(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF, data)
-	#if !outputImage:
-		#print("uh oh")
-	#$Sprite2D.texture = ImageTexture.create_from_image(outputImage)
 
 func getRIDImage(image : Image) -> RID: #Read only
 	var imageSize := image.get_size()

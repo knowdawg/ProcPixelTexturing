@@ -8,19 +8,17 @@ var totalChunkSize : int
 var dirty : bool = true
 var tilemapArrayTex : Image
 var tilemap : ChunkedTilemap
-var chunkCoord : Vector2
+var chunkCoord : Vector2i
 
-var imageBuffer : Image
+var visualizeChunk : bool = true
 
-func setup(chunk_size : int, outline_buffer_size : int, t_map : ChunkedTilemap, chunk_coord : Vector2):
+func setup(chunk_size : int, outline_buffer_size : int, t_map : ChunkedTilemap, chunk_coord : Vector2i):
 	chunkSize = chunk_size
 	outlineBufferSize = outline_buffer_size
 	tilemap = t_map
 	chunkCoord = chunk_coord
 	
 	totalChunkSize = chunkSize + (outlineBufferSize * 2)
-	imageBuffer = Image.create_empty(chunkSize, chunkSize, false, Image.FORMAT_BPTC_RGBA)
-	%SubViewport.size = Vector2i(chunkSize, chunkSize)
 	
 	global_position = chunkSize * chunkCoord
 
@@ -32,25 +30,16 @@ func makeDirty():
 func updateBuffer():
 	tilemapArrayTex = tilemap.getArrayTexture(chunkCoord)
 	tilemap.executeTextureChunkShader(chunkCoord, tilemapArrayTex)
-	#%ColorRect.material.set_shader_parameter("texSize", Vector2(totalChunkSize, totalChunkSize))
-	#%ColorRect.material.set_shader_parameter("tileArrayTex", tilemapArrayTex)
-	#%SubViewport.render_target_update_mode = SubViewport.UPDATE_ONCE
-	#$DisableUpdateTimer.start()
-	#$Sprite2D.texture = tilemapArrayTex
 
 func updateChunk():
 	if dirty:
 		updateBuffer()
 		dirty = false
-		#imageBuffer = %SubViewport.get_texture().get_image()
+	
 
-func getBuffer() -> Image:
-	imageBuffer = %SubViewport.get_texture().get_image()
-	return imageBuffer
-
-func _ready() -> void:
-	%SubViewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
-
-func _on_disable_update_timer_timeout() -> void:
-	if !dirty and %SubViewport.render_target_update_mode == SubViewport.UPDATE_ONCE:
-		%SubViewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+func _draw() -> void:
+	if visualizeChunk:
+		var c : Color = Color.LIME_GREEN
+		if (chunkCoord.x + chunkCoord.y) % 2 == 0:
+			c = Color.DARK_GREEN
+		draw_rect(Rect2(Vector2(1.0, 1.0), Vector2(chunkSize - 1, chunkSize - 1)), c, false, 1.0, false)

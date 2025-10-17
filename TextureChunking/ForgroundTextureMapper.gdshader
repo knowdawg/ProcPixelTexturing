@@ -119,13 +119,19 @@ void fragment() {
 	COLOR = c;
 	
 	float disToEdge = (self.a - 0.5) * 2.0;
+	//disToEdge = clamp(disToEdge, 0.0, 1.0);
 	vec2 dir = angleToVec2(self.b);
 	vec3 nVal = directionToNormal(dir);
+	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
 	NORMAL_MAP = mix(nVal, NORMAL_MAP, disToEdge);
+	
+	//(nVal * (1.0 - disToEdge)) + (NORMAL_MAP * disToEdge);
 	
 	//NORMAL_MAP = nVal;
 	//COLOR.rg = NORMAL_MAP.xy;
 	//COLOR.b = 1.0;
+	
+	//COLOR.rgb = vec3(disToEdge);
 }
 
 
