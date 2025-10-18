@@ -15,6 +15,10 @@ run/main_scene="uid://yvsw2gjesxni"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+TerrainRendering="*res://Globals/TerrainRendering.gd"
+
 [debug]
 
 settings/profiler/max_timestamp_query_elements=512
@@ -103,4 +107,8 @@ GLOBAL_ILLUMINATION={
 TILE_TEXTURE_SCROLL={
 "type": "vec2",
 "value": Vector2(0, 0)
+}
+FOREGROUND_SDF={
+"type": "sampler2D",
+"value": ""
 }

@@ -24,8 +24,6 @@ func setup(chunk_size : int, outline_buffer_size : int, t_map : ChunkedTilemap, 
 
 func makeDirty():
 	dirty = true
-	if !tilemap.dirtyChunks.has(self):
-		tilemap.dirtyChunks.append(self)
 
 func updateBuffer():
 	tilemapArrayTex = tilemap.getArrayTexture(chunkCoord)
