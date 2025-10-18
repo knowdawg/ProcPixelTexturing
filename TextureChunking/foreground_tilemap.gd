@@ -5,19 +5,22 @@ class_name ChunkedTilemap
 @export var chunkSize : int = 64
 @export var outlineBufferSize : int = 12 #Buffer size on each side
 @export var renderSectionSize : int = 512
+@export var mapSize : Vector2i = Vector2i(512, 512)
 
 @export_group("Tilemap Details")
 @export var numOfTileIndexes : int = 10
 
 @export_group("External Nodes")
 @export var forgroundTexture : Sprite2D
+@export var miniMap : Sprite2D
 
 var chunks : Array = []
+var activeChunks : Array[TextureChunk] = []
 var dirtyChunks : Array[TextureChunk] = []
 var chunk = preload("res://TextureChunking/texture_chunk.tscn")
 
 var dirty : bool = false
-var combinedImage : Image
+var mapImage : Image
 
 func isChunkInBounds(chunkCoord):
 	if chunkCoord.x >= 0 and chunkCoord.x < chunks.size() and chunkCoord.y >= 0 and chunkCoord.y < chunks[0].size():
@@ -26,12 +29,17 @@ func isChunkInBounds(chunkCoord):
 
 func addTile(pos : Vector2, tileIndex : int):
 	dirty = true
-	var tilePos : Vector2 = local_to_map(pos)
+	var tilePos : Vector2i = local_to_map(pos)
 	set_cell(tilePos, tileIndex, Vector2i(0, 0), 0)
 	
+	var pixelPos := tilePos
+	var index = get_cell_source_id(tilePos)
+	setPixel(pixelPos, index)
+	
+	#$Sprite2D2.texture = ImageTexture.create_from_image(tileMapImage)
 	
 	#Dirty the chunk with the tile
-	var chunkPos : Vector2 = tilePos / float(chunkSize)
+	var chunkPos : Vector2 = (Vector2(tilePos)) / float(chunkSize)
 	var chunkCoord : Vector2i = floor(chunkPos)
 	if isChunkInBounds(chunkCoord):
 		chunks[chunkCoord.x][chunkCoord.y].makeDirty()
@@ -76,11 +84,21 @@ func addTileRadius(pos : Vector2, tileIndex : int, radius : int):
 func _ready() -> void:
 	setupRenderingDevice()
 	
-	combinedImage = Image.create_empty(512, 512, false, Image.FORMAT_BPTC_RGBA)
-	combinedImage.decompress()
+	var tilemapSize : Vector2i = get_used_rect().size
+	mapImage = Image.create_empty(mapSize.x, mapSize.y, false, Image.FORMAT_RGBAF)
+	mapImage.fill(Color.BLACK)
+	mapImage.decompress()
 	
-	var numOfChunks : Vector2 = ceil(Vector2(get_used_rect().size) / float(chunkSize))
+	for x in tilemapSize.x:
+		for y in tilemapSize.y:
+			var tileMapPos : Vector2i = Vector2i(x, y)
+			var index = get_cell_source_id(tileMapPos)
+			if index == -1:
+				mapImage.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
+			else:
+				mapImage.set_pixelv(Vector2i(x, y), Color((index + 1.0) * (1.0 / float(numOfTileIndexes)), 0.0, 0.0, 1.0))
 	
+	var numOfChunks : Vector2 = ceil(mapSize / float(chunkSize))
 	for x in numOfChunks.x:
 		chunks.append([])
 		for y in numOfChunks.y:
@@ -91,9 +109,7 @@ func _ready() -> void:
 			c.setup(chunkSize, outlineBufferSize, self, Vector2(x,y))
 
 func _process(_delta: float) -> void:
-	for x in chunks:
-		for c : TextureChunk in x:
-			c.updateChunk()
+	updateChunks()
 	
 	#Wait for all required chunks to update
 	#await get_tree().process_frame
@@ -110,9 +126,39 @@ func _process(_delta: float) -> void:
 		addTileRadius(pos, -1, 6)
 
 func updateChunks() -> void:
-	for x in chunks:
-		for c : TextureChunk in x:
-			c.updateChunk()
+	if !is_instance_valid(get_viewport().get_camera_2d()):
+		return
+	var cameraPos := get_viewport().get_camera_2d().global_position
+	var prevActiveChunks : Array[TextureChunk] = activeChunks.duplicate()
+	activeChunks.clear()
+	
+	var centerChunk := worldToChunk(cameraPos)
+	var chunkDementions : int = int(float(renderSectionSize) / float(chunkSize))
+	var topLeftChunkOffset : int = int(float(chunkDementions) / 2.0)
+	var worldChunkSize : Vector2i = Vector2(mapSize) / float(chunkSize)
+	for x in range(chunkDementions):
+		for y in range(chunkDementions):
+			var cCoord : Vector2i = centerChunk + Vector2i(x - topLeftChunkOffset, y - topLeftChunkOffset)
+			#Check out of bounds (for now might change later)
+			if cCoord.x >= 0 and cCoord.y >= 0:
+				if cCoord.x < worldChunkSize.x and cCoord.y < worldChunkSize.y:
+					activeChunks.append(chunks[cCoord.x][cCoord.y])
+	
+	for c : TextureChunk in activeChunks:
+		if !prevActiveChunks.has(c):
+			c.makeDirty()
+	
+	for c : TextureChunk in activeChunks:
+		c.updateChunk()
+	
+	var scroll : Vector2 = Vector2.ZERO
+	scroll = Vector2(centerChunk * chunkSize) / float(renderSectionSize)
+	RenderingServer.global_shader_parameter_set("TILE_TEXTURE_SCROLL", scroll)
+	forgroundTexture.global_position = (scroll * float(renderSectionSize))# + (Vector2(float(renderSectionSize), float(renderSectionSize)) / 2.0)
+
+func worldToChunk(pos : Vector2) -> Vector2i:
+	var chunkCoord := Vector2i(pos) / chunkSize
+	return chunkCoord
 
 func getArrayTexture(coord : Vector2i) -> Image:
 	var offset = (coord * chunkSize) - Vector2i(outlineBufferSize, outlineBufferSize)
@@ -120,19 +166,19 @@ func getArrayTexture(coord : Vector2i) -> Image:
 	var tileArrayTex = Image.create_empty(chunkTotalSize, chunkTotalSize, false, Image.FORMAT_RGBAF)
 	tileArrayTex.decompress()
 	
-	var index;
-	for x in range(chunkTotalSize):
-		for y in range(chunkTotalSize):
-			index = get_cell_source_id(Vector2i(x, y) + offset)
-			
-			if index == -1:
-				tileArrayTex.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
-			else:
-				tileArrayTex.set_pixelv(Vector2i(x, y), Color((index + 1.0) * (1.0 / float(numOfTileIndexes)), 0.0, 0.0, 1.0))
-	return tileArrayTex
+	tileArrayTex.blit_rect(mapImage, Rect2i(offset, Vector2i(chunkTotalSize, chunkTotalSize)), Vector2i.ZERO)
+	
+	#var index;
+	#for x in range(chunkTotalSize):
+		#for y in range(chunkTotalSize):
+			#index = get_cell_source_id(Vector2i(x, y) + offset)
+			#
+			#if index == -1:
+				#tileArrayTex.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
+			#else:
+				#tileArrayTex.set_pixelv(Vector2i(x, y), Color((index + 1.0) * (1.0 / float(numOfTileIndexes)), 0.0, 0.0, 1.0))
 	#
-	#var im : ImageTexture = ImageTexture.create_from_image(tileArrayTex)
-	#return im
+	return tileArrayTex
 
 #RenderingDevice Vars DONT FORGET TO FREE RIDs
 var rd : RenderingDevice
@@ -165,8 +211,7 @@ func setupRenderingDevice():
 	var tex2DRD : Texture2DRD = Texture2DRD.new()
 	tex2DRD.set_texture_rd_rid(enviermentalDataTextureRID)
 	forgroundTexture.texture = tex2DRD
-	$Sprite2D.texture = tex2DRD
-	
+	miniMap.texture = tex2DRD
 	
 
 func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
@@ -220,38 +265,14 @@ func getRIDImage(image : Image) -> RID: #Read only
 	var rid := rd.texture_create(textureFormat, textureView, [image.get_data()])
 	return rid
 
-
-
-func exampleCompute():
-	rd = RenderingServer.get_rendering_device()
+func setPixel(coord : Vector2i, index : int):
+	if coord.x < 0 or coord.x > mapImage.get_size().x - 1:
+		return
+	if coord.y < 0 or coord.y > mapImage.get_size().y - 1:
+		return
 	
-	var shaderFile := preload("res://TextureChunking/ComputerTest.glsl")
-	var shader := rd.shader_create_from_spirv(shaderFile.get_spirv())
-	var pl := rd.compute_pipeline_create(shader)
-	
-	var inputData := PackedFloat32Array([0.1, 0.5, 1.0, 1.5, 2.0]).to_byte_array()
-	var storageBuffer := rd.storage_buffer_create(inputData.size(), inputData)
-	
-	
-	
-	var uniform := RDUniform.new()
-	uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform.binding = 0 # this needs to match the "binding" in our shader file
-	uniform.add_id(storageBuffer)
-	
-	var uniformSet := rd.uniform_set_create([uniform], shader, 0)
-	var computeList = rd.compute_list_begin()
-	
-	rd.compute_list_bind_compute_pipeline(computeList, pl)
-	rd.compute_list_bind_uniform_set(computeList, uniformSet, 0)
-	rd.compute_list_dispatch(computeList, 5, 1, 1) #Work Groups
-	rd.compute_list_end()
-	
-	#rd.submit()
-	#rd.sync() #Wait for the shader to finish
-	
-	var outputBytes := rd.buffer_get_data(storageBuffer)
-	var output := outputBytes.to_float32_array()
-	print("Input: ", inputData.to_float32_array())
-	print("Output: ", output)
+	if index == -1:
+		mapImage.set_pixel(coord.x, coord.y, Color(0.0, 0.0, 0.0, 0.0))
+	else:
+		mapImage.set_pixelv(Vector2i(coord.x, coord.y), Color((index + 1.0) * (1.0 / float(numOfTileIndexes)), 0.0, 0.0, 1.0))
 	

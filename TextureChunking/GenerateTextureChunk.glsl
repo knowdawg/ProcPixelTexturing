@@ -93,7 +93,9 @@ void main() {
     ivec2 chunkOffsetUV = ivec2(chunkData.chunkCoordX, chunkData.chunkCoordY) * chunkData.chunkSize;
     chunkOffsetUV += UV;
 
-    if(chunkOffsetUV.x < outputSize.x && chunkOffsetUV.y < outputSize.y){
-        imageStore(OutputBuffer, chunkOffsetUV, COLOR);
-    }
+    chunkOffsetUV = chunkOffsetUV % outputSize;
+    imageStore(OutputBuffer, chunkOffsetUV, COLOR);
+    // if(chunkOffsetUV.x < outputSize.x && chunkOffsetUV.y < outputSize.y){
+    //     imageStore(OutputBuffer, chunkOffsetUV, COLOR);
+    // }
 }

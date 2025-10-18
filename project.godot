@@ -100,3 +100,7 @@ GLOBAL_ILLUMINATION={
 "type": "sampler2D",
 "value": ""
 }
+TILE_TEXTURE_SCROLL={
+"type": "vec2",
+"value": Vector2(0, 0)
+}

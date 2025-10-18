@@ -3,6 +3,7 @@ shader_type canvas_item;
 uniform vec2 RESOLUTION;
 global uniform vec2 WORLD_POSITION;
 global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest;
+global uniform vec2 TILE_TEXTURE_SCROLL;
 
 group_uniforms dirt;
 uniform sampler2D DIRT_TEX : filter_nearest, repeat_enable;
@@ -88,7 +89,8 @@ vec3 directionToNormal(vec2 direction) {
 }
 
 void fragment() {
-	vec2 qUV = UV;//floor(UV * RESOLUTION) / RESOLUTION;
+	vec2 qUV = UV + TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);//floor(UV * RESOLUTION) / RESOLUTION;
+	qUV = fract(qUV);
 	
 	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...

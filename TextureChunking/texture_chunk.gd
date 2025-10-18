@@ -20,7 +20,7 @@ func setup(chunk_size : int, outline_buffer_size : int, t_map : ChunkedTilemap, 
 	
 	totalChunkSize = chunkSize + (outlineBufferSize * 2)
 	
-	global_position = chunkSize * chunkCoord
+	global_position = (chunkSize * chunkCoord)
 
 func makeDirty():
 	dirty = true
