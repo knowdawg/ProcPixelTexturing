@@ -82,8 +82,8 @@ void main(){
 			break;
 		}
         if(foregroundSdfVal < threshold){
-            //intensity -= (moveAmount / imSize) * 80.0;
-            break;
+            intensity -= (moveAmount / imSize) * 40.0;
+            //break;
         }
 		if(intensity <= 0.0){
 			break;

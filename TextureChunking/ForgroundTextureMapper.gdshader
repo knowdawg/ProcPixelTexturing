@@ -161,7 +161,6 @@ void light() {
 	float finished = 0.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		//angleVector = LIGHT_DIRECTION.xy;
 		//float sdfVal = texture_sdf(screen_uv_to_sdf(SCREEN_UV));
 		//sdfVal *= 0.02;
 		//
@@ -177,8 +176,19 @@ void light() {
 		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		lightMapTexturePos = fract(lightMapTexturePos);
 		
-		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos);
-		intensity = lightVal.r;
+		float lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos).r;
+		lightVal *= 2.0;
+		
+		vec2 sdfTexturePos = (SCREEN_UV / screenSize) + WORLD_POSITION;
+		sdfTexturePos /= SDFTextureSize;
+		sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		sdfTexturePos = fract(sdfTexturePos);
+		vec2 sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).rg;
+		sdfVal.r *= ((sdfVal.g - 0.5) * -2.0);
+		
+		lightVal += min(sdfVal.r * 20.0, 0.0);
+		
+		intensity = lightVal;
 		finished = 1.0;
 		
 	}else{
@@ -194,7 +204,7 @@ void light() {
 				break;
 			}
 			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
-			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION; //Get rid of world pos?
+			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
 			sdfTexturePos /= SDFTextureSize;
 			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 			sdfTexturePos = fract(sdfTexturePos);
