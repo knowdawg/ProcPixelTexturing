@@ -2,6 +2,7 @@ extends Node
 
 #Imaportant RID
 var envirementalDataTextureRID : RID
+var backgroundDataTextureRID : RID
 var foregroundSDF : RID
 
 #World Details
@@ -9,6 +10,7 @@ var chunkSize : int = 64
 var outlineBufferSize : int = 12 #Buffer size on each side
 var renderSectionSize : int = 512
 var mapSize : Vector2i = Vector2i(2048, 2048)
+var uniqueTiles : int = 10
 
 
 func _process(_delta: float) -> void:

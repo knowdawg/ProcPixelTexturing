@@ -2,10 +2,14 @@ shader_type canvas_item;
 
 varying vec2 screenSize;
 global uniform sampler2D GLOBAL_ILLUMINATION : filter_linear;
-
+global uniform sampler2D FOREGROUND_SDF : filter_nearest;
+global uniform vec2 WORLD_POSITION;
+uniform vec2 SDFTextureSize = vec2(512.0, 512.0);
 
 void fragment(){
 	screenSize = SCREEN_PIXEL_SIZE;
+	
+	//COLOR = texture(FOREGROUND_SDF, UV);
 }
 
 //Called for each light for each pixel
@@ -36,12 +40,14 @@ void light() {
 			}
 			
 			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
-			sdfVal = texture_sdf(screen_uv_to_sdf(curPos));
-			disTraveled += screenSize.x * abs(sdfVal);
+			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
+			sdfTexturePos /= SDFTextureSize;
+			sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).r;
+			disTraveled += abs(sdfVal);
 			
-			closestSdfVal = min(sdfVal, closestSdfVal);
+			closestSdfVal = min(sdfVal * 200.0, closestSdfVal);
 			
-			if(sdfVal <= 0.0){
+			if(sdfVal <= 0.00196){ //1/512 roudned slightly up
 				finished = 0.0;
 				break;
 			}

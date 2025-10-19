@@ -1,14 +1,8 @@
 extends TileMapLayer
 class_name ChunkedTilemap
 
-#@export_group("Chunk Details")
-#@export var chunkSize : int = 64
-#@export var outlineBufferSize : int = 12 #Buffer size on each side
-#@export var renderSectionSize : int = 512
-#@export var mapSize : Vector2i = Vector2i(512, 512)
-
-@export_group("Tilemap Details")
-@export var numOfTileIndexes : int = 10
+enum tilemapType {FOREGROUND, BACKGROUND}
+@export var type : tilemapType = tilemapType.FOREGROUND
 
 @export_group("External Nodes")
 @export var forgroundTexture : Sprite2D
@@ -94,7 +88,12 @@ func _ready() -> void:
 			if index == -1:
 				mapImage.set_pixel(tileMapPos.x, tileMapPos.y, Color(0.0, 0.0, 0.0, 0.0))
 			else:
-				mapImage.set_pixelv(Vector2i(tileMapPos.x, tileMapPos.y), Color((index + 1.0) * (1.0 / float(numOfTileIndexes)), 0.0, 0.0, 1.0))
+				mapImage.set_pixelv(Vector2i(tileMapPos.x, tileMapPos.y), Color((index + 1.0) * (1.0 / float(TerrainRendering.uniqueTiles)), 0.0, 0.0, 1.0))
+	
+	for x in tilemapSize.x: #Clear the tilemap
+		for y in tilemapSize.y:
+			var tileMapPos : Vector2i = Vector2i(x, y) + tilemapPos
+			set_cell(tileMapPos, -1, Vector2i(0, 0), 0)
 	
 	var numOfChunks : Vector2 = ceil(TerrainRendering.mapSize / float(TerrainRendering.chunkSize))
 	for x in numOfChunks.x:
@@ -165,16 +164,6 @@ func getArrayTexture(coord : Vector2i) -> Image:
 	
 	tileArrayTex.blit_rect(mapImage, Rect2i(offset, Vector2i(chunkTotalSize, chunkTotalSize)), Vector2i.ZERO)
 	
-	#var index;
-	#for x in range(chunkTotalSize):
-		#for y in range(chunkTotalSize):
-			#index = get_cell_source_id(Vector2i(x, y) + offset)
-			#
-			#if index == -1:
-				#tileArrayTex.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
-			#else:
-				#tileArrayTex.set_pixelv(Vector2i(x, y), Color((index + 1.0) * (1.0 / float(numOfTileIndexes)), 0.0, 0.0, 1.0))
-	#
 	return tileArrayTex
 
 #RenderingDevice Vars DONT FORGET TO FREE RIDs
@@ -193,13 +182,16 @@ func setupRenderingDevice():
 	var image = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
 	image.fill(Color.BLACK)
 	enviermentalDataTextureRID = TerrainRendering.getRIDImage(image, rd)
-	TerrainRendering.envirementalDataTextureRID = enviermentalDataTextureRID
+	
+	if type == tilemapType.FOREGROUND:
+		TerrainRendering.envirementalDataTextureRID = enviermentalDataTextureRID
+	elif type == tilemapType.BACKGROUND:
+		TerrainRendering.backgroundDataTextureRID = enviermentalDataTextureRID
 	
 	var tex2DRD : Texture2DRD = Texture2DRD.new()
 	tex2DRD.set_texture_rd_rid(enviermentalDataTextureRID)
 	forgroundTexture.texture = tex2DRD
 	miniMap.texture = tex2DRD
-	
 
 func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	#Chunk Data Setup
@@ -231,5 +223,5 @@ func setPixel(coord : Vector2i, index : int):
 	if index == -1:
 		mapImage.set_pixel(coord.x, coord.y, Color(0.0, 0.0, 0.0, 0.0))
 	else:
-		mapImage.set_pixelv(Vector2i(coord.x, coord.y), Color((index + 1.0) * (1.0 / float(numOfTileIndexes)), 0.0, 0.0, 1.0))
+		mapImage.set_pixelv(Vector2i(coord.x, coord.y), Color((index + 1.0) * (1.0 / float(TerrainRendering.uniqueTiles)), 0.0, 0.0, 1.0))
 	

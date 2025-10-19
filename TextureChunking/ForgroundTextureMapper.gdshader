@@ -3,8 +3,8 @@ shader_type canvas_item;
 uniform vec2 RESOLUTION;
 global uniform vec2 WORLD_POSITION;
 global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest;
-global uniform vec2 TILE_TEXTURE_SCROLL;
 global uniform sampler2D FOREGROUND_SDF : filter_nearest;
+global uniform vec2 TILE_TEXTURE_SCROLL;
 
 group_uniforms dirt;
 uniform sampler2D DIRT_TEX : filter_nearest, repeat_enable;
@@ -31,15 +31,15 @@ uniform sampler2D WOOD_GRAD;
 uniform vec4 WOOD_BORDER_COLOR : source_color;
 
 group_uniforms lighting;
-global uniform float WORLD_BRIGHTNESS;
 uniform float falloff : hint_range(0.0, 100.0);
+uniform vec2 SDFTextureSize = vec2(512.0, 512.0);
 
 varying vec2 screenSize;
 varying vec4 screen;
 
 vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D grad, vec4 border, inout vec3 normal){
 	vec4 c = vec4(1.0);
-	vec2 offsetUV = uv + vec2(floor(WORLD_POSITION) / RESOLUTION);
+	vec2 offsetUV = uv;// + vec2(floor(WORLD_POSITION) / RESOLUTION);
 	switch(type){
 		case 0:
 			c.a = 0.0;
@@ -117,7 +117,6 @@ void fragment() {
 	
 	screenSize = SCREEN_PIXEL_SIZE;
 	screen = c;
-	c.rgb *= WORLD_BRIGHTNESS;
 	
 	COLOR = c;
 	
@@ -178,8 +177,10 @@ void light() {
 			if(intensity <= 0.0){
 				break;
 			}
-			vec2 curPos = UV + (angleVector * disTraveled) + TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
-			vec2 sdfData = texture(FOREGROUND_SDF, curPos).rg;
+			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);//UV + (angleVector * disTraveled) + TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
+			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
+			sdfTexturePos /= SDFTextureSize;
+			vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
 			sdfVal = sdfData.r;
 			if(sdfData.g > 0.5){
 				sdfVal *= -1.0;
@@ -187,7 +188,7 @@ void light() {
 			intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
 			disTraveled += abs(sdfVal);
 			
-			float moveAmount = length(TEXTURE_PIXEL_SIZE * angleVector) * 1.0;
+			float moveAmount = length(TEXTURE_PIXEL_SIZE * angleVector) * 3.0;
 			disTraveled += moveAmount;//0.05;//0.001//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
 			intensity += falloff * moveAmount * clamp(floor(sdfVal), -1.0, 0.0);
 		}

@@ -76,25 +76,9 @@ ui_down={
 
 [shader_globals]
 
-TILE_ARRAY_TEXTURE={
-"type": "sampler2D",
-"value": ""
-}
 WORLD_POSITION={
 "type": "vec2",
 "value": Vector2(0, 0)
-}
-TILE_ARRAY_TEXTURE_BACKGROUND={
-"type": "sampler2D",
-"value": ""
-}
-WORLD_BRIGHTNESS={
-"type": "float",
-"value": 1.0
-}
-SDF_LIGHT_TEXTURE={
-"type": "sampler2D",
-"value": ""
 }
 SUN_DIRECTION={
 "type": "float",
@@ -104,11 +88,11 @@ GLOBAL_ILLUMINATION={
 "type": "sampler2D",
 "value": ""
 }
-TILE_TEXTURE_SCROLL={
-"type": "vec2",
-"value": Vector2(0, 0)
-}
 FOREGROUND_SDF={
 "type": "sampler2D",
 "value": ""
+}
+TILE_TEXTURE_SCROLL={
+"type": "vec2",
+"value": Vector2(0, 0)
 }

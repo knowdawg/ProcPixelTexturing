@@ -42,10 +42,10 @@ func setupRenderingDevice():
 	im1RID = TerrainRendering.getRIDImage(image2, rd)
 	
 
-func executeComputeShader():
+func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID) -> RID: #Bitmaps check the red channel
 	#Seed
-	var bitmap : RDUniform = TerrainRendering.getUniformImage(TerrainRendering.envirementalDataTextureRID, 0)
-	var outputIm : RDUniform = TerrainRendering.getUniformImage(im1RID, 1)
+	var bitmap : RDUniform = TerrainRendering.getUniformImage(bitmapRID, 0)
+	var outputIm : RDUniform = TerrainRendering.getUniformImage(image1RID, 1)
 	
 	var uniformSet : RID = rd.uniform_set_create([bitmap, outputIm], JFSeedShader, 0)
 	var computeList : int = rd.compute_list_begin()
@@ -64,11 +64,11 @@ func executeComputeShader():
 		var input : RDUniform
 		var output : RDUniform
 		if i % 2 == 0:
-			input = TerrainRendering.getUniformImage(im1RID, 1)
-			output = TerrainRendering.getUniformImage(im2RID, 2)
+			input = TerrainRendering.getUniformImage(image1RID, 1)
+			output = TerrainRendering.getUniformImage(image2RID, 2)
 		else:
-			input = TerrainRendering.getUniformImage(im2RID, 1)
-			output = TerrainRendering.getUniformImage(im1RID, 2)
+			input = TerrainRendering.getUniformImage(image2RID, 1)
+			output = TerrainRendering.getUniformImage(image1RID, 2)
 		
 		uniformSet = rd.uniform_set_create([dataUniform, input, output], JFPassShader, 0)
 		computeList = rd.compute_list_begin()
@@ -78,17 +78,18 @@ func executeComputeShader():
 		rd.free_rid(dataRID)
 	
 	#Final Distance Pass
-	bitmap = TerrainRendering.getUniformImage(TerrainRendering.envirementalDataTextureRID, 0)
+	bitmap = TerrainRendering.getUniformImage(bitmapRID, 0)
 	var finalInput : RDUniform
 	var finalOutput : RDUniform
+	var returnRID : RID
 	if (passes - 1) % 2 == 0:
-		finalInput = TerrainRendering.getUniformImage(im2RID, 1)
-		finalOutput = TerrainRendering.getUniformImage(im1RID, 2)
-		TerrainRendering.foregroundSDF = im1RID
+		finalInput = TerrainRendering.getUniformImage(image2RID, 1)
+		finalOutput = TerrainRendering.getUniformImage(image1RID, 2)
+		returnRID = image1RID
 	else:
-		finalInput = TerrainRendering.getUniformImage(im1RID, 1)
-		finalOutput = TerrainRendering.getUniformImage(im2RID, 2)
-		TerrainRendering.foregroundSDF = im2RID
+		finalInput = TerrainRendering.getUniformImage(image1RID, 1)
+		finalOutput = TerrainRendering.getUniformImage(image2RID, 2)
+		returnRID = image2RID
 	
 	
 	uniformSet = rd.uniform_set_create([bitmap, finalInput, finalOutput], JFDistanceShader, 0)
@@ -96,16 +97,24 @@ func executeComputeShader():
 	
 	TerrainRendering.executeComputeShader(Vector3i(16,16,1), rd, computeList, pipelineDistance, uniformSet)
 	
+	return returnRID
 
 func _process(_delta: float) -> void:
 	var t = Texture2DRD.new()
 	t.texture_rd_rid = TerrainRendering.foregroundSDF
 	sdfVisualizer.texture = t
 	
-	executeComputeShader()
+	var SDFRID : RID = createSDF(TerrainRendering.envirementalDataTextureRID, im1RID, im2RID)
+	TerrainRendering.foregroundSDF = SDFRID
 	
-	#if Input.is_action_just_pressed("ui_accept"):
-		#executeComputeShader()
+	
+	
+	var c : Camera2D = get_viewport().get_camera_2d()
+	if c:
+		var cPos : Vector2 = c.global_position
+		cPos -= get_viewport().get_visible_rect().size / 2.0
+		RenderingServer.global_shader_parameter_set("WORLD_POSITION", cPos)
+		
 
 func _ready():
 	setupRenderingDevice()
