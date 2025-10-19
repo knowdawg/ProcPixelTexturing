@@ -30,11 +30,6 @@ void fragment() {
 			intensity -= moveAmount * 10.0;
 		}
 		
-		//if(envirementSDFVal < 0.007){
-			//break;
-		//}
-		
-		
 		
 		if(lightSDFVal < 0.007){
 			finished = 1.0;

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bw0seuypy6m0v"
+path="res://.godot/imported/CalculateLightrays.glsl-9d5bae26453987bed773f833d84ef6fc.res"
+
+[deps]
+
+source_file="res://TextureChunking/CalculateLightrays.glsl"
+dest_files=["res://.godot/imported/CalculateLightrays.glsl-9d5bae26453987bed773f833d84ef6fc.res"]
+
+[params]
+

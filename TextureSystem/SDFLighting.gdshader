@@ -2,8 +2,9 @@ shader_type canvas_item;
 
 varying vec2 screenSize;
 global uniform sampler2D GLOBAL_ILLUMINATION : filter_linear;
-global uniform sampler2D FOREGROUND_SDF : filter_nearest;
+global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
 global uniform vec2 WORLD_POSITION;
+global uniform vec2 TILE_TEXTURE_SCROLL;
 uniform vec2 SDFTextureSize = vec2(512.0, 512.0);
 
 void fragment(){
@@ -34,7 +35,7 @@ void light() {
 		
 	}else{
 		for(int i = 0; i < 40; i++){
-			if(distanceNeededToTravel > 0.5){
+			if(distanceNeededToTravel > 0.6){
 				finished = 0.0;
 				break;
 			}
@@ -42,6 +43,8 @@ void light() {
 			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
 			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
 			sdfTexturePos /= SDFTextureSize;
+			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+			sdfTexturePos = fract(sdfTexturePos);
 			sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).r;
 			disTraveled += abs(sdfVal);
 			

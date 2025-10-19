@@ -2,7 +2,8 @@ extends Node
 class_name SDFGenerator
 
 
-@export var sdfVisualizer : Sprite2D
+@export var foregroundSdfVisualizer : Sprite2D
+@export var backgroundSdfVisualizer : Sprite2D
 
 #RenderingDevice Vars DONT FORGET TO FREE RIDs
 var rd : RenderingDevice
@@ -18,8 +19,11 @@ var JFDistanceFile = preload("uid://cvtjqjev0utwf")
 var JFDistanceShader : RID
 var pipelineDistance : RID
 
-var im1RID : RID
-var im2RID : RID
+var forgroundSDFim1RID : RID
+var forgroundSDFim2RID : RID
+
+var backgroundSDFim1RID : RID
+var backgroundSDFim2RID : RID
 func setupRenderingDevice():
 	rd = RenderingServer.get_rendering_device()
 	
@@ -35,11 +39,20 @@ func setupRenderingDevice():
 	
 	var image1 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
 	image1.fill(Color.BLACK)
-	im2RID = TerrainRendering.getRIDImage(image1, rd)
+	forgroundSDFim2RID = TerrainRendering.getRIDImage(image1, rd)
 	
 	var image2 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
 	image2.fill(Color.BLACK)
-	im1RID = TerrainRendering.getRIDImage(image2, rd)
+	forgroundSDFim1RID = TerrainRendering.getRIDImage(image2, rd)
+	
+	
+	var image3 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
+	image3.fill(Color.BLACK)
+	backgroundSDFim1RID = TerrainRendering.getRIDImage(image3, rd)
+	
+	var image4 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
+	image4.fill(Color.BLACK)
+	backgroundSDFim2RID = TerrainRendering.getRIDImage(image4, rd)
 	
 
 func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID) -> RID: #Bitmaps check the red channel
@@ -47,11 +60,14 @@ func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID) -> RID: #Bitma
 	var bitmap : RDUniform = TerrainRendering.getUniformImage(bitmapRID, 0)
 	var outputIm : RDUniform = TerrainRendering.getUniformImage(image1RID, 1)
 	
-	var uniformSet : RID = rd.uniform_set_create([bitmap, outputIm], JFSeedShader, 0)
+	var worldOffsetData := PackedInt32Array([int(TerrainRendering.tileTextureOffset.x * float(TerrainRendering.renderSectionSize)), int(TerrainRendering.tileTextureOffset.y * float(TerrainRendering.renderSectionSize))])
+	var woRID := TerrainRendering.getRIDStorageBufferInt(worldOffsetData, rd)
+	var woUniform := TerrainRendering.getUniformStorageBufferInt(woRID, 2)
+	
+	var uniformSet : RID = rd.uniform_set_create([bitmap, outputIm, woUniform], JFSeedShader, 0)
 	var computeList : int = rd.compute_list_begin()
 	
 	TerrainRendering.executeComputeShader(Vector3i(16,16,1), rd, computeList, pipelineSeed, uniformSet)
-	
 	
 	var passes : int = ceil(log(TerrainRendering.renderSectionSize) / log(2.0))
 	for i in passes:
@@ -91,29 +107,38 @@ func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID) -> RID: #Bitma
 		finalOutput = TerrainRendering.getUniformImage(image2RID, 2)
 		returnRID = image2RID
 	
+	woUniform = TerrainRendering.getUniformStorageBufferInt(woRID, 3)
 	
-	uniformSet = rd.uniform_set_create([bitmap, finalInput, finalOutput], JFDistanceShader, 0)
+	uniformSet = rd.uniform_set_create([bitmap, finalInput, finalOutput, woUniform], JFDistanceShader, 0)
 	computeList = rd.compute_list_begin()
 	
 	TerrainRendering.executeComputeShader(Vector3i(16,16,1), rd, computeList, pipelineDistance, uniformSet)
 	
+	rd.free_rid(woRID)
 	return returnRID
 
 func _process(_delta: float) -> void:
 	var t = Texture2DRD.new()
 	t.texture_rd_rid = TerrainRendering.foregroundSDF
-	sdfVisualizer.texture = t
+	foregroundSdfVisualizer.texture = t
 	
-	var SDFRID : RID = createSDF(TerrainRendering.envirementalDataTextureRID, im1RID, im2RID)
-	TerrainRendering.foregroundSDF = SDFRID
+	t = Texture2DRD.new()
+	t.texture_rd_rid = TerrainRendering.backgroundSDF
+	backgroundSdfVisualizer.texture = t
 	
+	var forgroundSDFRID : RID = createSDF(TerrainRendering.envirementalDataTextureRID, forgroundSDFim1RID, forgroundSDFim2RID)
+	TerrainRendering.foregroundSDF = forgroundSDFRID
 	
+	var backgroudnSDFRID : RID = createSDF(TerrainRendering.backgroundDataTextureRID, backgroundSDFim1RID, backgroundSDFim2RID)
+	TerrainRendering.backgroundSDF = backgroudnSDFRID
 	
 	var c : Camera2D = get_viewport().get_camera_2d()
 	if c:
 		var cPos : Vector2 = c.global_position
 		cPos -= get_viewport().get_visible_rect().size / 2.0
-		RenderingServer.global_shader_parameter_set("WORLD_POSITION", cPos)
+		TerrainRendering.worldPosition = cPos
+		
+		#RenderingServer.global_shader_parameter_set("WORLD_POSITION", cPos)
 		
 
 func _ready():

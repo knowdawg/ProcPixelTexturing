@@ -2,7 +2,7 @@ shader_type canvas_item;
 
 uniform vec2 RESOLUTION;
 global uniform vec2 WORLD_POSITION;
-global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest;
+global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
 global uniform vec2 TILE_TEXTURE_SCROLL;
 
@@ -120,32 +120,11 @@ void fragment() {
 	
 	COLOR = c;
 	
-	float disToEdge = (self.a - 0.5) * 2.0;
-	//disToEdge = clamp(disToEdge, 0.0, 1.0);
-	vec2 dir = angleToVec2(self.b);
-	vec3 nVal = directionToNormal(dir);
-	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
-	NORMAL_MAP = mix(nVal, NORMAL_MAP, disToEdge);
-	
-	//(nVal * (1.0 - disToEdge)) + (NORMAL_MAP * disToEdge);
-	
-	//NORMAL_MAP = nVal;
-	//COLOR.rg = NORMAL_MAP.xy;
-	//COLOR.b = 1.0;
-	
-	//COLOR.rgb = vec3(disToEdge);
-	
-	//vec2 sdfData = texture(FOREGROUND_SDF, qUV).rg;
-	//
-	//COLOR = vec4(vec3(sdfData.r), 1.0);
-	
-	//vec2 curPos = SCREEN_UV;
-	//vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION; //Get rid of world pos?
-	//sdfTexturePos /= SDFTextureSize;
-	//sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-	//vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
-	//
-	//COLOR = vec4(sdfData.x, 0.0, 0.0, 1.0);
+	//float disToEdge = (self.a - 0.5) * 2.0;
+	//vec2 dir = angleToVec2(self.b);
+	//vec3 nVal = directionToNormal(dir);
+	//nVal = clamp(nVal, vec3(0.0), vec3(1.0));
+	//NORMAL_MAP = mix(nVal, NORMAL_MAP, disToEdge);
 }
 
 
@@ -159,54 +138,60 @@ void light() {
 	float disTraveled = 0.0;
 
 	float finished = 0.0;
+	
+	float closestSdfVal = 1.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		angleVector = LIGHT_DIRECTION.xy;
-		float sdfVal = texture_sdf(screen_uv_to_sdf(SCREEN_UV));
-		sdfVal *= 0.02;
+		//angleVector = LIGHT_DIRECTION.xy;
+		//float sdfVal = texture_sdf(screen_uv_to_sdf(SCREEN_UV));
+		//sdfVal *= 0.02;
+		//
+		//intensity = texture(GLOBAL_ILLUMINATION, SCREEN_UV).r * 2.0;
+		//if(abs(sdfVal) < 0.05 && intensity > 0.6){
+			//intensity += 1.0;
+		//}
+		//intensity += sdfVal;
+		//intensity = clamp(intensity, 0.0, 1.0);
 		
-		intensity = texture(GLOBAL_ILLUMINATION, SCREEN_UV).r * 2.0;
-		if(abs(sdfVal) < 0.05 && intensity > 0.6){
-			intensity += 1.0;
-		}
-		intensity += sdfVal;
-		intensity = clamp(intensity, 0.0, 1.0);
+		vec2 lightMapTexturePos = (SCREEN_UV / screenSize) + WORLD_POSITION; //Get rid of world pos?
+		lightMapTexturePos /= SDFTextureSize;
+		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		lightMapTexturePos = fract(lightMapTexturePos);
+		
+		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos);
+		intensity = lightVal.r;
+		finished = 1.0;
 		
 	}else{
 		for(int i = 0; i < 40; i++){
 			if(distanceNeededToTravel > 0.6){
+				finished = 0.0;
 				break;
 			}
-			if(disTraveled > distanceNeededToTravel){
-				finished = 1.0;
-				break;
-			}
-			if(intensity <= 0.0){
-				break;
-			}
+			
 			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
 			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION; //Get rid of world pos?
 			sdfTexturePos /= SDFTextureSize;
 			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 			sdfTexturePos = fract(sdfTexturePos);
-			vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
-			sdfVal = sdfData.r;
-			if(sdfData.g > 0.5){
-				sdfVal *= -1.0;
-			}
-			intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
+			sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).r;
 			disTraveled += abs(sdfVal);
 			
-			float moveAmount = length(TEXTURE_PIXEL_SIZE * angleVector) * 1.5;
-			disTraveled += moveAmount;//0.05;//0.001//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
-			intensity += falloff * moveAmount * clamp(floor(sdfVal), -1.0, 0.0);
+			closestSdfVal = min(sdfVal * 200.0, closestSdfVal);
+			
+			if(sdfVal <= 0.00196){ //1/512 roudned slightly up
+				finished = 0.0;
+				break;
+			}
+			if(disTraveled > distanceNeededToTravel){
+				finished = closestSdfVal;
+				break;
+			}
 		}
-		intensity *= finished;
-		intensity = clamp(intensity, 0.0, 1.0);
 	}
+	finished = clamp(finished, 0.0, 1.0);
 	
-	//intensity = smoothstep(0.0, 0.8, intensity);
-	
+	vec3 finalCol = COLOR.rgb * LIGHT_COLOR.rgb * LIGHT_ENERGY;
 	float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));
-	LIGHT = vec4(LIGHT_COLOR.rgb * screen.rgb * intensity * LIGHT_ENERGY * cNdotL, LIGHT_COLOR.a);
+	LIGHT = vec4(finalCol * finished * cNdotL * intensity, LIGHT_COLOR.a);
 }

@@ -7,14 +7,23 @@ layout(set = 0, binding = 0, rgba32f) uniform readonly image2D bitmap;
 
 layout(set = 0, binding = 1, rgba32f) uniform writeonly image2D outputBuffer;
 
+layout(set = 0, binding = 2, std430) readonly buffer OffsetData {
+    int bitmapOffsetX;
+    int bitmapOffsetY;
+};
+
 
 bool isBorder(ivec2 uv){
-    float center = ceil(imageLoad(bitmap, uv).r);
+    ivec2 size = imageSize(bitmap);
+    ivec2 bitmapUV = uv + ivec2(bitmapOffsetX, bitmapOffsetY) + (size / 2);
+    bitmapUV = bitmapUV % ivec2(size);
 
-	float left = ceil(imageLoad(bitmap, uv + ivec2(-1, 0)).r);
-	float right = ceil(imageLoad(bitmap, uv + ivec2(1, 0)).r);
-	float up = ceil(imageLoad(bitmap, uv + ivec2(0, -1)).r);
-	float down = ceil(imageLoad(bitmap, uv + ivec2(0, 1)).r);
+    float center = ceil(imageLoad(bitmap, bitmapUV).r);
+
+	float left = ceil(imageLoad(bitmap, bitmapUV + ivec2(-1, 0)).r);
+	float right = ceil(imageLoad(bitmap, bitmapUV + ivec2(1, 0)).r);
+	float up = ceil(imageLoad(bitmap, bitmapUV + ivec2(0, -1)).r);
+	float down = ceil(imageLoad(bitmap, bitmapUV + ivec2(0, 1)).r);
 
     
 

@@ -5,7 +5,7 @@ enum tilemapType {FOREGROUND, BACKGROUND}
 @export var type : tilemapType = tilemapType.FOREGROUND
 
 @export_group("External Nodes")
-@export var forgroundTexture : Sprite2D
+@export var texture : Sprite2D
 @export var miniMap : Sprite2D
 
 var chunks : Array = []
@@ -114,12 +114,17 @@ func _process(_delta: float) -> void:
 		#updateCombinedTexture()
 		dirty = false
 	
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		addTileRadius(get_global_mouse_position(), 0, 6)
-		
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-		var pos : Vector2 = local_to_map(get_global_mouse_position())
-		addTileRadius(pos, -1, 6)
+	if type == tilemapType.FOREGROUND:
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			addTileRadius(get_global_mouse_position(), 0, 4)
+			
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+			var pos : Vector2 = local_to_map(get_global_mouse_position())
+			addTileRadius(pos, -1, 6)
+			
+	if type == tilemapType.BACKGROUND:
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			addTileRadius(get_global_mouse_position(), 0, 10)
 
 func updateChunks() -> void:
 	if !is_instance_valid(get_viewport().get_camera_2d()):
@@ -149,8 +154,9 @@ func updateChunks() -> void:
 	
 	var scroll : Vector2 = Vector2.ZERO
 	scroll = Vector2(centerChunk * TerrainRendering.chunkSize) / float(TerrainRendering.renderSectionSize)
+	TerrainRendering.tileTextureOffset = scroll
 	RenderingServer.global_shader_parameter_set("TILE_TEXTURE_SCROLL", scroll)
-	forgroundTexture.global_position = (scroll * float(TerrainRendering.renderSectionSize))# + (Vector2(float(renderSectionSize), float(renderSectionSize)) / 2.0)
+	texture.global_position = (scroll * float(TerrainRendering.renderSectionSize))# + (Vector2(float(renderSectionSize), float(renderSectionSize)) / 2.0)
 
 func worldToChunk(pos : Vector2) -> Vector2i:
 	var chunkCoord := Vector2i(pos) / TerrainRendering.chunkSize
@@ -190,7 +196,7 @@ func setupRenderingDevice():
 	
 	var tex2DRD : Texture2DRD = Texture2DRD.new()
 	tex2DRD.set_texture_rd_rid(enviermentalDataTextureRID)
-	forgroundTexture.texture = tex2DRD
+	texture.texture = tex2DRD
 	miniMap.texture = tex2DRD
 
 func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):

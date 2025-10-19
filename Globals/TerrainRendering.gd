@@ -3,7 +3,15 @@ extends Node
 #Imaportant RID
 var envirementalDataTextureRID : RID
 var backgroundDataTextureRID : RID
+
 var foregroundSDF : RID
+var backgroundSDF : RID
+
+var worldPosition : Vector2
+var tileTextureOffset : Vector2
+
+var sunDirection : float =  - PI / 2.0
+var lightrays : RID
 
 #World Details
 var chunkSize : int = 64
@@ -14,6 +22,9 @@ var uniqueTiles : int = 10
 
 
 func _process(_delta: float) -> void:
+	if worldPosition:
+		RenderingServer.global_shader_parameter_set("WORLD_POSITION", worldPosition)
+	
 	if foregroundSDF:
 		var t = Texture2DRD.new()
 		t.texture_rd_rid = foregroundSDF
@@ -40,7 +51,15 @@ func getUniformStorageBufferInt(dataRID : RID, binding : int) -> RDUniform:
 	storageBufferUniform.add_id(dataRID)
 	return storageBufferUniform
 
+func getUniformStorageBuffer(dataRID : RID, binding : int) -> RDUniform:
+	return getUniformStorageBufferInt(dataRID, binding)
+
 func getRIDStorageBufferInt(data : PackedInt32Array, rd : RenderingDevice) -> RID:
+	var packedData := data.to_byte_array()
+	var dataRID : RID = rd.storage_buffer_create(packedData.size(), packedData)
+	return dataRID
+
+func getRIDStorageBufferFloat(data : PackedFloat32Array, rd : RenderingDevice) -> RID:
 	var packedData := data.to_byte_array()
 	var dataRID : RID = rd.storage_buffer_create(packedData.size(), packedData)
 	return dataRID

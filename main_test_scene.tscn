@@ -27,32 +27,32 @@
 [ext_resource type="Script" uid="uid://jk1mumnani2q" path="res://sun.gd" id="25_65ci6"]
 [ext_resource type="PackedScene" uid="uid://bao8l5iswnbru" path="res://GlobalIllumination/global_illumination_texture_generator.tscn" id="26_xppq1"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m37ej"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_xppq1"]
 texture = ExtResource("1_lc78t")
 texture_region_size = Vector2i(1, 1)
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_xppq1"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_65ci6"]
 texture = ExtResource("2_808s8")
 texture_region_size = Vector2i(1, 1)
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_65ci6"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ijjr7"]
 texture = ExtResource("3_r5nid")
 texture_region_size = Vector2i(1, 1)
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ijjr7"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m7564"]
 texture = ExtResource("4_5cr4c")
 texture_region_size = Vector2i(1, 1)
 0:0/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_m7564"]
 tile_size = Vector2i(1, 1)
-sources/0 = SubResource("TileSetAtlasSource_m37ej")
-sources/1 = SubResource("TileSetAtlasSource_xppq1")
-sources/2 = SubResource("TileSetAtlasSource_65ci6")
-sources/3 = SubResource("TileSetAtlasSource_ijjr7")
+sources/0 = SubResource("TileSetAtlasSource_xppq1")
+sources/1 = SubResource("TileSetAtlasSource_65ci6")
+sources/2 = SubResource("TileSetAtlasSource_ijjr7")
+sources/3 = SubResource("TileSetAtlasSource_m7564")
 
 [sub_resource type="OccluderPolygon2D" id="OccluderPolygon2D_808s8"]
 polygon = PackedVector2Array(-0.5, -0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5)
