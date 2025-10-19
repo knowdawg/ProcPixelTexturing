@@ -77,12 +77,12 @@ void main(){
 
 		
 		
-		if(sdfVal > -threshold){ //If niether is here
+		if(sdfVal > -threshold / 3.0){ //If niether is here
 			finished = 1.0;
 			break;
 		}
         if(foregroundSdfVal < threshold){
-            //intensity -= (moveAmount / imSize) * 60.0;
+            //intensity -= (moveAmount / imSize) * 80.0;
             break;
         }
 		if(intensity <= 0.0){

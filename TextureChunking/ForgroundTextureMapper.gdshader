@@ -2,7 +2,7 @@ shader_type canvas_item;
 
 uniform vec2 RESOLUTION;
 global uniform vec2 WORLD_POSITION;
-global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest;
+global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
 global uniform vec2 TILE_TEXTURE_SCROLL;
 
@@ -161,16 +161,25 @@ void light() {
 	float finished = 0.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		angleVector = LIGHT_DIRECTION.xy;
-		float sdfVal = texture_sdf(screen_uv_to_sdf(SCREEN_UV));
-		sdfVal *= 0.02;
+		//angleVector = LIGHT_DIRECTION.xy;
+		//float sdfVal = texture_sdf(screen_uv_to_sdf(SCREEN_UV));
+		//sdfVal *= 0.02;
+		//
+		//intensity = texture(GLOBAL_ILLUMINATION, SCREEN_UV).r * 2.0;
+		//if(abs(sdfVal) < 0.05 && intensity > 0.6){
+			//intensity += 1.0;
+		//}
+		//intensity += sdfVal;
+		//intensity = clamp(intensity, 0.0, 1.0);
 		
-		intensity = texture(GLOBAL_ILLUMINATION, SCREEN_UV).r * 2.0;
-		if(abs(sdfVal) < 0.05 && intensity > 0.6){
-			intensity += 1.0;
-		}
-		intensity += sdfVal;
-		intensity = clamp(intensity, 0.0, 1.0);
+		vec2 lightMapTexturePos = (SCREEN_UV / screenSize) + WORLD_POSITION; //Get rid of world pos?
+		lightMapTexturePos /= SDFTextureSize;
+		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		lightMapTexturePos = fract(lightMapTexturePos);
+		
+		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos);
+		intensity = lightVal.r;
+		finished = 1.0;
 		
 	}else{
 		for(int i = 0; i < 40; i++){

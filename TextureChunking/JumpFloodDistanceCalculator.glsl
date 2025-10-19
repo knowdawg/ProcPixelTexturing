@@ -12,6 +12,9 @@ layout(set = 0, binding = 2, rgba32f) uniform writeonly image2D outputBuffer;
 layout(set = 0, binding = 3, std430) readonly buffer OffsetData {
     int bitmapOffsetX;
     int bitmapOffsetY;
+
+    int sined;
+    int inverted;
 };
 
 void main(){
@@ -30,8 +33,12 @@ void main(){
 	
 	vec4 color = vec4(SDFVal, 0.0, 0.0, 1.0);
     float bitmapVal = ceil(imageLoad(bitmap, bitmapUV).r);
-    if(bitmapVal > 0.5){
+
+    if(bitmapVal > 0.5 && sined == 1){
         color.g = 1.0;
     }
+    // if(inverted == 1){
+    //     color.r = 1.0 - color.r;
+    // }
     imageStore(outputBuffer, uv, color);
 }

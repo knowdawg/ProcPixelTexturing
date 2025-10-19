@@ -55,12 +55,26 @@ func setupRenderingDevice():
 	backgroundSDFim2RID = TerrainRendering.getRIDImage(image4, rd)
 	
 
-func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID) -> RID: #Bitmaps check the red channel
+func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID, sined : int = 1, inverted : int = 0, offset : int = 1, offsetOveride : Vector2i = Vector2i(256, 256)) -> RID: #Bitmaps check the red channel
 	#Seed
 	var bitmap : RDUniform = TerrainRendering.getUniformImage(bitmapRID, 0)
 	var outputIm : RDUniform = TerrainRendering.getUniformImage(image1RID, 1)
 	
-	var worldOffsetData := PackedInt32Array([int(TerrainRendering.tileTextureOffset.x * float(TerrainRendering.renderSectionSize)), int(TerrainRendering.tileTextureOffset.y * float(TerrainRendering.renderSectionSize))])
+	var worldOffsetData := PackedInt32Array([
+	int(TerrainRendering.tileTextureOffset.x * float(TerrainRendering.renderSectionSize) * float(offset)),
+	int(TerrainRendering.tileTextureOffset.y * float(TerrainRendering.renderSectionSize) * float(offset)),
+	sined,
+	inverted
+	])
+	if offset == 0:
+		worldOffsetData = PackedInt32Array([
+		offsetOveride.x,
+		offsetOveride.y,
+		sined,
+		inverted
+		])
+	
+	
 	var woRID := TerrainRendering.getRIDStorageBufferInt(worldOffsetData, rd)
 	var woUniform := TerrainRendering.getUniformStorageBufferInt(woRID, 2)
 	
@@ -128,7 +142,10 @@ func _process(_delta: float) -> void:
 	
 	var forgroundSDFRID : RID = createSDF(TerrainRendering.envirementalDataTextureRID, forgroundSDFim1RID, forgroundSDFim2RID)
 	TerrainRendering.foregroundSDF = forgroundSDFRID
-	
+	t = Texture2DRD.new()
+	t.texture_rd_rid = forgroundSDFRID
+	RenderingServer.global_shader_parameter_set("FOREGROUND_SDF", t)
+
 	var backgroudnSDFRID : RID = createSDF(TerrainRendering.backgroundDataTextureRID, backgroundSDFim1RID, backgroundSDFim2RID)
 	TerrainRendering.backgroundSDF = backgroudnSDFRID
 	
@@ -137,8 +154,7 @@ func _process(_delta: float) -> void:
 		var cPos : Vector2 = c.global_position
 		cPos -= get_viewport().get_visible_rect().size / 2.0
 		TerrainRendering.worldPosition = cPos
-		
-		#RenderingServer.global_shader_parameter_set("WORLD_POSITION", cPos)
+		RenderingServer.global_shader_parameter_set("WORLD_POSITION", cPos)
 		
 
 func _ready():

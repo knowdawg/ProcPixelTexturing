@@ -12,6 +12,7 @@ var tileTextureOffset : Vector2
 
 var sunDirection : float =  - PI / 2.0
 var lightrays : RID
+var GI : RID
 
 #World Details
 var chunkSize : int = 64
@@ -22,13 +23,7 @@ var uniqueTiles : int = 10
 
 
 func _process(_delta: float) -> void:
-	if worldPosition:
-		RenderingServer.global_shader_parameter_set("WORLD_POSITION", worldPosition)
-	
-	if foregroundSDF:
-		var t = Texture2DRD.new()
-		t.texture_rd_rid = foregroundSDF
-		RenderingServer.global_shader_parameter_set("FOREGROUND_SDF", t)
+	pass #Dont set stuff in the process method cause then its a frame late!
 
 func executeComputeShader(workGroup : Vector3i, rd : RenderingDevice, computeList : int, pipeline : RID, uniformSet : RID):
 	rd.compute_list_bind_compute_pipeline(computeList, pipeline)
