@@ -2,6 +2,7 @@ shader_type canvas_item;
 
 global uniform vec2 RENDER_QUADRANT_SIZE;
 global uniform vec2 WORLD_POSITION;
+global uniform vec2 CAMERA_ZOOM;
 global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
 global uniform vec2 TILE_TEXTURE_SCROLL;
@@ -91,6 +92,7 @@ vec3 directionToNormal(vec2 direction) {
 void fragment() {
 	vec2 qUV = UV + TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
 	qUV = fract(qUV);
+	qUV = floor(qUV * RENDER_QUADRANT_SIZE) / RENDER_QUADRANT_SIZE;
 	
 	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
@@ -119,67 +121,105 @@ void fragment() {
 	
 	COLOR = c;
 	
-	//float disToEdge = (self.a - 0.5) * 2.0;
-	//vec2 dir = angleToVec2(self.b);
-	//vec3 nVal = directionToNormal(dir);
-	//nVal = clamp(nVal, vec3(0.0), vec3(1.0));
-	//NORMAL_MAP = mix(nVal, NORMAL_MAP, disToEdge);
+	float disToEdge = (self.a - 0.5) * 2.0;
+	//disToEdge = clamp(disToEdge, 0.0, 1.0);
+	vec2 dir = angleToVec2(self.b);
+	vec3 nVal = directionToNormal(dir);
+	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
+	NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge);
+	
+	//NORMAL_MAP = nVal;
+	//COLOR.rg = NORMAL_MAP.xy;
+	//COLOR.b = 1.0;
+	
+	//COLOR.rgb = vec3(disToEdge);
+	
+	//vec2 sdfData = texture(FOREGROUND_SDF, qUV).rg;
+	//
+	//COLOR = vec4(vec3(sdfData.r), 1.0);
+	
+	//vec2 curPos = SCREEN_UV;
+	//vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION; //Get rid of world pos?
+	//sdfTexturePos /= SDFTextureSize;
+	//sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+	//vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
+	//
+	//COLOR = vec4(sdfData.x, 0.0, 0.0, 1.0);
 }
 
 
 void light() {
+	vec2 screenCenter = vec2(0.5, 0.5);
+	vec2 unzoomedUV = screenCenter + (SCREEN_UV - screenCenter) / CAMERA_ZOOM;
+	vec2 unzoomedLightPos = screenCenter + ((LIGHT_POSITION.xy * screenSize) - screenCenter) / CAMERA_ZOOM;
+	
 	//Setup the variables for SDF Raymarching
-	vec2 lightPosNormalized = LIGHT_POSITION.xy * screenSize;
-	vec2 angleVector = normalize(lightPosNormalized - SCREEN_UV);
+	vec2 lightPosNormalized = unzoomedLightPos.xy;
+	vec2 angleVector = normalize(lightPosNormalized - unzoomedUV);
 	float sdfVal = 0.0;
 	float intensity = 1.0;
-	float distanceNeededToTravel = length(lightPosNormalized - SCREEN_UV);
+	float distanceNeededToTravel = length(lightPosNormalized - unzoomedUV);
 	float disTraveled = 0.0;
 
 	float finished = 0.0;
 	
-	float closestSdfVal = 1.0;
+	float textureScalling = RENDER_QUADRANT_SIZE.x / 512.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		vec2 lightMapTexturePos = (SCREEN_UV / screenSize) + WORLD_POSITION; //Get rid of world pos?
+		vec2 lightMapTexturePos = (unzoomedUV / screenSize) + WORLD_POSITION; //Get rid of world pos?
 		lightMapTexturePos /= RENDER_QUADRANT_SIZE;
 		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		lightMapTexturePos = fract(lightMapTexturePos);
 		
-		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos) * 2.0;
-		intensity = lightVal.r;
-		finished = 1.0;
+		float lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos).r;
+		//lightVal *= 2.0;
+		
+		vec2 sdfTexturePos = (unzoomedUV / screenSize) + WORLD_POSITION;
+		sdfTexturePos /= RENDER_QUADRANT_SIZE;
+		sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		sdfTexturePos = fract(sdfTexturePos);
+		vec2 sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).rg;
+		sdfVal.r *= ((sdfVal.g - 0.5) * -2.0);
+		
+		lightVal += min(sdfVal.r * 20.0 * textureScalling, 0.0);
+		
+		intensity = lightVal;
 		
 	}else{
-		float threshold = 1.0 / RENDER_QUADRANT_SIZE.x;
-		for(int i = 0; i < 40; i++){
+		for(int i = 0; i < 80; i++){
 			if(distanceNeededToTravel > 0.6){
-				finished = 0.0;
-				break;
-			}
-			
-			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
-			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION; //Get rid of world pos?
-			sdfTexturePos /= RENDER_QUADRANT_SIZE;
-			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-			sdfTexturePos = fract(sdfTexturePos);
-			sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).r;
-			disTraveled += abs(sdfVal);
-			
-			closestSdfVal = min(sdfVal * 200.0, closestSdfVal);
-			
-			if(sdfVal <= threshold){
-				finished = 0.0;
 				break;
 			}
 			if(disTraveled > distanceNeededToTravel){
-				finished = closestSdfVal;
+				finished = 1.0;
 				break;
 			}
+			if(intensity <= 0.0){
+				break;
+			}
+			vec2 curPos = unzoomedUV + (angleVector * disTraveled);
+			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
+			sdfTexturePos /= RENDER_QUADRANT_SIZE;
+			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+			sdfTexturePos = fract(sdfTexturePos);
+			vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
+			sdfVal = sdfData.r;
+			if(sdfData.g > 0.5){
+				sdfVal *= -1.0;
+			}
+			intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
+			disTraveled += abs(sdfVal);
+			
+			float moveAmount = length((1.0 / RENDER_QUADRANT_SIZE) * angleVector);
+			disTraveled += moveAmount;
+			intensity += falloff * moveAmount * clamp(floor(sdfVal), -1.0, 0.0);
 		}
+		intensity *= finished;
+		intensity = clamp(intensity, 0.0, 1.0);
 	}
-	finished = clamp(finished, 0.0, 1.0);
 	
-	vec3 finalCol = COLOR.rgb * LIGHT_COLOR.rgb * LIGHT_ENERGY;
+	intensity = clamp(intensity, 0.0, 1.0);
+	
 	float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));
-	LIGHT = vec4(finalCol * finished * cNdotL * intensity, LIGHT_COLOR.a);
+	LIGHT = vec4(LIGHT_COLOR.rgb * screen.rgb * intensity * LIGHT_ENERGY * cNdotL, LIGHT_COLOR.a);
 }

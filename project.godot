@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Kyora_Like_Texure_System"
-run/main_scene="uid://yvsw2gjesxni"
+run/main_scene="uid://c726gqd04n3yb"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -97,6 +97,10 @@ TILE_TEXTURE_SCROLL={
 "value": Vector2(0, 0)
 }
 RENDER_QUADRANT_SIZE={
+"type": "vec2",
+"value": Vector2(0, 0)
+}
+CAMERA_ZOOM={
 "type": "vec2",
 "value": Vector2(0, 0)
 }

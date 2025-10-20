@@ -15,7 +15,7 @@ var lightrays : RID
 var GI : RID
 
 #World Details
-var chunkSize : int = 64
+var chunkSize : int = 32
 var outlineBufferSize : int = 12 #Buffer size on each side
 var renderSectionSize : int = 512
 var mapSize : Vector2i = Vector2i(2048, 2048)

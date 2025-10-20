@@ -78,6 +78,8 @@ void main(){
 
     bool isBackgroundTile = sampleForegroundDistanceField(uv) > 0.0;
 
+    float textureScalling = (imSize / 512.0);
+
 	for(int i = 0; i < 80; i++){
 		vec2 curPos = vec2(uv) + (angleVector * disTraveled);
 
@@ -101,7 +103,7 @@ void main(){
         }
 
         if(isBackgroundTile){ // IF im a background tile, slowly fade out the light ray
-            intensity -= (moveAmount / imSize) * 2.0;
+            intensity -= (moveAmount / imSize) * 2.0 * textureScalling;
         }
 
 		
@@ -111,7 +113,7 @@ void main(){
 			break;
 		}
         if(foregroundSdfVal < threshold){
-            intensity -= (moveAmount / imSize) * 40.0;
+            intensity -= (moveAmount / imSize) * 40.0 * textureScalling;
             //break;
         }
 		if(intensity <= 0.0){
@@ -120,7 +122,7 @@ void main(){
 	}
 
     if(isBackgroundTile){ //If I am a background Tile, then smoothstep for more visible light rays
-        intensity = smoothstep(0.0, 0.5, intensity);
+        intensity = smoothstep(0.0, 0.5 / textureScalling, intensity);
     }
 
     intensity *= finished;

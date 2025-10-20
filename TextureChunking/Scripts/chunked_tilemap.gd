@@ -135,7 +135,7 @@ func _process(_delta: float) -> void:
 func updateChunks() -> void:
 	if !is_instance_valid(get_viewport().get_camera_2d()):
 		return
-	var cameraPos := get_viewport().get_camera_2d().global_position
+	var cameraPos := get_viewport().get_camera_2d().get_screen_center_position()
 	var prevActiveChunks : Array[TextureChunk] = activeChunks.duplicate()
 	activeChunks.clear()
 	

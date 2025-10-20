@@ -20,8 +20,12 @@ float sampleDistanceField(ivec2 uv){
 
 void main(){
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
+
+    float imSize = float(imageSize(outputBuffer).x);
+    float textureScalling = (imSize / 512.0);
+
     float lightVal = sampleDistanceField(uv);
-    lightVal = 1.0 - smoothstep(0.0, 0.1, lightVal);
+    lightVal = 1.0 - smoothstep(0.0, 0.1 / textureScalling, lightVal);
 
     float lightRay = imageLoad(lightmap, uv).r;
 

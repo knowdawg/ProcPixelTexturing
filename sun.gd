@@ -3,6 +3,6 @@ extends DirectionalLight2D
 var t = 0.0
 func _process(delta: float) -> void:
 	t += delta
-	#rotation = sin(t)
+	#rotation = sin(t) - (PI / 2.0)
 	
 	TerrainRendering.sunDirection = rotation
