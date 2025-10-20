@@ -1,4 +1,4 @@
-[gd_scene load_steps=62 format=4 uid="uid://c726gqd04n3yb"]
+[gd_scene load_steps=68 format=4 uid="uid://c726gqd04n3yb"]
 
 [ext_resource type="Texture2D" uid="uid://cggo1js6exgbg" path="res://TextureSystem/Material1Tile.png" id="1_kgdbp"]
 [ext_resource type="Texture2D" uid="uid://qv3pqu6rkh5d" path="res://TextureSystem/Material2Tile.png" id="2_hcy24"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://cjcgl164vb7ri" path="res://TextureChunking/Scripts/sdf_generator.gd" id="10_aboe0"]
 [ext_resource type="Script" uid="uid://dgwsi1mfwgc3q" path="res://TextureChunking/Scripts/global_illumination.gd" id="11_16l4g"]
 [ext_resource type="Script" uid="uid://jk1mumnani2q" path="res://sun.gd" id="12_lpvph"]
+[ext_resource type="Material" uid="uid://cpoaha3w43gmg" path="res://TextureChunking/PixelShaders/SDFShading.tres" id="13_hcy24"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ev223"]
 texture = ExtResource("1_kgdbp")
@@ -343,6 +344,28 @@ fill_to = Vector2(0.8, 0.8)
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_ksob3"]
 gradient = SubResource("Gradient_ev223")
 
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_kgdbp"]
+bounce = 0.1
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hcy24"]
+size = Vector2(10, 10)
+
+[sub_resource type="Gradient" id="Gradient_kgdbp"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0.65242165, 0.9259259)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_hcy24"]
+gradient = SubResource("Gradient_kgdbp")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.8, 0.8)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_u2jdx"]
+radius = 3.1622777
+
 [node name="ChunkingTest" type="Node2D"]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
@@ -354,7 +377,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.60784316, 0.8627451, 1, 1)
+color = Color(0.57254905, 0.7019608, 1, 1)
 
 [node name="BackgroundTilemap" type="TileMapLayer" parent="." node_paths=PackedStringArray("texture", "miniMap")]
 visible = false
@@ -375,11 +398,12 @@ script = ExtResource("5_txt8w")
 texture = NodePath("../ForegroundTexture")
 miniMap = NodePath("../MinimapHolder/MiniMap")
 
-[node name="Sprite2D2" type="Sprite2D" parent="."]
+[node name="CameraHolder" type="Sprite2D" parent="."]
 position = Vector2(160, 90)
 script = ExtResource("6_bnr5j")
 
-[node name="Camera2D" type="Camera2D" parent="Sprite2D2"]
+[node name="Camera2D" type="Camera2D" parent="CameraHolder"]
+zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
 
@@ -502,3 +526,43 @@ rotation = -0.9424778
 energy = 1.2
 height = 0.7
 script = ExtResource("12_lpvph")
+
+[node name="Square1" type="RigidBody2D" parent="."]
+position = Vector2(215, -50)
+physics_material_override = SubResource("PhysicsMaterial_kgdbp")
+
+[node name="ColorRect" type="ColorRect" parent="Square1"]
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Square1"]
+shape = SubResource("RectangleShape2D_hcy24")
+
+[node name="Square2" type="RigidBody2D" parent="."]
+position = Vector2(174, 110)
+physics_material_override = SubResource("PhysicsMaterial_kgdbp")
+
+[node name="ColorRect" type="ColorRect" parent="Square2"]
+offset_left = -5.0
+offset_top = -5.0
+offset_right = 5.0
+offset_bottom = 5.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Square2"]
+shape = SubResource("RectangleShape2D_hcy24")
+
+[node name="Circle1" type="RigidBody2D" parent="."]
+position = Vector2(135, 108)
+physics_material_override = SubResource("PhysicsMaterial_kgdbp")
+
+[node name="Sprite2D" type="Sprite2D" parent="Circle1"]
+modulate = Color(0.29803923, 0.38431373, 0.16470589, 1)
+texture_filter = 1
+material = ExtResource("13_hcy24")
+scale = Vector2(0.25, 0.25)
+texture = SubResource("GradientTexture2D_hcy24")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Circle1"]
+shape = SubResource("CircleShape2D_u2jdx")

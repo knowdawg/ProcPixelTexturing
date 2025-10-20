@@ -1,6 +1,6 @@
 [gd_scene load_steps=52 format=4 uid="uid://yvsw2gjesxni"]
 
-[ext_resource type="Material" uid="uid://cpoaha3w43gmg" path="res://TextureSystem/SDFShading.tres" id="1_bpks4"]
+[ext_resource type="Material" uid="uid://cpoaha3w43gmg" path="res://TextureChunking/PixelShaders/SDFShading.tres" id="1_bpks4"]
 [ext_resource type="Texture2D" uid="uid://cggo1js6exgbg" path="res://TextureSystem/Material1Tile.png" id="1_lc78t"]
 [ext_resource type="Texture2D" uid="uid://qv3pqu6rkh5d" path="res://TextureSystem/Material2Tile.png" id="2_808s8"]
 [ext_resource type="Shader" uid="uid://c40kuw7fyg3xc" path="res://TextureSystem/SDFTextureMapper.gdshader" id="2_g8iyb"]

@@ -149,7 +149,7 @@ void light() {
 	float textureScalling = RENDER_QUADRANT_SIZE.x / 512.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		vec2 lightMapTexturePos = (unzoomedUV / screenSize) + WORLD_POSITION; //Get rid of world pos?
+		vec2 lightMapTexturePos = (unzoomedUV / screenSize) + WORLD_POSITION;
 		lightMapTexturePos /= RENDER_QUADRANT_SIZE;
 		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		
@@ -166,7 +166,7 @@ void light() {
 			}
 			
 			vec2 curPos = unzoomedUV + (angleVector * disTraveled);
-			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION; //Get rid of world pos?
+			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
 			sdfTexturePos /= RENDER_QUADRANT_SIZE;
 			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 			sdfTexturePos = fract(sdfTexturePos);

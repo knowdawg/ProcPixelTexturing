@@ -18,7 +18,7 @@ var GI : RID
 var chunkSize : int = 32
 var outlineBufferSize : int = 12 #Buffer size on each side
 var renderSectionSize : int = 512
-var mapSize : Vector2i = Vector2i(2048, 2048)
+var mapSize : Vector2i = Vector2i(2048 * 2, 2048 * 2)
 var uniqueTiles : int = 10
 
 

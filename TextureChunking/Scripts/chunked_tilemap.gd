@@ -78,7 +78,7 @@ func _ready() -> void:
 	var tilemapSize : Vector2i = get_used_rect().size
 	var tilemapPos : Vector2i = get_used_rect().position
 	mapImage = Image.create_empty(TerrainRendering.mapSize.x, TerrainRendering.mapSize.y, false, Image.FORMAT_RGBAF)
-	mapImage.fill(Color.BLACK)
+	mapImage.fill(Color(0.0, 0.0, 0.0, 0.0))
 	mapImage.decompress()
 	
 	for x in tilemapSize.x:
@@ -102,7 +102,8 @@ func _ready() -> void:
 			var c : TextureChunk = chunk.instantiate()
 			chunks[x].append(c)
 			add_child(c)
-			c.setup(TerrainRendering.chunkSize, TerrainRendering.outlineBufferSize, self, Vector2(x,y))
+			var chunkType = TextureChunk.tilemapType.FOREGROUND if type == tilemapType.FOREGROUND else TextureChunk.tilemapType.BACKGROUND
+			c.setup(TerrainRendering.chunkSize, TerrainRendering.outlineBufferSize, self, Vector2(x,y), chunkType)
 
 func _process(_delta: float) -> void:
 	updateChunks()
