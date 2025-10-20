@@ -1,6 +1,6 @@
 shader_type canvas_item;
 
-uniform vec2 RESOLUTION;
+global uniform vec2 RENDER_QUADRANT_SIZE;
 global uniform vec2 WORLD_POSITION;
 global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
@@ -32,14 +32,13 @@ uniform vec4 WOOD_BORDER_COLOR : source_color;
 
 group_uniforms lighting;
 uniform float falloff : hint_range(0.0, 100.0);
-uniform vec2 SDFTextureSize = vec2(512.0, 512.0);
 
 varying vec2 screenSize;
 varying vec4 screen;
 
 vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D grad, vec4 border, inout vec3 normal){
 	vec4 c = vec4(1.0);
-	vec2 offsetUV = uv;// + vec2(floor(WORLD_POSITION) / RESOLUTION);
+	vec2 offsetUV = uv;
 	switch(type){
 		case 0:
 			c.a = 0.0;
@@ -49,11 +48,11 @@ vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D g
 			break;
 		case 2:
 			c = border;
-			normal = texture(normalMap, offsetUV * (RESOLUTION / vec2(256.0, 256.0))).rgb;
+			normal = texture(normalMap, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0))).rgb;
 			break;
 		case 3:
-			vec4 tVal = texture(tex, offsetUV * (RESOLUTION / vec2(256.0, 256.0)));
-			normal = texture(normalMap, offsetUV * (RESOLUTION / vec2(256.0, 256.0))).rgb;
+			vec4 tVal = texture(tex, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0)));
+			normal = texture(normalMap, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0))).rgb;
 			c = texture(grad, vec2(tVal.r, 0.0));
 			break;
 		default:
@@ -125,9 +124,7 @@ void fragment() {
 	vec2 dir = angleToVec2(self.b);
 	vec3 nVal = directionToNormal(dir);
 	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
-	NORMAL_MAP = mix(nVal, NORMAL_MAP, disToEdge);
-	
-	//(nVal * (1.0 - disToEdge)) + (NORMAL_MAP * disToEdge);
+	NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge);
 	
 	//NORMAL_MAP = nVal;
 	//COLOR.rg = NORMAL_MAP.xy;
@@ -161,26 +158,16 @@ void light() {
 	float finished = 0.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		//float sdfVal = texture_sdf(screen_uv_to_sdf(SCREEN_UV));
-		//sdfVal *= 0.02;
-		//
-		//intensity = texture(GLOBAL_ILLUMINATION, SCREEN_UV).r * 2.0;
-		//if(abs(sdfVal) < 0.05 && intensity > 0.6){
-			//intensity += 1.0;
-		//}
-		//intensity += sdfVal;
-		//intensity = clamp(intensity, 0.0, 1.0);
-		
 		vec2 lightMapTexturePos = (SCREEN_UV / screenSize) + WORLD_POSITION; //Get rid of world pos?
-		lightMapTexturePos /= SDFTextureSize;
+		lightMapTexturePos /= RENDER_QUADRANT_SIZE;
 		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		lightMapTexturePos = fract(lightMapTexturePos);
 		
 		float lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos).r;
-		lightVal *= 2.0;
+		//lightVal *= 2.0;
 		
 		vec2 sdfTexturePos = (SCREEN_UV / screenSize) + WORLD_POSITION;
-		sdfTexturePos /= SDFTextureSize;
+		sdfTexturePos /= RENDER_QUADRANT_SIZE;
 		sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		sdfTexturePos = fract(sdfTexturePos);
 		vec2 sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).rg;
@@ -205,7 +192,7 @@ void light() {
 			}
 			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
 			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
-			sdfTexturePos /= SDFTextureSize;
+			sdfTexturePos /= RENDER_QUADRANT_SIZE;
 			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 			sdfTexturePos = fract(sdfTexturePos);
 			vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
@@ -217,14 +204,12 @@ void light() {
 			disTraveled += abs(sdfVal);
 			
 			float moveAmount = length(TEXTURE_PIXEL_SIZE * angleVector) * 1.5;
-			disTraveled += moveAmount;//0.05;//0.001//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
+			disTraveled += moveAmount;
 			intensity += falloff * moveAmount * clamp(floor(sdfVal), -1.0, 0.0);
 		}
 		intensity *= finished;
 		intensity = clamp(intensity, 0.0, 1.0);
 	}
-	
-	//intensity = smoothstep(0.0, 0.8, intensity);
 	
 	float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));
 	LIGHT = vec4(LIGHT_COLOR.rgb * screen.rgb * intensity * LIGHT_ENERGY * cNdotL, LIGHT_COLOR.a);

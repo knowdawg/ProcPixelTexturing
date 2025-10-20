@@ -22,6 +22,9 @@ var mapSize : Vector2i = Vector2i(2048, 2048)
 var uniqueTiles : int = 10
 
 
+func _ready() -> void:
+	RenderingServer.global_shader_parameter_set("RENDER_QUADRANT_SIZE", Vector2(renderSectionSize, renderSectionSize))
+
 func _process(_delta: float) -> void:
 	pass #Dont set stuff in the process method cause then its a frame late!
 

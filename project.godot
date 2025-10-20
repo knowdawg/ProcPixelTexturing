@@ -96,3 +96,7 @@ TILE_TEXTURE_SCROLL={
 "type": "vec2",
 "value": Vector2(0, 0)
 }
+RENDER_QUADRANT_SIZE={
+"type": "vec2",
+"value": Vector2(0, 0)
+}

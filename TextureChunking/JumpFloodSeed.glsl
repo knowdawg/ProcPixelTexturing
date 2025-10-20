@@ -12,19 +12,28 @@ layout(set = 0, binding = 2, std430) readonly buffer OffsetData {
     int bitmapOffsetY;
 
     int sined;
-    int inverted;
+};
+
+layout(set = 0, binding = 3, std430) readonly buffer Threshold {
+    float threshold;
 };
 
 
 float sampleBitmap(ivec2 uv){
     ivec2 size = imageSize(bitmap);
     ivec2 bitmapUV = uv + ivec2(bitmapOffsetX, bitmapOffsetY) + (size / 2);
-    bitmapUV = bitmapUV % ivec2(size);
-    float val = ceil(imageLoad(bitmap, bitmapUV).r);
+    bitmapUV = ivec2(
+        (bitmapUV.x % size.x + size.x) % size.x,
+        (bitmapUV.y % size.y + size.y) % size.y
+    );
 
-    if(inverted == 1){
-        val = 1.0 - val;
+    //Check if safe here
+    if(bitmapUV.x < 0 || bitmapUV.y < 0 || bitmapUV.x > size.x - 1 || bitmapUV.y > size.y - 1){
+        return 1.0;
     }
+
+    float val = ceil(imageLoad(bitmap, bitmapUV).r - threshold);
+    val = clamp(val, 0.0, 1.0);
 
     return val;
 }
@@ -32,10 +41,10 @@ float sampleBitmap(ivec2 uv){
 bool isBorder(ivec2 uv){
     float center = sampleBitmap(uv);
 
-	float left = sampleBitmap(uv + ivec2(-1, 0));//ceil(imageLoad(bitmap, uv + ivec2(-1, 0)).r);
-	float right = sampleBitmap(uv + ivec2(1, 0));//ceil(imageLoad(bitmap, uv + ivec2(1, 0)).r);
-	float up = sampleBitmap(uv + ivec2(0, -1));//ceil(imageLoad(bitmap, uv + ivec2(0, -1)).r);
-	float down = sampleBitmap(uv + ivec2(0, 1));//ceil(imageLoad(bitmap, uv + ivec2(0, 1)).r);
+	float left = sampleBitmap(uv + ivec2(-1, 0));
+	float right = sampleBitmap(uv + ivec2(1, 0));
+	float up = sampleBitmap(uv + ivec2(0, -1));
+	float down = sampleBitmap(uv + ivec2(0, 1));
 
     
     if(center > 0.5 && left * right * up * down < 0.5){
@@ -48,6 +57,9 @@ bool isBorder(ivec2 uv){
 void main(){
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
     ivec2 size = imageSize(bitmap);
+    if(uv.x >= size.x || uv.y >= size.y){
+        return;
+    }
     vec2 UV = vec2(uv) / vec2(size);
 
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);

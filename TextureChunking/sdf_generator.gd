@@ -24,9 +24,13 @@ var forgroundSDFim2RID : RID
 
 var backgroundSDFim1RID : RID
 var backgroundSDFim2RID : RID
+
+var workGroups : Vector3i
 func setupRenderingDevice():
-	rd = RenderingServer.get_rendering_device()
+	var w : int = int(sqrt(float(TerrainRendering.renderSectionSize * TerrainRendering.renderSectionSize) / float(32 * 32)))
+	workGroups = Vector3i(w, w, 1)
 	
+	rd = RenderingServer.get_rendering_device()
 	
 	JFSeedShader = rd.shader_create_from_spirv(JFSeedFile.get_spirv())
 	pipelineSeed = rd.compute_pipeline_create(JFSeedShader)
@@ -55,7 +59,7 @@ func setupRenderingDevice():
 	backgroundSDFim2RID = TerrainRendering.getRIDImage(image4, rd)
 	
 
-func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID, sined : int = 1, inverted : int = 0, offset : int = 1, offsetOveride : Vector2i = Vector2i(256, 256)) -> RID: #Bitmaps check the red channel
+func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID, threshold : float = 0.0, sined : int = 1, offset : int = 1, offsetOveride : Vector2i = Vector2i(0, 0)) -> RID: #Bitmaps check the red channel
 	#Seed
 	var bitmap : RDUniform = TerrainRendering.getUniformImage(bitmapRID, 0)
 	var outputIm : RDUniform = TerrainRendering.getUniformImage(image1RID, 1)
@@ -63,25 +67,26 @@ func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID, sined : int = 
 	var worldOffsetData := PackedInt32Array([
 	int(TerrainRendering.tileTextureOffset.x * float(TerrainRendering.renderSectionSize) * float(offset)),
 	int(TerrainRendering.tileTextureOffset.y * float(TerrainRendering.renderSectionSize) * float(offset)),
-	sined,
-	inverted
+	sined
 	])
 	if offset == 0:
 		worldOffsetData = PackedInt32Array([
 		offsetOveride.x,
 		offsetOveride.y,
-		sined,
-		inverted
+		sined
 		])
 	
+	var thresholdData := PackedFloat32Array([threshold])
+	var thresholdRID := TerrainRendering.getRIDStorageBufferFloat(thresholdData, rd)
+	var thresholdUniform := TerrainRendering.getUniformStorageBuffer(thresholdRID, 3)
 	
 	var woRID := TerrainRendering.getRIDStorageBufferInt(worldOffsetData, rd)
 	var woUniform := TerrainRendering.getUniformStorageBufferInt(woRID, 2)
 	
-	var uniformSet : RID = rd.uniform_set_create([bitmap, outputIm, woUniform], JFSeedShader, 0)
+	var uniformSet : RID = rd.uniform_set_create([bitmap, outputIm, woUniform, thresholdUniform], JFSeedShader, 0)
 	var computeList : int = rd.compute_list_begin()
 	
-	TerrainRendering.executeComputeShader(Vector3i(16,16,1), rd, computeList, pipelineSeed, uniformSet)
+	TerrainRendering.executeComputeShader(workGroups, rd, computeList, pipelineSeed, uniformSet)
 	
 	var passes : int = ceil(log(TerrainRendering.renderSectionSize) / log(2.0))
 	for i in passes:
@@ -103,7 +108,7 @@ func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID, sined : int = 
 		uniformSet = rd.uniform_set_create([dataUniform, input, output], JFPassShader, 0)
 		computeList = rd.compute_list_begin()
 		
-		TerrainRendering.executeComputeShader(Vector3i(16,16,1), rd, computeList, pipelinePass, uniformSet)
+		TerrainRendering.executeComputeShader(workGroups, rd, computeList, pipelinePass, uniformSet)
 		
 		rd.free_rid(dataRID)
 	
@@ -122,13 +127,15 @@ func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID, sined : int = 
 		returnRID = image2RID
 	
 	woUniform = TerrainRendering.getUniformStorageBufferInt(woRID, 3)
+	thresholdUniform = TerrainRendering.getUniformStorageBuffer(thresholdRID, 4)
 	
-	uniformSet = rd.uniform_set_create([bitmap, finalInput, finalOutput, woUniform], JFDistanceShader, 0)
+	uniformSet = rd.uniform_set_create([bitmap, finalInput, finalOutput, woUniform, thresholdUniform], JFDistanceShader, 0)
 	computeList = rd.compute_list_begin()
 	
-	TerrainRendering.executeComputeShader(Vector3i(16,16,1), rd, computeList, pipelineDistance, uniformSet)
+	TerrainRendering.executeComputeShader(workGroups, rd, computeList, pipelineDistance, uniformSet)
 	
 	rd.free_rid(woRID)
+	rd.free_rid(thresholdRID)
 	return returnRID
 
 func _process(_delta: float) -> void:

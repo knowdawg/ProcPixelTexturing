@@ -115,16 +115,22 @@ func _process(_delta: float) -> void:
 		dirty = false
 	
 	if type == tilemapType.FOREGROUND:
-		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-			addTileRadius(get_global_mouse_position(), 0, 4)
-			
-		if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-			var pos : Vector2 = local_to_map(get_global_mouse_position())
-			addTileRadius(pos, -1, 6)
+		if !Input.is_action_pressed("ui_accept"):
+			if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+				addTileRadius(get_global_mouse_position(), 0, 6)
+				
+			if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+				var pos : Vector2 = local_to_map(get_global_mouse_position())
+				addTileRadius(pos, -1, 6)
 			
 	if type == tilemapType.BACKGROUND:
-		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-			addTileRadius(get_global_mouse_position(), 0, 10)
+		if Input.is_action_pressed("ui_accept"):
+			if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+				addTileRadius(get_global_mouse_position(), 0, 10)
+				
+			if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+				var pos : Vector2 = local_to_map(get_global_mouse_position())
+				addTileRadius(pos, -1, 6)
 
 func updateChunks() -> void:
 	if !is_instance_valid(get_viewport().get_camera_2d()):
@@ -215,7 +221,9 @@ func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	var uniformSet := rd.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniform], textureChunkShader, 0)
 	var computeList = rd.compute_list_begin()
 	
-	TerrainRendering.executeComputeShader(Vector3i(8, 8, 1), rd, computeList, pipeline, uniformSet)
+	var w = sqrt(float(TerrainRendering.chunkSize * TerrainRendering.chunkSize) / float(8 * 8))
+	var workgroups := Vector3i(int(w), int(w), 1)
+	TerrainRendering.executeComputeShader(workgroups, rd, computeList, pipeline, uniformSet)
 	
 	rd.free_rid(chunkDataRID)
 	rd.free_rid(tileImageRID)

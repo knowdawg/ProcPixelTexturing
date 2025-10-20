@@ -16,6 +16,11 @@ layout(set = 0, binding = 3, std430) readonly buffer SunDirection {
 
 
 float sampleDistanceFields(ivec2 uv){
+    vec2 size = min(imageSize(foregroundSDF), imageSize(backgroundSDF));
+    if(uv.x < 0 || uv.y < 0 || uv.x > size.x - 1 || uv.y > size.y - 1){
+        return 0;
+    }
+
     vec2 sam1 = imageLoad(foregroundSDF, uv).xy;
     vec2 sam2 = imageLoad(backgroundSDF, uv).xy;
     float sam1Pos = (sam1.g - 0.5) * -2.0; //1 if outside, -1 if inside
@@ -29,6 +34,11 @@ float sampleDistanceFields(ivec2 uv){
 }
 
 float sampleDistanceFieldsSafe(ivec2 uv){
+    vec2 size = min(imageSize(foregroundSDF), imageSize(backgroundSDF));
+    if(uv.x < 0 || uv.y < 0 || uv.x > size.x - 1 || uv.y > size.y - 1){
+        return 0;
+    }
+
     vec2 sam1 = imageLoad(foregroundSDF, uv).xy;
     vec2 sam2 = imageLoad(backgroundSDF, uv).xy;
 
@@ -39,6 +49,11 @@ float sampleDistanceFieldsSafe(ivec2 uv){
 
 
 float sampleForegroundDistanceField(ivec2 uv){
+    vec2 size = min(imageSize(foregroundSDF), imageSize(backgroundSDF));
+    if(uv.x < 0 || uv.y < 0 || uv.x > size.x - 1 || uv.y > size.y - 1){
+        return 0;
+    }
+
     vec2 sam = imageLoad(foregroundSDF, uv).rg;
     float samPos = (floor(sam.g) - 0.5) * -2.0; //1 if outside, -1 if inside
 
@@ -59,10 +74,20 @@ void main(){
     float imSize = float(imageSize(outputBuffer).x);
     float threshold = (1.0 / imSize) + 0.00001;
 
+    vec2 size = min(imageSize(foregroundSDF), imageSize(backgroundSDF));
+
+    bool isBackgroundTile = sampleForegroundDistanceField(uv) > 0.0;
+
 	for(int i = 0; i < 80; i++){
 		vec2 curPos = vec2(uv) + (angleVector * disTraveled);
+
+        if(curPos.x < 0 || curPos.y < 0 || curPos.x > size.x - 1 || curPos.y > size.y - 1){ //If you leave the screen, you failed
+            break;
+        }
+
 		sdfVal = sampleDistanceFields(ivec2(curPos));
         foregroundSdfVal = sampleForegroundDistanceField(ivec2(curPos));
+
 
 
         float moveAmount;
@@ -73,6 +98,10 @@ void main(){
             float v = sampleDistanceFieldsSafe(ivec2(curPos));
             moveAmount = max(v, threshold) * imSize;
             disTraveled += moveAmount;
+        }
+
+        if(isBackgroundTile){ // IF im a background tile, slowly fade out the light ray
+            intensity -= (moveAmount / imSize) * 2.0;
         }
 
 		
@@ -90,58 +119,11 @@ void main(){
 		}
 	}
 
+    if(isBackgroundTile){ //If I am a background Tile, then smoothstep for more visible light rays
+        intensity = smoothstep(0.0, 0.5, intensity);
+    }
+
     intensity *= finished;
     vec4 color = vec4(vec3(intensity), 1.0);
     imageStore(outputBuffer, uv, color);
 }
-
-// void fragment() {
-// 	//Setup the variables for SDF Raymarching
-// 	vec2 angleVector = vec2(cos(SUN_DIRECTION), sin(SUN_DIRECTION));
-// 	float envirementSDFVal = 0.0;
-// 	float lightSDFVal = 0.0;
-// 	float intensity = 1.0;
-// 	float disTraveled = 0.0;
-
-// 	float finished = 0.0;
-
-// 	for(int i = 0; i < 40; i++){
-// 		vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
-// 		envirementSDFVal = texture(envirementalSDF, curPos).r;
-// 		lightSDFVal = texture(lightSDF, curPos).r;
-// 		float combinedSDF = min(envirementSDFVal, lightSDFVal);
-		
-// 		if(combinedSDF > 0.007){
-// 			disTraveled += abs(combinedSDF);
-// 			//intensity -= abs(combinedSDF) * 0.1;//If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
-// 		}else{
-// 			float moveAmount = length(SCREEN_PIXEL_SIZE * angleVector);
-// 			disTraveled += moveAmount;//Bump the distance traveled to speed up the algorithm and to prevent the raymarching from moving zero every loop.
-// 			intensity -= moveAmount * 10.0;
-// 		}
-		
-		
-// 		if(lightSDFVal < 0.007){
-// 			finished = 1.0;
-// 			break;
-// 		}
-// 		if(intensity <= 0.0){
-// 			break;
-// 		}
-// 	}
-// 	float lightVal = texture(lightSDF, SCREEN_UV).r;
-// 	lightVal = 1.0 - smoothstep(0.0, 0.05, lightVal);
-// 	//lightVal = step(0.3, lightVal);
-// 	//intensity = max(intensity * 1.0, lightVal);
-	
-// 	intensity *= finished;
-// 	//intensity = step(0.1, intensity);
-// 	intensity = clamp(intensity, 0.0, 1.0);
-// 	//intensity = smoothstep(0.0, 1.0, intensity);
-	
-// 	COLOR = vec4(vec3(intensity), intensity);
-	
-// 	//float v = texture(envirementalSDF, UV).r;
-// 	//v = step(0.01, v);
-// 	//COLOR.rgb = vec3(v);
-// }

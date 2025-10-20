@@ -31,16 +31,3 @@ void main(){
 
     imageStore(outputBuffer, uv, color);
 }
-
-// void fragment() {
-
-// 	float lightVal = texture(lightSDF, SCREEN_UV).r;
-// 	lightVal = 1.0 - smoothstep(0.0, 0.2, lightVal);
-	
-// 	float lightRayVal = texture(lightRaySDF, SCREEN_UV).r;
-	
-// 	lightVal = max(lightRayVal, lightVal * 0.5);
-	
-// 	COLOR = vec4(vec3(lightVal), 1.0);
-	
-// }

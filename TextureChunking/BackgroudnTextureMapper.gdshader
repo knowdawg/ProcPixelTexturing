@@ -1,6 +1,6 @@
 shader_type canvas_item;
 
-uniform vec2 RESOLUTION;
+global uniform vec2 RENDER_QUADRANT_SIZE;
 global uniform vec2 WORLD_POSITION;
 global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
@@ -32,14 +32,13 @@ uniform vec4 WOOD_BORDER_COLOR : source_color;
 
 group_uniforms lighting;
 uniform float falloff : hint_range(0.0, 100.0);
-uniform vec2 SDFTextureSize = vec2(512.0, 512.0);
 
 varying vec2 screenSize;
 varying vec4 screen;
 
 vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D grad, vec4 border, inout vec3 normal){
 	vec4 c = vec4(1.0);
-	vec2 offsetUV = uv;// + vec2(floor(WORLD_POSITION) / RESOLUTION);
+	vec2 offsetUV = uv;
 	switch(type){
 		case 0:
 			c.a = 0.0;
@@ -49,11 +48,11 @@ vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D g
 			break;
 		case 2:
 			c = border;
-			normal = texture(normalMap, offsetUV * (RESOLUTION / vec2(256.0, 256.0))).rgb;
+			normal = texture(normalMap, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0))).rgb;
 			break;
 		case 3:
-			vec4 tVal = texture(tex, offsetUV * (RESOLUTION / vec2(256.0, 256.0)));
-			normal = texture(normalMap, offsetUV * (RESOLUTION / vec2(256.0, 256.0))).rgb;
+			vec4 tVal = texture(tex, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0)));
+			normal = texture(normalMap, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0))).rgb;
 			c = texture(grad, vec2(tVal.r, 0.0));
 			break;
 		default:
@@ -142,27 +141,16 @@ void light() {
 	float closestSdfVal = 1.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		//angleVector = LIGHT_DIRECTION.xy;
-		//float sdfVal = texture_sdf(screen_uv_to_sdf(SCREEN_UV));
-		//sdfVal *= 0.02;
-		//
-		//intensity = texture(GLOBAL_ILLUMINATION, SCREEN_UV).r * 2.0;
-		//if(abs(sdfVal) < 0.05 && intensity > 0.6){
-			//intensity += 1.0;
-		//}
-		//intensity += sdfVal;
-		//intensity = clamp(intensity, 0.0, 1.0);
-		
 		vec2 lightMapTexturePos = (SCREEN_UV / screenSize) + WORLD_POSITION; //Get rid of world pos?
-		lightMapTexturePos /= SDFTextureSize;
+		lightMapTexturePos /= RENDER_QUADRANT_SIZE;
 		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-		lightMapTexturePos = fract(lightMapTexturePos);
 		
-		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos);
+		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos) * 2.0;
 		intensity = lightVal.r;
 		finished = 1.0;
 		
 	}else{
+		float threshold = 1.0 / RENDER_QUADRANT_SIZE.x;
 		for(int i = 0; i < 40; i++){
 			if(distanceNeededToTravel > 0.6){
 				finished = 0.0;
@@ -171,7 +159,7 @@ void light() {
 			
 			vec2 curPos = SCREEN_UV + (angleVector * disTraveled);
 			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION; //Get rid of world pos?
-			sdfTexturePos /= SDFTextureSize;
+			sdfTexturePos /= RENDER_QUADRANT_SIZE;
 			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 			sdfTexturePos = fract(sdfTexturePos);
 			sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).r;
@@ -179,7 +167,7 @@ void light() {
 			
 			closestSdfVal = min(sdfVal * 200.0, closestSdfVal);
 			
-			if(sdfVal <= 0.00196){ //1/512 roudned slightly up
+			if(sdfVal <= threshold){
 				finished = 0.0;
 				break;
 			}

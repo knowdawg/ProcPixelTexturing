@@ -21,6 +21,8 @@ var GIShaderFile = preload("uid://baitjqntj0whw")
 var GIShader : RID
 var GIPipeline : RID
 
+var workGroups : Vector3i
+
 func _process(_delta: float) -> void:
 	var rid : RID = createLightrayIm(TerrainRendering.foregroundSDF, TerrainRendering.backgroundSDF, lightrayImRID)
 	TerrainRendering.lightrays = rid
@@ -30,25 +32,13 @@ func _process(_delta: float) -> void:
 	lightRayVisualizer.texture = t
 	
 	if sdfGen:
-		var image1 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
-		image1.fill(Color.BLACK)
-		jumpFloodIm1RID = TerrainRendering.getRIDImage(image1, rd)
-		
-		var image2 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
-		image2.fill(Color.BLACK)
-		jumpFloodIm2RID = TerrainRendering.getRIDImage(image2, rd)
-		
-		lightRaySDFRID = sdfGen.createSDF(lightrayImRID, jumpFloodIm1RID, jumpFloodIm2RID, 1, 0, 0)
+		lightRaySDFRID = sdfGen.createSDF(lightrayImRID, jumpFloodIm1RID, jumpFloodIm2RID, 0.6, 1, 0, Vector2i(int(float(TerrainRendering.renderSectionSize) / 2.0), int(float(TerrainRendering.renderSectionSize) / 2.0)))
 		
 		var s = Texture2DRD.new()
 		s.texture_rd_rid = lightRaySDFRID
 		lightSDFVisualize.texture = s
 		
 		#Final Light Spreading
-		var image3 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
-		image2.fill(Color.BLACK)
-		globalIlluminationRID = TerrainRendering.getRIDImage(image3, rd)
-		
 		var lightmap : RDUniform = TerrainRendering.getUniformImage(lightrayImRID, 0)
 		var lightSDF : RDUniform = TerrainRendering.getUniformImage(lightRaySDFRID, 1)
 		var globalIllumination : RDUniform = TerrainRendering.getUniformImage(globalIlluminationRID, 2)
@@ -56,7 +46,7 @@ func _process(_delta: float) -> void:
 		var uniformSet : RID = rd.uniform_set_create([lightmap, lightSDF, globalIllumination], GIShader, 0)
 		var computeList : int = rd.compute_list_begin()
 		
-		TerrainRendering.executeComputeShader(Vector3i(16,16,1), rd, computeList, GIPipeline, uniformSet)
+		TerrainRendering.executeComputeShader(workGroups, rd, computeList, GIPipeline, uniformSet)
 		
 		TerrainRendering.GI = globalIlluminationRID
 		
@@ -69,6 +59,9 @@ func _ready() -> void:
 	setupRenderingDevice()
 
 func setupRenderingDevice():
+	var w : int = int(sqrt(float(TerrainRendering.renderSectionSize * TerrainRendering.renderSectionSize) / float(32 * 32)))
+	workGroups = Vector3i(w, w, 1)
+	
 	rd = RenderingServer.get_rendering_device()
 	
 	lightrayShader = rd.shader_create_from_spirv(lightrayShaderFile.get_spirv())
@@ -80,6 +73,19 @@ func setupRenderingDevice():
 	var image1 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
 	image1.fill(Color.BLACK)
 	lightrayImRID = TerrainRendering.getRIDImage(image1, rd)
+	
+	
+	var image2 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
+	image2.fill(Color.BLACK)
+	jumpFloodIm1RID = TerrainRendering.getRIDImage(image2, rd)
+	
+	var image3 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
+	image3.fill(Color.BLACK)
+	jumpFloodIm2RID = TerrainRendering.getRIDImage(image3, rd)
+	
+	var image4 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
+	image4.fill(Color.BLACK)
+	globalIlluminationRID = TerrainRendering.getRIDImage(image4, rd)
 	
 
 func createLightrayIm(bitmap1RID : RID, bitmap2RID : RID, outputImRID : RID) -> RID: #Bitmaps check the red channel
@@ -96,7 +102,7 @@ func createLightrayIm(bitmap1RID : RID, bitmap2RID : RID, outputImRID : RID) -> 
 	var uniformSet : RID = rd.uniform_set_create([bitmap1, bitmap2, outputIm, sdUniform], lightrayShader, 0)
 	var computeList : int = rd.compute_list_begin()
 	
-	TerrainRendering.executeComputeShader(Vector3i(16,16,1), rd, computeList, pipelineLightray, uniformSet)
+	TerrainRendering.executeComputeShader(workGroups, rd, computeList, pipelineLightray, uniformSet)
 	
 	rd.free_rid(sunDirection)
 	

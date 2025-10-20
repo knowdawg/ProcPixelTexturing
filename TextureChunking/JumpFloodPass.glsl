@@ -15,27 +15,32 @@ layout(set = 0, binding = 2, rgba32f) uniform writeonly image2D outputBuffer;
 
 void main(){
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = imageSize(inputBuffer);
+    if(uv.x >= size.x || uv.y >= size.y){
+        return;
+    }
+
+
     float closestDist = 9999999.9;
     vec2 closestPos = vec2(0.0);
-    ivec2 texSize = imageSize(outputBuffer);
 
     for(float x = -1.0; x <= 1.0; x += 1.0){
         for(float y = -1.0; y <= 1.0; y += 1.0){
             ivec2 voffset = uv;
             voffset += ivec2(x, y) * offset;
 
-            if (voffset.x < 0 || voffset.x > texSize.x - 1) {
+            if (voffset.x < 0 || voffset.x > size.x - 1) {
                 continue;
             }
-            if (voffset.y < 0 || voffset.y > texSize.y - 1) {
+            if (voffset.y < 0 || voffset.y > size.y - 1) {
                 continue;
             }
-            vec2 pos = imageLoad(inputBuffer, voffset).xy * float(texSize);
+            vec2 pos = imageLoad(inputBuffer, voffset).xy * float(size);
             float dist = distance(pos.xy, vec2(uv));
 
             if(pos.x != 0.0 && pos.y != 0.0 && dist < closestDist){
                 closestDist = dist;
-                closestPos = pos / float(texSize);
+                closestPos = pos / float(size);
             }
         }
     }
