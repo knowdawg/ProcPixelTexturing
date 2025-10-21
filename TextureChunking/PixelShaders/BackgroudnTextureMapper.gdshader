@@ -121,11 +121,14 @@ void fragment() {
 	
 	COLOR = c;
 	
-	//float disToEdge = (self.a - 0.5) * 2.0;
-	//vec2 dir = angleToVec2(self.b);
-	//vec3 nVal = directionToNormal(dir);
-	//nVal = clamp(nVal, vec3(0.0), vec3(1.0));
-	//NORMAL_MAP = mix(nVal, NORMAL_MAP, disToEdge);
+	float disToEdge = (self.a - 0.5) * 2.0;
+	vec2 dir = angleToVec2(self.b);
+	vec3 nVal = directionToNormal(dir);
+	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
+	
+	disToEdge += 0.2;
+	disToEdge = clamp(disToEdge, 0.0, 1.0);
+	NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge);
 }
 
 
@@ -137,6 +140,8 @@ void light() {
 	//Setup the variables for SDF Raymarching
 	vec2 lightPosNormalized = unzoomedLightPos.xy;
 	vec2 angleVector = normalize(lightPosNormalized - unzoomedUV);
+	//if (any(isnan(angleVector))) angleVector = vec2(0.0);
+	
 	float sdfVal = 0.0;
 	float intensity = 1.0;
 	float distanceNeededToTravel = length(lightPosNormalized - unzoomedUV);
@@ -153,12 +158,12 @@ void light() {
 		lightMapTexturePos /= RENDER_QUADRANT_SIZE;
 		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		
-		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos) * 2.0;
+		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos) * 1.5;
 		intensity = lightVal.r;
 		finished = 1.0;
 		
 	}else{
-		float threshold = 1.0 / RENDER_QUADRANT_SIZE.x;
+		float threshold = (1.0 / RENDER_QUADRANT_SIZE.x);
 		for(int i = 0; i < 80; i++){
 			if(distanceNeededToTravel > 0.6){
 				finished = 0.0;
@@ -169,14 +174,14 @@ void light() {
 			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
 			sdfTexturePos /= RENDER_QUADRANT_SIZE;
 			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-			sdfTexturePos = fract(sdfTexturePos);
-			sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).r;
+			vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
+			sdfVal = sdfData.r;
 			disTraveled += abs(sdfVal);
 			
 			closestSdfVal = min(sdfVal * 200.0 * textureScalling, closestSdfVal);
 			
 			if(sdfVal <= threshold){
-				finished = 0.0;
+				finished = 0.3;
 				break;
 			}
 			if(disTraveled > distanceNeededToTravel){

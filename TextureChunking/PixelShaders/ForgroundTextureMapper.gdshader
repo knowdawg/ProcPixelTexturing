@@ -122,15 +122,19 @@ void fragment() {
 	COLOR = c;
 	
 	float disToEdge = (self.a - 0.5) * 2.0;
-	//disToEdge = clamp(disToEdge, 0.0, 1.0);
 	vec2 dir = angleToVec2(self.b);
 	vec3 nVal = directionToNormal(dir);
 	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
+	
+	disToEdge += 0.2;
+	disToEdge = clamp(disToEdge, 0.0, 1.0);
 	NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge);
 	
 	//NORMAL_MAP = nVal;
 	//COLOR.rg = NORMAL_MAP.xy;
 	//COLOR.b = 1.0;
+	
+	//COLOR.rgb = vec3(disToEdge);
 	
 	//COLOR.rgb = vec3(disToEdge);
 	
@@ -174,14 +178,20 @@ void light() {
 		float lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos).r;
 		//lightVal *= 2.0;
 		
+		//Highlights
 		vec2 sdfTexturePos = (unzoomedUV / screenSize) + WORLD_POSITION;
 		sdfTexturePos /= RENDER_QUADRANT_SIZE;
 		sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		sdfTexturePos = fract(sdfTexturePos);
 		vec2 sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).rg;
 		sdfVal.r *= ((sdfVal.g - 0.5) * -2.0);
-		
-		lightVal += min(sdfVal.r * 20.0 * textureScalling, 0.0);
+		float subtract = min(sdfVal.r * 10.0 * textureScalling, 0.0);
+		float bonus = 0.0;
+		if(lightVal > 0.75){
+			bonus = (lightVal + subtract * 10.0);
+		}
+		subtract = smoothstep(0.0, 0.5, lightVal + subtract);
+		lightVal = subtract + bonus;
 		
 		intensity = lightVal;
 		
@@ -218,7 +228,7 @@ void light() {
 		intensity = clamp(intensity, 0.0, 1.0);
 	}
 	
-	intensity = clamp(intensity, 0.0, 1.0);
+	intensity = clamp(intensity, 0.0, 100.0);
 	
 	float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));
 	LIGHT = vec4(LIGHT_COLOR.rgb * screen.rgb * intensity * LIGHT_ENERGY * cNdotL, LIGHT_COLOR.a);
