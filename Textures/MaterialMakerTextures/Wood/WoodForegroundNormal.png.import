@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c1kgpsfpv0vms"
-path="res://.godot/imported/OreForegroundNormal.png-53f9f622edbd218950ef3bd3df542d44.ctex"
+uid="uid://blrti6uy0b2l7"
+path="res://.godot/imported/WoodForegroundNormal.png-2bdacc37e505166d72a0afe05fdae68c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/MaterialMakerTextures/OreForegroundNormal.png"
-dest_files=["res://.godot/imported/OreForegroundNormal.png-53f9f622edbd218950ef3bd3df542d44.ctex"]
+source_file="res://Textures/MaterialMakerTextures/Wood/WoodForegroundNormal.png"
+dest_files=["res://.godot/imported/WoodForegroundNormal.png-2bdacc37e505166d72a0afe05fdae68c.ctex"]
 
 [params]
 

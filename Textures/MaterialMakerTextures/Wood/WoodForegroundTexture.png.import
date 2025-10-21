@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bc7o4qxbaxm6x"
-path="res://.godot/imported/SandBackgroundTexture.png-273f3e8cc82f0e85e3fa98100f13b540.ctex"
+uid="uid://dco5ltgerwu6t"
+path="res://.godot/imported/WoodForegroundTexture.png-4b56e11be84442e27260b2ce0bd2f0a0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/MaterialMakerTextures/SandBackgroundTexture.png"
-dest_files=["res://.godot/imported/SandBackgroundTexture.png-273f3e8cc82f0e85e3fa98100f13b540.ctex"]
+source_file="res://Textures/MaterialMakerTextures/Wood/WoodForegroundTexture.png"
+dest_files=["res://.godot/imported/WoodForegroundTexture.png-4b56e11be84442e27260b2ce0bd2f0a0.ctex"]
 
 [params]
 

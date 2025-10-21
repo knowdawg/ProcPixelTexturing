@@ -152,11 +152,33 @@ func updateChunks() -> void:
 				if cCoord.x < worldChunkSize.x and cCoord.y < worldChunkSize.y:
 					activeChunks.append(chunks[cCoord.x][cCoord.y])
 	
-	for c : TextureChunk in activeChunks:
-		if !prevActiveChunks.has(c):
-			c.makeDirty()
+	
+	if type == tilemapType.FOREGROUND:
+		var loadedRect := Rect2(0.0, 0.0, 0.0, 0.0)
+		var topLeftChunkCoord : Vector2i = centerChunk - Vector2i(topLeftChunkOffset, topLeftChunkOffset)
+		var numOfChunks := Vector2i(int(float(TerrainRendering.mapSize.x) / float(TerrainRendering.chunkSize)), int(float(TerrainRendering.mapSize.y) / float(TerrainRendering.chunkSize)))
+		if topLeftChunkCoord.x < numOfChunks.x - 1 and topLeftChunkCoord.y < numOfChunks.y - 1:
+			loadedRect.position = chunks[topLeftChunkCoord.x][topLeftChunkCoord.y].global_position
+			loadedRect.size = Vector2(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize)
+			if topLeftChunkCoord.x < 0:
+				loadedRect.position.x = 0.0
+				loadedRect.size.x += topLeftChunkCoord.x * TerrainRendering.chunkSize
+			if topLeftChunkCoord.y < 0:
+				loadedRect.position.y = 0.0
+				loadedRect.size.y += topLeftChunkCoord.y * TerrainRendering.chunkSize
+			TerrainRendering.loadedRect = loadedRect
 	
 	for c : TextureChunk in activeChunks:
+		if !prevActiveChunks.has(c):
+			c.activate()
+			c.makeDirty()
+	
+	for c : TextureChunk in prevActiveChunks:
+		if !activeChunks.has(c):
+			c.deActivate()
+	
+	for c : TextureChunk in activeChunks:
+		c.active = true
 		c.updateChunk()
 	
 	var scroll : Vector2 = Vector2.ZERO

@@ -7,6 +7,17 @@ global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
 global uniform vec2 TILE_TEXTURE_SCROLL;
 
+//uniform sampler2D TEXTURES[128];
+//uniform sampler2D NORMALS[128];
+//uniform sampler2D GRADIENTS[128];
+//uniform vec4 BORDERS[128];
+
+
+global uniform sampler2DArray FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
+global uniform sampler2DArray FOREGROUND_NORMALS_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
+global uniform sampler2DArray FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
+global uniform sampler2D FOREGROUND_BORDER_COLORS : filter_nearest;
+
 group_uniforms dirt;
 uniform sampler2D DIRT_TEX : filter_nearest, repeat_enable;
 uniform sampler2D DIRT_NORMAL : filter_nearest, repeat_enable;
@@ -33,13 +44,25 @@ uniform vec4 WOOD_BORDER_COLOR : source_color;
 
 group_uniforms lighting;
 uniform float falloff : hint_range(0.0, 100.0);
+uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float warp : hint_range(-1.0, 1.0) = 0.03;
+uniform int numOfUniqueTiles = 128;
 
 varying vec2 screenSize;
 varying vec4 screen;
 
-vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D grad, vec4 border, inout vec3 normal){
+vec4 getColor(int type, vec2 uv, float rVal, inout vec3 normal){
 	vec4 c = vec4(1.0);
-	vec2 offsetUV = uv;
+	vec2 offsetUV = uv * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
+	float tileIndex = rVal * float(numOfUniqueTiles);
+	tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
+	
+	vec3 arrayUV = vec3(offsetUV, tileIndex);
+	
+	vec4 border = texture(FOREGROUND_BORDER_COLORS, vec2(rVal - (1.0 / float(numOfUniqueTiles)), 0.0));
+	vec4 tVal = texture(FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
+	vec4 nVal = texture(FOREGROUND_NORMALS_SAMPLER_2D_ARRAY, arrayUV);
+	
 	switch(type){
 		case 0:
 			c.a = 0.0;
@@ -49,12 +72,11 @@ vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D g
 			break;
 		case 2:
 			c = border;
-			normal = texture(normalMap, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0))).rgb;
+			normal = nVal.rgb;
 			break;
 		case 3:
-			vec4 tVal = texture(tex, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0)));
-			normal = texture(normalMap, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0))).rgb;
-			c = texture(grad, vec2(tVal.r, 0.0));
+			normal = nVal.rgb;
+			c = texture(FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY, vec3(vec2(tVal.r), tileIndex));
 			break;
 		default:
 			c.a = 0.0;
@@ -90,6 +112,7 @@ vec3 directionToNormal(vec2 direction) {
 }
 
 void fragment() {
+	float textureScalling = RENDER_QUADRANT_SIZE.x / 512.0;
 	vec2 qUV = UV + TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
 	qUV = fract(qUV);
 	qUV = floor(qUV * RENDER_QUADRANT_SIZE) / RENDER_QUADRANT_SIZE;
@@ -97,19 +120,33 @@ void fragment() {
 	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
 	
+	float disToEdge = (self.a - 0.5) * 2.0;
+	disToEdge = clamp(disToEdge, 0.0, 1.0);
+	disToEdge += 0.1;
+	vec2 dir = angleToVec2(self.b);
+	
+	if(disToEdge < 1.0){
+		qUV += (dir * clamp(1.0 - disToEdge, 0.0, 1.0)) * warp * textureScalling;
+	}
 	
 	vec4 c = vec4(1.0);
-	if(self.r < 0.05){
-		c.a = 0.0;
-	}else if(self.r < 0.15){
-		c = getColor(type, qUV, STONE_TEX, STONE_NORMAL, STONE_GRAD, STONE_BORDER_COLOR, NORMAL_MAP);
-	}else if(self.r < 0.25){
-		c = getColor(type, qUV, GRASS_TEX, GRASS_NORMAL, GRASS_GRAD, GRASS_BORDER_COLOR, NORMAL_MAP);
-	}else if(self.r < 0.35){
-		c = getColor(type, qUV, DIRT_TEX, DIRT_NORMAL, DIRT_GRAD, DIRT_BORDER_COLOR, NORMAL_MAP);
-	}else if(self.r < 0.45){
-		c = getColor(type, qUV, WOOD_TEX, WOOD_NORMAL, WOOD_GRAD, WOOD_BORDER_COLOR, NORMAL_MAP);
-	}
+	
+
+	
+	c = getColor(type, qUV, self.r, NORMAL_MAP);
+	
+	
+	//if(self.r < 0.05){
+		//c.a = 0.0;
+	//}else if(self.r < 0.15){
+		//c = getColor(type, qUV, STONE_TEX, STONE_NORMAL, STONE_GRAD, STONE_BORDER_COLOR, NORMAL_MAP);
+	//}else if(self.r < 0.25){
+		//c = getColor(type, qUV, GRASS_TEX, GRASS_NORMAL, GRASS_GRAD, GRASS_BORDER_COLOR, NORMAL_MAP);
+	//}else if(self.r < 0.35){
+		//c = getColor(type, qUV, DIRT_TEX, DIRT_NORMAL, DIRT_GRAD, DIRT_BORDER_COLOR, NORMAL_MAP);
+	//}else if(self.r < 0.45){
+		//c = getColor(type, qUV, WOOD_TEX, WOOD_NORMAL, WOOD_GRAD, WOOD_BORDER_COLOR, NORMAL_MAP);
+	//}
 	
 	
 	if(type == 1){
@@ -117,12 +154,10 @@ void fragment() {
 	}
 	
 	screenSize = SCREEN_PIXEL_SIZE;
-	screen = c;
+	screen = c * modulate;
 	
-	COLOR = c;
+	COLOR = c * modulate;
 	
-	float disToEdge = (self.a - 0.5) * 2.0;
-	vec2 dir = angleToVec2(self.b);
 	vec3 nVal = directionToNormal(dir);
 	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
 	
@@ -134,21 +169,7 @@ void fragment() {
 	//COLOR.rg = NORMAL_MAP.xy;
 	//COLOR.b = 1.0;
 	
-	//COLOR.rgb = vec3(disToEdge);
-	
-	//COLOR.rgb = vec3(disToEdge);
-	
-	//vec2 sdfData = texture(FOREGROUND_SDF, qUV).rg;
-	//
-	//COLOR = vec4(vec3(sdfData.r), 1.0);
-	
-	//vec2 curPos = SCREEN_UV;
-	//vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION; //Get rid of world pos?
-	//sdfTexturePos /= SDFTextureSize;
-	//sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-	//vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
-	//
-	//COLOR = vec4(sdfData.x, 0.0, 0.0, 1.0);
+	//COLOR = vec4(self.r, 0.0, 0.0, 1.0);
 }
 
 

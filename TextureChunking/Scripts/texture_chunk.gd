@@ -14,6 +14,7 @@ var chunkCoord : Vector2i
 var type : tilemapType
 
 var visualizeChunk : bool = true
+var active : bool = false
 
 var bitmap : BitMap
 var polygons : Array[PackedVector2Array]
@@ -58,7 +59,7 @@ func updateChunk():
 	if dirty:
 		updateBuffer()
 		dirty = false
-	
+
 
 func _draw() -> void:
 	if visualizeChunk:
@@ -67,3 +68,15 @@ func _draw() -> void:
 			c = Color.DARK_GREEN
 		draw_rect(Rect2(Vector2(1.0, 1.0), Vector2(chunkSize - 1, chunkSize - 1)), c, false, 1.0, false)
 		
+
+
+func activate():
+	active = true
+	$StaticBody2D.process_mode = ProcessMode.PROCESS_MODE_INHERIT
+	#print("activated")
+
+
+func deActivate():
+	active = false
+	$StaticBody2D.process_mode = ProcessMode.PROCESS_MODE_DISABLED
+	#print("Deactivated")

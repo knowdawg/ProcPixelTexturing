@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="TextureData" load_steps=18 format=3 uid="uid://dmla4e53rjkn6"]
+
+[ext_resource type="Script" uid="uid://bykil1fb2qabg" path="res://Globals/TextureData.gd" id="1_3irde"]
+[ext_resource type="Texture2D" uid="uid://dyqjl75k42htp" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundGrad.tres" id="1_kb7ft"]
+[ext_resource type="Texture2D" uid="uid://hhukqgvivmu1" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundTexture.png" id="2_1f87f"]
+[ext_resource type="Texture2D" uid="uid://dmdw0p5kdq3fw" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundNormal.png" id="3_tky1p"]
+[ext_resource type="Texture2D" uid="uid://dtjxymt6een88" path="res://Textures/MaterialMakerTextures/Sand/SandForegroundGrad.tres" id="4_8g4xb"]
+[ext_resource type="Texture2D" uid="uid://bhncobikshoru" path="res://Textures/MaterialMakerTextures/Sand/SandForegroundTexture.png" id="5_mxvq6"]
+[ext_resource type="Texture2D" uid="uid://v0a2qyye2rw4" path="res://Textures/MaterialMakerTextures/Sand/SandForegroundNormal.png" id="6_egidd"]
+[ext_resource type="Texture2D" uid="uid://coo0th0wamcwi" path="res://Textures/MaterialMakerTextures/Sandstone/SandstoneForegroundGrad.tres" id="7_a8seg"]
+[ext_resource type="Texture2D" uid="uid://bostlw04ai3tn" path="res://Textures/MaterialMakerTextures/Sandstone/SandstoneTextureForeground.png" id="8_7oih1"]
+[ext_resource type="Texture2D" uid="uid://cpgno0ypuh34i" path="res://Textures/MaterialMakerTextures/Sandstone/SandstoneNormalForeground.png" id="9_hmsyf"]
+[ext_resource type="Texture2D" uid="uid://d2l7oxeq07guv" path="res://Textures/MaterialMakerTextures/Wood/ForegroundWoodGrad.tres" id="11_wkgwu"]
+[ext_resource type="Texture2D" uid="uid://dco5ltgerwu6t" path="res://Textures/MaterialMakerTextures/Wood/WoodForegroundTexture.png" id="12_mpm23"]
+[ext_resource type="Texture2D" uid="uid://blrti6uy0b2l7" path="res://Textures/MaterialMakerTextures/Wood/WoodForegroundNormal.png" id="13_y6uy2"]
+
+[sub_resource type="Gradient" id="Gradient_kb7ft"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 0, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_1f87f"]
+gradient = SubResource("Gradient_kb7ft")
+
+[sub_resource type="Gradient" id="Gradient_m3hhm"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 0, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vidxy"]
+gradient = SubResource("Gradient_m3hhm")
+width = 256
+height = 256
+
+[resource]
+script = ExtResource("1_3irde")
+errorTexture = SubResource("GradientTexture2D_vidxy")
+errorGrad = SubResource("GradientTexture1D_1f87f")
+sandstoneTexture = ExtResource("8_7oih1")
+sandstoneNormal = ExtResource("9_hmsyf")
+sandstoneGrad = ExtResource("7_a8seg")
+sandstoneBorder = Color(0.9098039, 0.75686276, 0.4392157, 1)
+sandTexture = ExtResource("5_mxvq6")
+sandNormal = ExtResource("6_egidd")
+sandGrad = ExtResource("4_8g4xb")
+sandBorder = Color(0.9098039, 0.75686276, 0.4392157, 1)
+obsidianTexture = ExtResource("2_1f87f")
+obsidianNormal = ExtResource("3_tky1p")
+obsidianGrad = ExtResource("1_kb7ft")
+obsidianBorder = Color(0.1254902, 0.18039216, 0.21568628, 1)
+woodTexture = ExtResource("12_mpm23")
+woodNormal = ExtResource("13_y6uy2")
+woodGrad = ExtResource("11_wkgwu")
+woodBorder = Color(0.53333336, 0.29411766, 0.16862746, 1)
+metadata/_custom_type_script = "uid://bykil1fb2qabg"

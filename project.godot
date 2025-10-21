@@ -104,3 +104,19 @@ CAMERA_ZOOM={
 "type": "vec2",
 "value": Vector2(0, 0)
 }
+FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY={
+"type": "sampler2DArray",
+"value": ""
+}
+FOREGROUND_NORMALS_SAMPLER_2D_ARRAY={
+"type": "sampler2DArray",
+"value": ""
+}
+FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY={
+"type": "sampler2DArray",
+"value": ""
+}
+FOREGROUND_BORDER_COLORS={
+"type": "sampler2D",
+"value": ""
+}

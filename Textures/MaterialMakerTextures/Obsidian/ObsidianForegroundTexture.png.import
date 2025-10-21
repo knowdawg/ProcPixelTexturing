@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://hhukqgvivmu1"
-path="res://.godot/imported/ObsidianForegroundTexture.png-485f4810e197a6d55ee3aa01e2172140.ctex"
+path="res://.godot/imported/ObsidianForegroundTexture.png-63c62699b9cc67b29e31553420cd504b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/MaterialMakerTextures/ObsidianForegroundTexture.png"
-dest_files=["res://.godot/imported/ObsidianForegroundTexture.png-485f4810e197a6d55ee3aa01e2172140.ctex"]
+source_file="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundTexture.png"
+dest_files=["res://.godot/imported/ObsidianForegroundTexture.png-63c62699b9cc67b29e31553420cd504b.ctex"]
 
 [params]
 

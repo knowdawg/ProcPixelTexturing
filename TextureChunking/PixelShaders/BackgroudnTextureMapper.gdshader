@@ -32,10 +32,13 @@ uniform sampler2D WOOD_GRAD;
 uniform vec4 WOOD_BORDER_COLOR : source_color;
 
 group_uniforms lighting;
-uniform float falloff : hint_range(0.0, 100.0);
+uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+
+uniform float warp : hint_range(-1.0, 1.0) = 0.03;
 
 varying vec2 screenSize;
 varying vec4 screen;
+
 
 vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D grad, vec4 border, inout vec3 normal){
 	vec4 c = vec4(1.0);
@@ -90,6 +93,7 @@ vec3 directionToNormal(vec2 direction) {
 }
 
 void fragment() {
+	float textureScalling = RENDER_QUADRANT_SIZE.x / 512.0;
 	vec2 qUV = UV + TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
 	qUV = fract(qUV);
 	qUV = floor(qUV * RENDER_QUADRANT_SIZE) / RENDER_QUADRANT_SIZE;
@@ -97,8 +101,18 @@ void fragment() {
 	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
 	
+	float disToEdge = (self.a - 0.5) * 2.0;
+	disToEdge = clamp(disToEdge, 0.0, 1.0);
+	disToEdge += 0.1;
+	vec2 dir = angleToVec2(self.b);
+	
+	if(disToEdge < 1.0){
+		qUV += (dir * clamp(1.0 - disToEdge, 0.0, 1.0)) * warp * textureScalling;
+	}
+	
 	
 	vec4 c = vec4(1.0);
+	
 	if(self.r < 0.05){
 		c.a = 0.0;
 	}else if(self.r < 0.15){
@@ -117,12 +131,10 @@ void fragment() {
 	}
 	
 	screenSize = SCREEN_PIXEL_SIZE;
-	screen = c;
+	screen = c * modulate;
 	
-	COLOR = c;
+	COLOR = screen;
 	
-	float disToEdge = (self.a - 0.5) * 2.0;
-	vec2 dir = angleToVec2(self.b);
 	vec3 nVal = directionToNormal(dir);
 	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
 	
@@ -158,7 +170,7 @@ void light() {
 		lightMapTexturePos /= RENDER_QUADRANT_SIZE;
 		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		
-		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos) * 1.5;
+		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos) * 2.0;
 		intensity = lightVal.r;
 		finished = 1.0;
 		

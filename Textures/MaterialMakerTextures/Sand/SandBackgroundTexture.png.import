@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bl1o8x2ixuh7x"
-path="res://.godot/imported/SandstoneBackgroundTexture.png-f91d7d5577ce5f7be3811cc3599a4089.ctex"
+uid="uid://bc7o4qxbaxm6x"
+path="res://.godot/imported/SandBackgroundTexture.png-dbb016614f0eb97f7a302c90b3b8e949.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/MaterialMakerTextures/SandstoneBackgroundTexture.png"
-dest_files=["res://.godot/imported/SandstoneBackgroundTexture.png-f91d7d5577ce5f7be3811cc3599a4089.ctex"]
+source_file="res://Textures/MaterialMakerTextures/Sand/SandBackgroundTexture.png"
+dest_files=["res://.godot/imported/SandBackgroundTexture.png-dbb016614f0eb97f7a302c90b3b8e949.ctex"]
 
 [params]
 
