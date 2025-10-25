@@ -1,73 +1,80 @@
 extends Resource
 class_name TextureData
 
+func getTextureArray(numOfTextures : int) -> Texture2DArray:
+	var tex2dArray := Texture2DArray.new()
+	var imageArray : Array[Image] = []
+	for i in range(numOfTextures):
+		var im : Image
+		im = getTexture(i).get_image()
+		im.convert(Image.FORMAT_RGBA8)
+		imageArray.append(im)
+	
+	tex2dArray.create_from_images(imageArray)
+	
+	return tex2dArray
+
+func getNormalArray(numOfTextures : int) -> Texture2DArray:
+	var tex2dArray := Texture2DArray.new()
+	var imageArray : Array[Image] = []
+	for i in range(numOfTextures):
+		var im : Image
+		im = getNormal(i).get_image()
+		im.convert(Image.FORMAT_RGBA8)
+		imageArray.append(im)
+	
+	tex2dArray.create_from_images(imageArray)
+	
+	return tex2dArray
+
+func getGradientArray(numOfTextures : int) -> Texture2DArray:
+	var tex2dArray := Texture2DArray.new()
+	var imageArray : Array[Image] = []
+	for i in range(numOfTextures):
+		var im : Image
+		im = getGradient(i).get_image()
+		im.convert(Image.FORMAT_RGBA8)
+		imageArray.append(im)
+	
+	tex2dArray.create_from_images(imageArray)
+	
+	return tex2dArray
+
+func getBorderTexture(numOfTextures : int) -> ImageTexture:
+	var borderColors : Image = Image.create_empty(numOfTextures, 1, false, Image.FORMAT_RGBA8)
+	for i in range(numOfTextures):
+		borderColors.set_pixel(i, 0, getBorder(i))
+	
+	var bcTex : ImageTexture = ImageTexture.create_from_image(borderColors)
+	
+	return bcTex
 
 func getTexture(index : int) -> Texture2D:
-	match index:
-		0: return sandstoneTexture
-		1: return sandTexture
-		2: return obsidianTexture
-		3: return woodTexture
-	return errorTexture #Failed to find
+	if index < materials.size():
+		return materials[index].texture
+	return errorTexture
 
 
 func getNormal(index : int) -> Texture2D:
-	match index:
-		0: return sandstoneNormal
-		1: return sandNormal
-		2: return obsidianNormal
-		3: return woodNormal
-	return errorTexture #Failed to find
+	if index < materials.size():
+		return materials[index].normal
+	return errorTexture
 
 
 func getGradient(index : int) -> Texture2D:
-	match index:
-		0: return sandstoneGrad
-		1: return sandGrad
-		2: return obsidianGrad
-		3: return woodGrad
-	return errorGrad #Failed to find
+	if index < materials.size():
+		return materials[index].gradient
+	return errorGrad
 
 
 func getBorder(index : int) -> Color:
-	match index:
-		0: return sandstoneBorder
-		1: return sandBorder
-		2: return obsidianBorder
-		3: return woodBorder
-	return Color.DEEP_PINK #Failed to find
+	if index < materials.size():
+		return materials[index].border
+	return Color.DEEP_PINK
 
 
-@export_group("misc")
+@export var materials : Array[GenMaterial]
+
+@export_group("error")
 @export var errorTexture : Texture2D
 @export var errorGrad : GradientTexture1D
-
-#@export_group("")
-#@export var Texture : Texture
-#@export var Normal : Texture
-#@export var Grad : GradientTexture1D
-#@export var Border : Color
-
-@export_group("sandstone")
-@export var sandstoneTexture : Texture2D
-@export var sandstoneNormal : Texture2D
-@export var sandstoneGrad : GradientTexture1D
-@export var sandstoneBorder : Color
-
-@export_group("sand")
-@export var sandTexture : Texture2D
-@export var sandNormal : Texture2D
-@export var sandGrad : GradientTexture1D
-@export var sandBorder : Color
-
-@export_group("obsidian")
-@export var obsidianTexture : Texture2D
-@export var obsidianNormal : Texture2D
-@export var obsidianGrad : GradientTexture1D
-@export var obsidianBorder : Color
-
-@export_group("wood")
-@export var woodTexture : Texture2D
-@export var woodNormal : Texture2D
-@export var woodGrad : GradientTexture1D
-@export var woodBorder : Color

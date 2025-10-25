@@ -7,42 +7,63 @@ global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
 global uniform vec2 TILE_TEXTURE_SCROLL;
 
-group_uniforms dirt;
-uniform sampler2D DIRT_TEX : filter_nearest, repeat_enable;
-uniform sampler2D DIRT_NORMAL : filter_nearest, repeat_enable;
-uniform sampler2D DIRT_GRAD;
-uniform vec4 DIRT_BORDER_COLOR : source_color;
+global uniform sampler2DArray BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
+global uniform sampler2DArray BACKGROUND_NORMALS_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
+global uniform sampler2DArray BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest;
+global uniform sampler2D BACKGROUND_BORDER_COLORS : filter_nearest;
 
-group_uniforms stone;
-uniform sampler2D STONE_TEX : filter_nearest, repeat_enable;
-uniform sampler2D STONE_NORMAL : filter_nearest, repeat_enable;
-uniform sampler2D STONE_GRAD;
-uniform vec4 STONE_BORDER_COLOR : source_color;
-
-group_uniforms grass;
-uniform sampler2D GRASS_TEX : filter_nearest, repeat_enable;
-uniform sampler2D GRASS_NORMAL : filter_nearest, repeat_enable;
-uniform sampler2D GRASS_GRAD;
-uniform vec4 GRASS_BORDER_COLOR : source_color;
-
-group_uniforms wood;
-uniform sampler2D WOOD_TEX : filter_nearest, repeat_enable;
-uniform sampler2D WOOD_NORMAL : filter_nearest, repeat_enable;
-uniform sampler2D WOOD_GRAD;
-uniform vec4 WOOD_BORDER_COLOR : source_color;
 
 group_uniforms lighting;
-uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+uniform float brightness : hint_range(0.0, 1.0) = 0.5;
 
+uniform int numOfUniqueTiles = 128;
 uniform float warp : hint_range(-1.0, 1.0) = 0.03;
 
 varying vec2 screenSize;
 varying vec4 screen;
 
 
-vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D grad, vec4 border, inout vec3 normal){
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz),
+                 vec4(c.gb, K.xy),
+                 step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r),
+                 vec4(c.r, p.yzx),
+                 step(p.x, c.r));
+
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)),
+                d / (q.x + e),
+                q.x);
+}
+vec3 hsv2rgb(vec3 c) {
+    vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0, 4, 2),
+                             6.0) - 3.0) - 1.0,
+                     0.0,
+                     1.0);
+    return c.z * mix(vec3(1.0), rgb, c.y);
+}
+vec3 darkenHSV(vec3 color, float factor) {
+    vec3 hsv = rgb2hsv(color);
+    hsv.z *= factor;  // Reduce brightness
+    return hsv2rgb(hsv);
+}
+
+vec4 getColor(int type, vec2 uv, vec4 self, inout vec3 normal){
 	vec4 c = vec4(1.0);
-	vec2 offsetUV = uv;
+	vec2 offsetUV = uv * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
+	float tileIndex = self.r * float(numOfUniqueTiles);
+	tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
+	
+	vec3 arrayUV = vec3(offsetUV, tileIndex);
+	
+	vec4 border = texture(BACKGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(numOfUniqueTiles)), 0.0));
+	vec4 tVal = texture(BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
+	vec4 nVal = texture(BACKGROUND_NORMALS_SAMPLER_2D_ARRAY, arrayUV);
+	
 	switch(type){
 		case 0:
 			c.a = 0.0;
@@ -52,12 +73,11 @@ vec4 getColor(int type, vec2 uv, sampler2D tex, sampler2D normalMap, sampler2D g
 			break;
 		case 2:
 			c = border;
-			normal = texture(normalMap, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0))).rgb;
+			normal = nVal.rgb;
 			break;
 		case 3:
-			vec4 tVal = texture(tex, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0)));
-			normal = texture(normalMap, offsetUV * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0))).rgb;
-			c = texture(grad, vec2(tVal.r, 0.0));
+			normal = nVal.rgb;
+			c = texture(BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY, vec3(vec2(tVal.r), tileIndex));
 			break;
 		default:
 			c.a = 0.0;
@@ -110,28 +130,15 @@ void fragment() {
 		qUV += (dir * clamp(1.0 - disToEdge, 0.0, 1.0)) * warp * textureScalling;
 	}
 	
-	
 	vec4 c = vec4(1.0);
-	
-	if(self.r < 0.05){
-		c.a = 0.0;
-	}else if(self.r < 0.15){
-		c = getColor(type, qUV, STONE_TEX, STONE_NORMAL, STONE_GRAD, STONE_BORDER_COLOR, NORMAL_MAP);
-	}else if(self.r < 0.25){
-		c = getColor(type, qUV, GRASS_TEX, GRASS_NORMAL, GRASS_GRAD, GRASS_BORDER_COLOR, NORMAL_MAP);
-	}else if(self.r < 0.35){
-		c = getColor(type, qUV, DIRT_TEX, DIRT_NORMAL, DIRT_GRAD, DIRT_BORDER_COLOR, NORMAL_MAP);
-	}else if(self.r < 0.45){
-		c = getColor(type, qUV, WOOD_TEX, WOOD_NORMAL, WOOD_GRAD, WOOD_BORDER_COLOR, NORMAL_MAP);
-	}
-	
+	c = getColor(type, qUV, self, NORMAL_MAP);
 	
 	if(type == 1){
 		c = vec4(0.0, 0.0, 0.0, 1.0);
 	}
 	
 	screenSize = SCREEN_PIXEL_SIZE;
-	screen = c * modulate;
+	screen = vec4(darkenHSV(c.rgb, brightness), c.a);
 	
 	COLOR = screen;
 	
@@ -147,12 +154,12 @@ void fragment() {
 void light() {
 	vec2 screenCenter = vec2(0.5, 0.5);
 	vec2 unzoomedUV = screenCenter + (SCREEN_UV - screenCenter) / CAMERA_ZOOM;
+	
 	vec2 unzoomedLightPos = screenCenter + ((LIGHT_POSITION.xy * screenSize) - screenCenter) / CAMERA_ZOOM;
 	
 	//Setup the variables for SDF Raymarching
 	vec2 lightPosNormalized = unzoomedLightPos.xy;
 	vec2 angleVector = normalize(lightPosNormalized - unzoomedUV);
-	//if (any(isnan(angleVector))) angleVector = vec2(0.0);
 	
 	float sdfVal = 0.0;
 	float intensity = 1.0;
@@ -173,7 +180,6 @@ void light() {
 		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos) * 2.0;
 		intensity = lightVal.r;
 		finished = 1.0;
-		
 	}else{
 		float threshold = (1.0 / RENDER_QUADRANT_SIZE.x);
 		for(int i = 0; i < 80; i++){
@@ -188,7 +194,7 @@ void light() {
 			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 			vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
 			sdfVal = sdfData.r;
-			disTraveled += abs(sdfVal);
+			disTraveled += abs(sdfVal) * 0.8; //* 0.8 to prevent some artfacting
 			
 			closestSdfVal = min(sdfVal * 200.0 * textureScalling, closestSdfVal);
 			

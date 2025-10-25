@@ -25,48 +25,37 @@ var loadedRect : Rect2
 var uniqueTiles : int = 64
 var textureSize := Vector2i(256, 256)
 var foregroundTextureData : TextureData = preload("uid://dmla4e53rjkn6")
+var backgroundTextureData : TextureData = preload("uid://bidpxtfdflemt")
+
+#Global Signals Related to Rendering
+var enviermentDirty : bool = false
+signal onEnviermentalChanged
+
+
+func enviromentChanged():
+	enviermentDirty = true
 
 func contructTextureArrays():
-	var tex2dArray := Texture2DArray.new()
-	var normal2dArray := Texture2DArray.new()
-	var gradient2dArray := Texture2DArray.new()
-	
-	var imageArray : Array[Image] = []
-	var normalArray : Array[Image] = []
-	var gradientArray : Array[Image] = []
-	
-	var borderColors : Image
-	borderColors = Image.create_empty(uniqueTiles, 1, false, Image.FORMAT_RGBA8)
-	
-	for i in range(uniqueTiles):
-		var im : Image
-		im = foregroundTextureData.getTexture(i).get_image()
-		im.convert(Image.FORMAT_RGBA8)
-		imageArray.append(im)
-		
-		var norm : Image
-		norm = foregroundTextureData.getNormal(i).get_image()
-		norm.convert(Image.FORMAT_RGBA8)
-		normalArray.append(norm)
-		
-		var grad : Image
-		grad = foregroundTextureData.getGradient(i).get_image()
-		grad.convert(Image.FORMAT_RGBA8)
-		gradientArray.append(grad)
-		
-		borderColors.set_pixel(i, 0, foregroundTextureData.getBorder(i))
-	
-	tex2dArray.create_from_images(imageArray)
-	normal2dArray.create_from_images(normalArray)
-	gradient2dArray.create_from_images(gradientArray)
-	
-	var bcTex : ImageTexture = ImageTexture.create_from_image(borderColors)
-	
+	#Foreground
+	var tex2dArray := foregroundTextureData.getTextureArray(uniqueTiles)
+	var normal2dArray := foregroundTextureData.getNormalArray(uniqueTiles)
+	var gradient2dArray := foregroundTextureData.getGradientArray(uniqueTiles)
+	var borderColors := foregroundTextureData.getBorderTexture(uniqueTiles)
 	RenderingServer.global_shader_parameter_set("FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY", tex2dArray)
 	RenderingServer.global_shader_parameter_set("FOREGROUND_NORMALS_SAMPLER_2D_ARRAY", normal2dArray)
 	RenderingServer.global_shader_parameter_set("FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY", gradient2dArray)
-	RenderingServer.global_shader_parameter_set("FOREGROUND_BORDER_COLORS", bcTex)
-
+	RenderingServer.global_shader_parameter_set("FOREGROUND_BORDER_COLORS", borderColors)
+	
+	#Background
+	tex2dArray = backgroundTextureData.getTextureArray(uniqueTiles)
+	normal2dArray = backgroundTextureData.getNormalArray(uniqueTiles)
+	gradient2dArray = backgroundTextureData.getGradientArray(uniqueTiles)
+	borderColors = backgroundTextureData.getBorderTexture(uniqueTiles)
+	RenderingServer.global_shader_parameter_set("BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY", tex2dArray)
+	RenderingServer.global_shader_parameter_set("BACKGROUND_NORMALS_SAMPLER_2D_ARRAY", normal2dArray)
+	RenderingServer.global_shader_parameter_set("BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY", gradient2dArray)
+	RenderingServer.global_shader_parameter_set("BACKGROUND_BORDER_COLORS", borderColors)
+	
 
 func isPositionLoaded(pos : Vector2) -> bool:
 	if !loadedRect:
@@ -79,6 +68,14 @@ func isPositionLoaded(pos : Vector2) -> bool:
 func _ready() -> void:
 	RenderingServer.global_shader_parameter_set("RENDER_QUADRANT_SIZE", Vector2(renderSectionSize, renderSectionSize))
 	contructTextureArrays()
+
+func _process(_delta: float) -> void:
+	if Input.is_action_just_pressed("ReloadTexture"):
+		contructTextureArrays()
+		
+	if enviermentDirty:
+		enviermentDirty = false
+		onEnviermentalChanged.emit()
 
 func executeComputeShader(workGroup : Vector3i, rd : RenderingDevice, computeList : int, pipeline : RID, uniformSet : RID):
 	rd.compute_list_bind_compute_pipeline(computeList, pipeline)

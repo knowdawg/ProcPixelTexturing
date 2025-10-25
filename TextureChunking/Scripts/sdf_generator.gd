@@ -139,6 +139,9 @@ func createSDF(bitmapRID : RID, image1RID : RID, image2RID : RID, threshold : fl
 	return returnRID
 
 func _process(_delta: float) -> void:
+	updateSDF()
+
+func updateSDF():
 	var t = Texture2DRD.new()
 	t.texture_rd_rid = TerrainRendering.foregroundSDF
 	foregroundSdfVisualizer.texture = t

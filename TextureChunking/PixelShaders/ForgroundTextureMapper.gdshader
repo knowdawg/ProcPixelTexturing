@@ -7,59 +7,29 @@ global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
 global uniform vec2 TILE_TEXTURE_SCROLL;
 
-//uniform sampler2D TEXTURES[128];
-//uniform sampler2D NORMALS[128];
-//uniform sampler2D GRADIENTS[128];
-//uniform vec4 BORDERS[128];
-
-
 global uniform sampler2DArray FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
 global uniform sampler2DArray FOREGROUND_NORMALS_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
-global uniform sampler2DArray FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
+global uniform sampler2DArray FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest;
 global uniform sampler2D FOREGROUND_BORDER_COLORS : filter_nearest;
-
-group_uniforms dirt;
-uniform sampler2D DIRT_TEX : filter_nearest, repeat_enable;
-uniform sampler2D DIRT_NORMAL : filter_nearest, repeat_enable;
-uniform sampler2D DIRT_GRAD;
-uniform vec4 DIRT_BORDER_COLOR : source_color;
-
-group_uniforms stone;
-uniform sampler2D STONE_TEX : filter_nearest, repeat_enable;
-uniform sampler2D STONE_NORMAL : filter_nearest, repeat_enable;
-uniform sampler2D STONE_GRAD;
-uniform vec4 STONE_BORDER_COLOR : source_color;
-
-group_uniforms grass;
-uniform sampler2D GRASS_TEX : filter_nearest, repeat_enable;
-uniform sampler2D GRASS_NORMAL : filter_nearest, repeat_enable;
-uniform sampler2D GRASS_GRAD;
-uniform vec4 GRASS_BORDER_COLOR : source_color;
-
-group_uniforms wood;
-uniform sampler2D WOOD_TEX : filter_nearest, repeat_enable;
-uniform sampler2D WOOD_NORMAL : filter_nearest, repeat_enable;
-uniform sampler2D WOOD_GRAD;
-uniform vec4 WOOD_BORDER_COLOR : source_color;
 
 group_uniforms lighting;
 uniform float falloff : hint_range(0.0, 100.0);
 uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
-uniform float warp : hint_range(-1.0, 1.0) = 0.03;
+uniform float warp : hint_range(-1.0, 1.0) = -0.03;
 uniform int numOfUniqueTiles = 128;
 
 varying vec2 screenSize;
 varying vec4 screen;
 
-vec4 getColor(int type, vec2 uv, float rVal, inout vec3 normal){
+vec4 getColor(int type, vec2 uv, vec4 self, inout vec3 normal){
 	vec4 c = vec4(1.0);
 	vec2 offsetUV = uv * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
-	float tileIndex = rVal * float(numOfUniqueTiles);
+	float tileIndex = self.r * float(numOfUniqueTiles);
 	tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
 	
 	vec3 arrayUV = vec3(offsetUV, tileIndex);
 	
-	vec4 border = texture(FOREGROUND_BORDER_COLORS, vec2(rVal - (1.0 / float(numOfUniqueTiles)), 0.0));
+	vec4 border = texture(FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(numOfUniqueTiles)), 0.0));
 	vec4 tVal = texture(FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
 	vec4 nVal = texture(FOREGROUND_NORMALS_SAMPLER_2D_ARRAY, arrayUV);
 	
@@ -130,24 +100,7 @@ void fragment() {
 	}
 	
 	vec4 c = vec4(1.0);
-	
-
-	
-	c = getColor(type, qUV, self.r, NORMAL_MAP);
-	
-	
-	//if(self.r < 0.05){
-		//c.a = 0.0;
-	//}else if(self.r < 0.15){
-		//c = getColor(type, qUV, STONE_TEX, STONE_NORMAL, STONE_GRAD, STONE_BORDER_COLOR, NORMAL_MAP);
-	//}else if(self.r < 0.25){
-		//c = getColor(type, qUV, GRASS_TEX, GRASS_NORMAL, GRASS_GRAD, GRASS_BORDER_COLOR, NORMAL_MAP);
-	//}else if(self.r < 0.35){
-		//c = getColor(type, qUV, DIRT_TEX, DIRT_NORMAL, DIRT_GRAD, DIRT_BORDER_COLOR, NORMAL_MAP);
-	//}else if(self.r < 0.45){
-		//c = getColor(type, qUV, WOOD_TEX, WOOD_NORMAL, WOOD_GRAD, WOOD_BORDER_COLOR, NORMAL_MAP);
-	//}
-	
+	c = getColor(type, qUV, self, NORMAL_MAP);
 	
 	if(type == 1){
 		c = vec4(0.0, 0.0, 0.0, 1.0);

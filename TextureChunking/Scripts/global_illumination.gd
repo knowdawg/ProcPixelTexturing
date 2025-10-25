@@ -23,7 +23,7 @@ var GIPipeline : RID
 
 var workGroups : Vector3i
 
-func _process(_delta: float) -> void:
+func updateGI():
 	var rid : RID = createLightrayIm(TerrainRendering.foregroundSDF, TerrainRendering.backgroundSDF, lightrayImRID)
 	TerrainRendering.lightrays = rid
 	
@@ -57,6 +57,9 @@ func _process(_delta: float) -> void:
 
 func _ready() -> void:
 	setupRenderingDevice()
+	
+func _process(_delta: float) -> void:
+	updateGI()
 
 func setupRenderingDevice():
 	var w : int = int(sqrt(float(TerrainRendering.renderSectionSize * TerrainRendering.renderSectionSize) / float(32 * 32)))

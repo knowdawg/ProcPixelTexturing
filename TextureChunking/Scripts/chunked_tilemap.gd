@@ -34,6 +34,7 @@ func addTile(pos : Vector2, tileIndex : int):
 	var chunkCoord : Vector2i = floor(chunkPos)
 	if isChunkInBounds(chunkCoord):
 		chunks[chunkCoord.x][chunkCoord.y].makeDirty()
+		TerrainRendering.enviromentChanged()
 	else:
 		return
 	
@@ -172,6 +173,7 @@ func updateChunks() -> void:
 		if !prevActiveChunks.has(c):
 			c.activate()
 			c.makeDirty()
+			TerrainRendering.enviromentChanged()
 	
 	for c : TextureChunk in prevActiveChunks:
 		if !activeChunks.has(c):
