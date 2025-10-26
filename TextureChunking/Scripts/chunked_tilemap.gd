@@ -49,11 +49,11 @@ func addTile(pos : Vector2, tileIndex : int):
 	var updateDown : bool = (fract.y + chunkToOutlineRatio >= 1.0) and isChunkInBounds(chunkCoord + Vector2i(0, 1))
 	
 	if updateLeft:
-		chunks[chunkCoord.x - 1][chunkCoord.y].makeDirty() #Always Happening
+		chunks[chunkCoord.x - 1][chunkCoord.y].makeDirty()
 	if updateRight:
 		chunks[chunkCoord.x + 1][chunkCoord.y].makeDirty()
 	if updateUp:
-		chunks[chunkCoord.x][chunkCoord.y - 1].makeDirty() #Always happening
+		chunks[chunkCoord.x][chunkCoord.y - 1].makeDirty()
 	if updateDown:
 		chunks[chunkCoord.x][chunkCoord.y + 1].makeDirty()
 	if updateLeft and updateUp:
@@ -65,16 +65,13 @@ func addTile(pos : Vector2, tileIndex : int):
 	if updateRight and updateDown:
 		chunks[chunkCoord.x + 1][chunkCoord.y + 1].makeDirty()
 
-func addTileRadius(pos : Vector2, tileIndex : int, radius : int):
-	for x in range(-radius, radius + 1):
-		for y in range(-radius, radius + 1):
-			var offset = Vector2(x, y)
-			if offset.length() <= radius + 0.5:
-				var p = pos + offset
-				addTile(p, tileIndex)
-
 func _ready() -> void:
 	setupRenderingDevice()
+	
+	if type == tilemapType.FOREGROUND:
+		TerrainDestruction.foreground = self
+	if type == tilemapType.BACKGROUND:
+		TerrainDestruction.background = self
 	
 	var tilemapSize : Vector2i = get_used_rect().size
 	var tilemapPos : Vector2i = get_used_rect().position
@@ -106,33 +103,36 @@ func _ready() -> void:
 			var chunkType = TextureChunk.tilemapType.FOREGROUND if type == tilemapType.FOREGROUND else TextureChunk.tilemapType.BACKGROUND
 			c.setup(TerrainRendering.chunkSize, TerrainRendering.outlineBufferSize, self, Vector2(x,y), chunkType)
 
+var bitmapImage = preload("res://Globals/Bitmaps/bitmapTest.png")
+var imageTest = preload("res://Globals/Bitmaps/imageTest.png")
 func _process(_delta: float) -> void:
 	updateChunks()
-	
-	#Wait for all required chunks to update
-	#await get_tree().process_frame
-	
 	if dirty:
 		#updateCombinedTexture()
 		dirty = false
 	
+	var bm : BitMap = BitMap.new()
+	bm.create_from_image_alpha(bitmapImage.get_image(), 0.5)
+	
 	if type == tilemapType.FOREGROUND:
 		if !Input.is_action_pressed("ui_accept"):
 			if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-				addTileRadius(get_global_mouse_position(), 0, 6)
+				TerrainDestruction.addTileImage(get_global_mouse_position(), imageTest.get_image(), TerrainDestruction.FOREGROUND)
+				#TerrainDestruction.addTileBitmap(get_global_mouse_position(), TILE.SANDSTONE, bm, TerrainDestruction.FOREGROUND)
+				#TerrainDestruction.addTileRadius(get_global_mouse_position(), TILE.SANDSTONE, 6, TerrainDestruction.FOREGROUND)
 				
 			if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 				var pos : Vector2 = local_to_map(get_global_mouse_position())
-				addTileRadius(pos, -1, 6)
+				TerrainDestruction.addTileRadius(pos, TILE.EMPTY, 6, TerrainDestruction.FOREGROUND)
 			
 	if type == tilemapType.BACKGROUND:
 		if Input.is_action_pressed("ui_accept"):
 			if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-				addTileRadius(get_global_mouse_position(), 0, 10)
+				TerrainDestruction.addTileRadius(get_global_mouse_position(), TILE.SANDSTONE, 10, TerrainDestruction.BACKGROUND)
 				
 			if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 				var pos : Vector2 = local_to_map(get_global_mouse_position())
-				addTileRadius(pos, -1, 6)
+				TerrainDestruction.addTileRadius(pos, TILE.EMPTY, 6, TerrainDestruction.BACKGROUND)
 
 func updateChunks() -> void:
 	if !is_instance_valid(get_viewport().get_camera_2d()):
