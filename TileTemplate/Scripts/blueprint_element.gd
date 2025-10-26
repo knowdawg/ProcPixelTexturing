@@ -1,9 +1,15 @@
 extends Panel
 class_name BlueprintElement
 
-@export var tileTemplateUI : TileTemplateUI
 
 var blueprint : Blueprint
+var tileTemplateUI : TileTemplateUI
+var filePath : String
+
+func setup(b : Blueprint, tt : TileTemplateUI, file : String):
+	blueprint = b
+	tileTemplateUI = tt
+	filePath = file
 
 func deactivate():
 	$Button.button_pressed = false

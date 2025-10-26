@@ -1,13 +1,14 @@
-[gd_scene load_steps=25 format=3 uid="uid://dnfswhfd50ime"]
+[gd_scene load_steps=34 format=3 uid="uid://dnfswhfd50ime"]
 
 [ext_resource type="Script" uid="uid://pbfqywpblnd7" path="res://TileTemplate/Scripts/tile_template_ui.gd" id="1_6utn4"]
 [ext_resource type="Theme" uid="uid://b04ydxpqblepw" path="res://TileTemplate/Themes/TileTemplateTheme.tres" id="1_kkrh1"]
 [ext_resource type="Texture2D" uid="uid://ciwccqrsvnh1j" path="res://TileTemplate/Sprites/BitmapButtonNormal.png" id="3_8w8hd"]
-[ext_resource type="PackedScene" uid="uid://cwr1gaxdbbpg" path="res://TileTemplate/Scenes/BlueprintElement.tscn" id="3_fw6of"]
 [ext_resource type="Theme" uid="uid://cci8d63xkuh8a" path="res://TileTemplate/Themes/SideButtonsTheme.tres" id="5_fw6of"]
 [ext_resource type="Texture2D" uid="uid://doppfrjrklq2y" path="res://TileTemplate/Sprites/XButtonNormal.png" id="5_xmwcd"]
 [ext_resource type="Texture2D" uid="uid://b71ij5puxo538" path="res://TileTemplate/Sprites/Brush.png" id="6_fw6of"]
 [ext_resource type="Script" uid="uid://by50sgq5fa7yd" path="res://TileTemplate/Scripts/AnimatedSideButton.gd" id="6_gfru7"]
+[ext_resource type="Texture2D" uid="uid://dypnbpnu2ivpb" path="res://TileTemplate/Sprites/NewBlueprint.png" id="7_fw6of"]
+[ext_resource type="Script" uid="uid://f83dx7sgg2qa" path="res://TileTemplate/Sprites/new_blueprint.gd" id="7_gfru7"]
 [ext_resource type="Script" uid="uid://wx6f2206vvln" path="res://TileTemplate/Sprites/TrashButton.gd" id="9_gfru7"]
 [ext_resource type="Texture2D" uid="uid://dpmdyamytq8s7" path="res://TileTemplate/Sprites/Trash.png" id="10_2cxm1"]
 
@@ -197,6 +198,120 @@ _data = {
 &"Use": SubResource("Animation_2cxm1")
 }
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_2cxm1"]
+atlas = ExtResource("7_fw6of")
+region = Rect2(0, 0, 20, 20)
+
+[sub_resource type="Animation" id="Animation_71jjk"]
+resource_name = "Hover"
+length = 0.5
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.20000002, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(40, 0, 20, 20), Rect2(60, 0, 20, 20), Rect2(80, 0, 20, 20), Rect2(100, 0, 20, 20), Rect2(120, 0, 20, 20), Rect2(140, 0, 20, 20)]
+}
+
+[sub_resource type="Animation" id="Animation_sqnu3"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Rect2(0, 0, 20, 20)]
+}
+
+[sub_resource type="Animation" id="Animation_saemf"]
+resource_name = "Select"
+loop_mode = 2
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(160, 0, 20, 20), Rect2(180, 0, 20, 20), Rect2(200, 0, 20, 20), Rect2(220, 0, 20, 20), Rect2(240, 0, 20, 20), Rect2(260, 0, 20, 20), Rect2(280, 0, 20, 20)]
+}
+
+[sub_resource type="Animation" id="Animation_760ov"]
+resource_name = "Use"
+length = 0.6
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(320, 0, 20, 20), Rect2(340, 0, 20, 20), Rect2(360, 0, 20, 20), Rect2(380, 0, 20, 20), Rect2(400, 0, 20, 20), Rect2(420, 0, 20, 20), Rect2(440, 0, 20, 20)]
+}
+
+[sub_resource type="Animation" id="Animation_3b8by"]
+resource_name = "UnHover"
+length = 0.3
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.20000002, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(60, 0, 20, 20), Rect2(20, 0, 20, 20), Rect2(40, 0, 20, 20), Rect2(20, 0, 20, 20)]
+}
+
+[sub_resource type="Animation" id="Animation_nvh1r"]
+resource_name = "Reset"
+length = 0.3
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.20000002, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(60, 0, 20, 20), Rect2(20, 0, 20, 20), Rect2(40, 0, 20, 20), Rect2(20, 0, 20, 20)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_nvh1r"]
+_data = {
+&"Hover": SubResource("Animation_71jjk"),
+&"RESET": SubResource("Animation_sqnu3"),
+&"Reset": SubResource("Animation_nvh1r"),
+&"Select": SubResource("Animation_saemf"),
+&"UnHover": SubResource("Animation_3b8by"),
+&"Use": SubResource("Animation_760ov")
+}
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_ns818"]
 atlas = ExtResource("10_2cxm1")
 region = Rect2(0, 0, 20, 20)
@@ -312,48 +427,13 @@ metadata/_tab_index = 0
 layout_mode = 2
 theme = ExtResource("1_kkrh1")
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer"]
+[node name="BlueprintGridContainer" type="GridContainer" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 0
 theme = ExtResource("1_kkrh1")
 columns = 3
-
-[node name="BlueprintElement" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer/GridContainer" node_paths=PackedStringArray("tileTemplateUI") instance=ExtResource("3_fw6of")]
-layout_mode = 2
-tileTemplateUI = NodePath("../../../../../../..")
-
-[node name="BlueprintElement2" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer/GridContainer" node_paths=PackedStringArray("tileTemplateUI") instance=ExtResource("3_fw6of")]
-layout_mode = 2
-tileTemplateUI = NodePath("../../../../../../..")
-
-[node name="BlueprintElement3" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer/GridContainer" node_paths=PackedStringArray("tileTemplateUI") instance=ExtResource("3_fw6of")]
-layout_mode = 2
-tileTemplateUI = NodePath("../../../../../../..")
-
-[node name="BlueprintElement4" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer/GridContainer" node_paths=PackedStringArray("tileTemplateUI") instance=ExtResource("3_fw6of")]
-layout_mode = 2
-tileTemplateUI = NodePath("../../../../../../..")
-
-[node name="BlueprintElement5" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer/GridContainer" node_paths=PackedStringArray("tileTemplateUI") instance=ExtResource("3_fw6of")]
-layout_mode = 2
-tileTemplateUI = NodePath("../../../../../../..")
-
-[node name="BlueprintElement6" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer/GridContainer" node_paths=PackedStringArray("tileTemplateUI") instance=ExtResource("3_fw6of")]
-layout_mode = 2
-tileTemplateUI = NodePath("../../../../../../..")
-
-[node name="BlueprintElement7" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer/GridContainer" node_paths=PackedStringArray("tileTemplateUI") instance=ExtResource("3_fw6of")]
-layout_mode = 2
-tileTemplateUI = NodePath("../../../../../../..")
-
-[node name="BlueprintElement8" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer/GridContainer" node_paths=PackedStringArray("tileTemplateUI") instance=ExtResource("3_fw6of")]
-layout_mode = 2
-tileTemplateUI = NodePath("../../../../../../..")
-
-[node name="BlueprintElement9" parent="MarginContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer/GridContainer" node_paths=PackedStringArray("tileTemplateUI") instance=ExtResource("3_fw6of")]
-layout_mode = 2
-tileTemplateUI = NodePath("../../../../../../..")
 
 [node name="Trash" type="ScrollContainer" parent="MarginContainer/HBoxContainer/TabContainer"]
 visible = false
@@ -372,7 +452,7 @@ theme_override_constants/margin_bottom = 0
 [node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer/SideButtons"]
 layout_mode = 2
 
-[node name="Brush" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer"]
+[node name="Brush" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
 custom_minimum_size = Vector2(20, 40)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -380,6 +460,7 @@ size_flags_vertical = 0
 theme = ExtResource("5_fw6of")
 toggle_mode = true
 script = ExtResource("6_gfru7")
+tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush"]
 custom_minimum_size = Vector2(40, 40)
@@ -404,13 +485,40 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 texture_normal = ExtResource("3_8w8hd")
 
-[node name="Trash" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer"]
+[node name="NewBlueprint" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
+custom_minimum_size = Vector2(20, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 2
+theme = ExtResource("5_fw6of")
+toggle_mode = true
+script = ExtResource("7_gfru7")
+tt = NodePath("../../../../..")
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(20, 20)
+texture = SubResource("AtlasTexture_2cxm1")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint"]
+libraries = {
+&"": SubResource("AnimationLibrary_nvh1r")
+}
+
+[node name="Trash" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
 custom_minimum_size = Vector2(20, 40)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 10
 theme = ExtResource("5_fw6of")
 script = ExtResource("9_gfru7")
+tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash"]
 custom_minimum_size = Vector2(40, 40)
@@ -439,6 +547,9 @@ texture_normal = ExtResource("5_xmwcd")
 [connection signal="mouse_entered" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_exited"]
 [connection signal="toggled" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_toggled"]
+[connection signal="mouse_entered" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" method="_on_mouse_exited"]
+[connection signal="toggled" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" method="_on_toggled"]
 [connection signal="mouse_entered" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" method="_on_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" method="_on_pressed"]

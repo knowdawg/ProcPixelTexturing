@@ -3,7 +3,7 @@ class_name BlueprintTrashButton
 
 
 var prevAnimation : String = ""
-
+@export var tt : TileTemplateUI
 
 func _on_mouse_entered() -> void:
 	if !button_pressed:
@@ -18,3 +18,4 @@ func _on_mouse_exited() -> void:
 func _on_pressed() -> void:
 	$AnimationPlayer.play("Use")
 	prevAnimation = "Use"
+	tt.deleteCurrentBlueprint()

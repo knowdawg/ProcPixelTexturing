@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=4 uid="uid://c726gqd04n3yb"]
+[gd_scene load_steps=39 format=4 uid="uid://c726gqd04n3yb"]
 
 [ext_resource type="Texture2D" uid="uid://cggo1js6exgbg" path="res://TextureSystem/Material1Tile.png" id="1_kgdbp"]
 [ext_resource type="Texture2D" uid="uid://qv3pqu6rkh5d" path="res://TextureSystem/Material2Tile.png" id="2_hcy24"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://dgwsi1mfwgc3q" path="res://TextureChunking/Scripts/global_illumination.gd" id="11_16l4g"]
 [ext_resource type="Script" uid="uid://jk1mumnani2q" path="res://sun.gd" id="12_lpvph"]
 [ext_resource type="Material" uid="uid://cpoaha3w43gmg" path="res://TextureChunking/PixelShaders/SDFShading.tres" id="13_hcy24"]
+[ext_resource type="PackedScene" uid="uid://dnfswhfd50ime" path="res://TileTemplate/tile_template_ui.tscn" id="16_txt8w"]
 [ext_resource type="Script" uid="uid://rqherl4l7lni" path="res://TextureChunking/Objects/TextureChunkPhysicsObject.gd" id="26_jpu7r"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ev223"]
@@ -371,3 +372,5 @@ texture = SubResource("GradientTexture2D_hcy24")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Circle2"]
 shape = SubResource("CircleShape2D_u2jdx")
+
+[node name="TileTemplateUI" parent="." instance=ExtResource("16_txt8w")]
