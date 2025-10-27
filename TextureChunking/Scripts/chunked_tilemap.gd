@@ -103,36 +103,36 @@ func _ready() -> void:
 			var chunkType = TextureChunk.tilemapType.FOREGROUND if type == tilemapType.FOREGROUND else TextureChunk.tilemapType.BACKGROUND
 			c.setup(TerrainRendering.chunkSize, TerrainRendering.outlineBufferSize, self, Vector2(x,y), chunkType)
 
-var bitmapImage = preload("res://Globals/Bitmaps/bitmapTest.png")
-var imageTest = preload("res://Globals/Bitmaps/imageTest.png")
+#var bitmapImage = preload("res://Globals/Bitmaps/bitmapTest.png")
+#var imageTest = preload("res://Globals/Bitmaps/imageTest.png")
 func _process(_delta: float) -> void:
 	updateChunks()
 	if dirty:
 		#updateCombinedTexture()
 		dirty = false
 	
-	var bm : BitMap = BitMap.new()
-	bm.create_from_image_alpha(bitmapImage.get_image(), 0.5)
+	#var bm : BitMap = BitMap.new()
+	#bm.create_from_image_alpha(bitmapImage.get_image(), 0.5)
 	
-	if type == tilemapType.FOREGROUND:
-		if !Input.is_action_pressed("ui_accept"):
-			if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-				TerrainDestruction.addTileImage(get_global_mouse_position(), imageTest.get_image(), TerrainDestruction.FOREGROUND)
-				#TerrainDestruction.addTileBitmap(get_global_mouse_position(), TILE.SANDSTONE, bm, TerrainDestruction.FOREGROUND)
+	#if type == tilemapType.FOREGROUND:
+		#if !Input.is_action_pressed("ui_accept"):
+			#if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+				##TerrainDestruction.addTileImage(get_global_mouse_position(), imageTest.get_image(), TerrainDestruction.FOREGROUND)
+				##TerrainDestruction.addTileBitmap(get_global_mouse_position(), TILE.SANDSTONE, bm, TerrainDestruction.FOREGROUND)
 				#TerrainDestruction.addTileRadius(get_global_mouse_position(), TILE.SANDSTONE, 6, TerrainDestruction.FOREGROUND)
-				
-			if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-				var pos : Vector2 = local_to_map(get_global_mouse_position())
-				TerrainDestruction.addTileRadius(pos, TILE.EMPTY, 6, TerrainDestruction.FOREGROUND)
-			
-	if type == tilemapType.BACKGROUND:
-		if Input.is_action_pressed("ui_accept"):
-			if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-				TerrainDestruction.addTileRadius(get_global_mouse_position(), TILE.SANDSTONE, 10, TerrainDestruction.BACKGROUND)
-				
-			if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
-				var pos : Vector2 = local_to_map(get_global_mouse_position())
-				TerrainDestruction.addTileRadius(pos, TILE.EMPTY, 6, TerrainDestruction.BACKGROUND)
+				#
+			#if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+				#var pos : Vector2 = local_to_map(get_global_mouse_position())
+				#TerrainDestruction.addTileRadius(pos, TILE.EMPTY, 6, TerrainDestruction.FOREGROUND)
+			#
+	#if type == tilemapType.BACKGROUND:
+		#if Input.is_action_pressed("ui_accept"):
+			#if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+				#TerrainDestruction.addTileRadius(get_global_mouse_position(), TILE.SANDSTONE, 10, TerrainDestruction.BACKGROUND)
+				#
+			#if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+				#var pos : Vector2 = local_to_map(get_global_mouse_position())
+				#TerrainDestruction.addTileRadius(pos, TILE.EMPTY, 6, TerrainDestruction.BACKGROUND)
 
 func updateChunks() -> void:
 	if !is_instance_valid(get_viewport().get_camera_2d()):

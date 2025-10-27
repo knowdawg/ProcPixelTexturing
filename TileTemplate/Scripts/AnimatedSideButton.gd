@@ -1,7 +1,7 @@
 extends Button
 class_name AnimatedSideButton
 
-@export var tt : TileTemplateUI
+@export var tt : BlueprintUI
 
 var prevAnimation : String = ""
 
@@ -30,11 +30,6 @@ func _on_toggled(toggled_on: bool) -> void:
 				tt.activeSideButton = null
 		$AnimationPlayer.play("Reset")
 		prevAnimation = "Reset"
-
-func _process(_delta: float) -> void:
-	if Input.is_action_just_pressed("TileTemplateUse") and tt.activeSideButton == self:
-		if tt.canUseSideButton():
-			use()
 
 func use():
 	pass

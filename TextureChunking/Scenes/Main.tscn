@@ -143,6 +143,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 color = Color(0.57254905, 0.7019608, 1, 1)
 metadata/_edit_use_anchors_ = true
 
@@ -153,6 +154,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 color = Color(0, 0.031499993, 0.09, 1)
 metadata/_edit_use_anchors_ = true
 

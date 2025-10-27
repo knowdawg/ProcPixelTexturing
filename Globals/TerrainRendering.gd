@@ -68,6 +68,12 @@ func isPositionLoaded(pos : Vector2) -> bool:
 func _ready() -> void:
 	RenderingServer.global_shader_parameter_set("RENDER_QUADRANT_SIZE", Vector2(renderSectionSize, renderSectionSize))
 	contructTextureArrays()
+	
+	#Setup pipeline for calculate Enviermental Textures
+	renDev = RenderingServer.get_rendering_device()
+	textureChunkShaderFile = load("uid://dvrxg8j3h7sl")
+	textureChunkShader = renDev.shader_create_from_spirv(textureChunkShaderFile.get_spirv())
+	persPipeline = renDev.compute_pipeline_create(textureChunkShader)
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ReloadTexture"):
@@ -76,6 +82,45 @@ func _process(_delta: float) -> void:
 	if enviermentDirty:
 		enviermentDirty = false
 		onEnviermentalChanged.emit()
+
+var renDev : RenderingDevice
+var textureChunkShaderFile
+var textureChunkShader
+var persPipeline : RID
+func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, outlineSize : int) -> RID:
+	#var rectPos := calculateRect.position
+	var rectSize := calculateRect.size
+	var maxDimention : int = max(rectSize.x, rectSize.y)
+	var centerOffset := -(rectSize - Vector2i(maxDimention, maxDimention))
+	centerOffset = centerOffset / 2
+	#Chunk Data Setup
+	var chunkData := PackedInt32Array([centerOffset.x, centerOffset.y, 1, outlineSize])
+	var chunkDataRID : RID = getRIDStorageBufferInt(chunkData, renDev)
+	var chunkDataUniform := getUniformStorageBufferInt(chunkDataRID, 0)
+	
+	#TileImage Setup
+	var tileImageRID : RID = getRIDImage(tileImage, renDev)
+	var tileImageUniform : RDUniform = getUniformImage(tileImageRID, 1)
+	
+	#Output Buffer Setup
+	var outputImage : Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBAF)
+	outputImage.fill(Color.BLACK)
+	var outputImageRID : RID = getRIDImage(outputImage, renDev)
+	var outputUniform := getUniformImage(outputImageRID, 2)
+	
+	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniform], textureChunkShader, 0)
+	var computeList = renDev.compute_list_begin()
+	
+	var w = sqrt(float(maxDimention * maxDimention) / float(8 * 8))
+	w += 1
+	var workgroups := Vector3i(int(w), int(w), 1)
+	executeComputeShader(workgroups, renDev, computeList, persPipeline, uniformSet)
+	
+	renDev.free_rid(chunkDataRID)
+	renDev.free_rid(tileImageRID)
+	
+	return outputImageRID
+
 
 func executeComputeShader(workGroup : Vector3i, rd : RenderingDevice, computeList : int, pipeline : RID, uniformSet : RID):
 	rd.compute_list_bind_compute_pipeline(computeList, pipeline)

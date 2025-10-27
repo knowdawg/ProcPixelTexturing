@@ -3,7 +3,7 @@ class_name BlueprintTrashButton
 
 
 var prevAnimation : String = ""
-@export var tt : TileTemplateUI
+@export var tt : BlueprintUI
 
 func _on_mouse_entered() -> void:
 	if !button_pressed:

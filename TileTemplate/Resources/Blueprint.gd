@@ -2,12 +2,22 @@ extends Resource
 class_name Blueprint
 
 
-var image : Image
+@export var image : Image
+@export var position : Vector2i
 var thumbnailRID : RID
 
-func setup(i : Image):
+func setup(i : Image, pos : Vector2i):
 	image = i
+	position = pos
+	generateThumbnatil()
+	
+
+func ready():
 	generateThumbnatil()
 
 func generateThumbnatil():
-	pass
+	var rect : Rect2i = Rect2i(0, 0, 0, 0)
+	rect.size = image.get_size()
+	rect.position = position
+	
+	thumbnailRID = TerrainRendering.calculateEnviermentalTexture(rect, image, 0)

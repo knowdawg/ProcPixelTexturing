@@ -1,12 +1,11 @@
-[gd_scene load_steps=34 format=3 uid="uid://dnfswhfd50ime"]
+[gd_scene load_steps=33 format=3 uid="uid://dnfswhfd50ime"]
 
 [ext_resource type="Script" uid="uid://pbfqywpblnd7" path="res://TileTemplate/Scripts/tile_template_ui.gd" id="1_6utn4"]
 [ext_resource type="Theme" uid="uid://b04ydxpqblepw" path="res://TileTemplate/Themes/TileTemplateTheme.tres" id="1_kkrh1"]
-[ext_resource type="Texture2D" uid="uid://ciwccqrsvnh1j" path="res://TileTemplate/Sprites/BitmapButtonNormal.png" id="3_8w8hd"]
+[ext_resource type="Script" uid="uid://cbwwy5mdqus1x" path="res://TileTemplate/Scripts/brushButton.gd" id="4_gfru7"]
 [ext_resource type="Theme" uid="uid://cci8d63xkuh8a" path="res://TileTemplate/Themes/SideButtonsTheme.tres" id="5_fw6of"]
 [ext_resource type="Texture2D" uid="uid://doppfrjrklq2y" path="res://TileTemplate/Sprites/XButtonNormal.png" id="5_xmwcd"]
 [ext_resource type="Texture2D" uid="uid://b71ij5puxo538" path="res://TileTemplate/Sprites/Brush.png" id="6_fw6of"]
-[ext_resource type="Script" uid="uid://by50sgq5fa7yd" path="res://TileTemplate/Scripts/AnimatedSideButton.gd" id="6_gfru7"]
 [ext_resource type="Texture2D" uid="uid://dypnbpnu2ivpb" path="res://TileTemplate/Sprites/NewBlueprint.png" id="7_fw6of"]
 [ext_resource type="Script" uid="uid://f83dx7sgg2qa" path="res://TileTemplate/Sprites/new_blueprint.gd" id="7_gfru7"]
 [ext_resource type="Script" uid="uid://wx6f2206vvln" path="res://TileTemplate/Sprites/TrashButton.gd" id="9_gfru7"]
@@ -44,6 +43,18 @@ tracks/1/keys = {
 "update": 0,
 "values": [Vector2(1, 1)]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:custom_minimum_size")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(26, 40)]
+}
 
 [sub_resource type="Animation" id="Animation_fw6of"]
 length = 0.001
@@ -71,6 +82,18 @@ tracks/1/keys = {
 "update": 0,
 "values": [Vector2(1, 1)]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:custom_minimum_size")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(20, 40)]
+}
 
 [sub_resource type="Animation" id="Animation_1kmdl"]
 resource_name = "Reset"
@@ -83,7 +106,7 @@ tracks/0/path = NodePath("TextureRect:texture:region")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1),
+"times": PackedFloat32Array(0, 0.05),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Rect2(380, 0, 20, 20), Rect2(0, 0, 20, 20)]
@@ -98,13 +121,25 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.05, 0.1, 0.15),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1.5, 0.5), Vector2(0.5, 1.5), Vector2(1, 1)]
+"values": [Vector2(1, 1), Vector2(1.2, 0.8), Vector2(0.8, 1.2), Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:custom_minimum_size")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(20, 40)]
 }
 
 [sub_resource type="Animation" id="Animation_gfru7"]
 resource_name = "Select"
 length = 0.7
-step = 0.1
+step = 0.05
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -128,6 +163,18 @@ tracks/1/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:custom_minimum_size")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.05),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(32, 40), Vector2(26, 40)]
 }
 
 [sub_resource type="Animation" id="Animation_ns818"]
@@ -156,13 +203,25 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.05, 0.10000001, 0.15),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1.5, 0.5), Vector2(0.5, 1.5), Vector2(1, 1)]
+"values": [Vector2(1, 1), Vector2(1.2, 0.8), Vector2(0.8, 1.2), Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:custom_minimum_size")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(20, 40)]
 }
 
 [sub_resource type="Animation" id="Animation_2cxm1"]
 resource_name = "Use"
 length = 0.4
-step = 0.1
+step = 0.05
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -186,6 +245,18 @@ tracks/1/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(1, 1)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".:custom_minimum_size")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(26, 40)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ns818"]
@@ -218,6 +289,18 @@ tracks/0/keys = {
 "update": 0,
 "values": [Rect2(40, 0, 20, 20), Rect2(60, 0, 20, 20), Rect2(80, 0, 20, 20), Rect2(100, 0, 20, 20), Rect2(120, 0, 20, 20), Rect2(140, 0, 20, 20)]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(26, 40)]
+}
 
 [sub_resource type="Animation" id="Animation_sqnu3"]
 length = 0.001
@@ -233,11 +316,52 @@ tracks/0/keys = {
 "update": 0,
 "values": [Rect2(0, 0, 20, 20)]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(20, 40)]
+}
+
+[sub_resource type="Animation" id="Animation_nvh1r"]
+resource_name = "Reset"
+length = 0.3
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.20000002, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(60, 0, 20, 20), Rect2(20, 0, 20, 20), Rect2(40, 0, 20, 20), Rect2(20, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(20, 40)]
+}
 
 [sub_resource type="Animation" id="Animation_saemf"]
 resource_name = "Select"
 loop_mode = 2
-step = 0.1
+step = 0.05
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -250,22 +374,17 @@ tracks/0/keys = {
 "update": 0,
 "values": [Rect2(160, 0, 20, 20), Rect2(180, 0, 20, 20), Rect2(200, 0, 20, 20), Rect2(220, 0, 20, 20), Rect2(240, 0, 20, 20), Rect2(260, 0, 20, 20), Rect2(280, 0, 20, 20)]
 }
-
-[sub_resource type="Animation" id="Animation_760ov"]
-resource_name = "Use"
-length = 0.6
-step = 0.1
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("TextureRect:texture:region")
-tracks/0/interp = 0
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
-"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05),
+"transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Rect2(320, 0, 20, 20), Rect2(340, 0, 20, 20), Rect2(360, 0, 20, 20), Rect2(380, 0, 20, 20), Rect2(400, 0, 20, 20), Rect2(420, 0, 20, 20), Rect2(440, 0, 20, 20)]
+"values": [Vector2(32, 40), Vector2(26, 40)]
 }
 
 [sub_resource type="Animation" id="Animation_3b8by"]
@@ -284,11 +403,23 @@ tracks/0/keys = {
 "update": 0,
 "values": [Rect2(60, 0, 20, 20), Rect2(20, 0, 20, 20), Rect2(40, 0, 20, 20), Rect2(20, 0, 20, 20)]
 }
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(20, 40)]
+}
 
-[sub_resource type="Animation" id="Animation_nvh1r"]
-resource_name = "Reset"
-length = 0.3
-step = 0.1
+[sub_resource type="Animation" id="Animation_760ov"]
+resource_name = "Use"
+length = 0.6
+step = 0.05
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -296,10 +427,36 @@ tracks/0/path = NodePath("TextureRect:texture:region")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.20000002, 0.3),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Rect2(60, 0, 20, 20), Rect2(20, 0, 20, 20), Rect2(40, 0, 20, 20), Rect2(20, 0, 20, 20)]
+"values": [Rect2(320, 0, 20, 20), Rect2(340, 0, 20, 20), Rect2(360, 0, 20, 20), Rect2(380, 0, 20, 20), Rect2(400, 0, 20, 20), Rect2(420, 0, 20, 20), Rect2(440, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 0
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(26, 40), Vector2(34, 40), Vector2(38, 40), Vector2(40, 40), Vector2(40, 40), Vector2(16, 40), Vector2(20, 40)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.3),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"createBlueprint"
+}]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_nvh1r"]
@@ -390,7 +547,7 @@ _data = {
 &"Use": SubResource("Animation_ch2bb")
 }
 
-[node name="TileTemplateUI" type="CanvasLayer"]
+[node name="BlueprintUI" type="CanvasLayer"]
 script = ExtResource("1_6utn4")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
@@ -413,6 +570,7 @@ theme_override_constants/separation = 0
 custom_minimum_size = Vector2(272, 240)
 layout_mode = 2
 size_flags_vertical = 0
+focus_behavior_recursive = 1
 theme = ExtResource("1_kkrh1")
 tab_alignment = 1
 current_tab = 0
@@ -435,13 +593,6 @@ size_flags_vertical = 0
 theme = ExtResource("1_kkrh1")
 columns = 3
 
-[node name="Trash" type="ScrollContainer" parent="MarginContainer/HBoxContainer/TabContainer"]
-visible = false
-layout_mode = 2
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 3
-metadata/_tab_index = 1
-
 [node name="SideButtons" type="MarginContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 0
@@ -459,7 +610,7 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 theme = ExtResource("5_fw6of")
 toggle_mode = true
-script = ExtResource("6_gfru7")
+script = ExtResource("4_gfru7")
 tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush"]
@@ -478,14 +629,7 @@ libraries = {
 &"": SubResource("AnimationLibrary_ns818")
 }
 
-[node name="Bitmap" type="TextureButton" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer"]
-custom_minimum_size = Vector2(18, 40)
-layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
-texture_normal = ExtResource("3_8w8hd")
-
-[node name="NewBlueprint" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
+[node name="NewBlueprint" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("bpUI", "tt")]
 custom_minimum_size = Vector2(20, 40)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -493,6 +637,7 @@ size_flags_vertical = 2
 theme = ExtResource("5_fw6of")
 toggle_mode = true
 script = ExtResource("7_gfru7")
+bpUI = NodePath("../../../../..")
 tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint"]
@@ -512,9 +657,9 @@ libraries = {
 }
 
 [node name="Trash" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
-custom_minimum_size = Vector2(20, 40)
+custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-size_flags_horizontal = 4
+size_flags_horizontal = 0
 size_flags_vertical = 10
 theme = ExtResource("5_fw6of")
 script = ExtResource("9_gfru7")

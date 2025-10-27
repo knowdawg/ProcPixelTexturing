@@ -1,10 +1,12 @@
-[gd_resource type="Theme" load_steps=12 format=3 uid="uid://b04ydxpqblepw"]
+[gd_resource type="Theme" load_steps=13 format=3 uid="uid://b04ydxpqblepw"]
 
 [ext_resource type="FontFile" uid="uid://dgfeqj6murv3k" path="res://TileTemplate/Fonts/5x5PixelFont.ttf" id="1_vml2c"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vml2c"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_73gov"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_tb42q"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k5fkv"]
 bg_color = Color(0, 0, 0, 0.39215687)
@@ -104,7 +106,7 @@ anti_aliasing = false
 [resource]
 Button/styles/focus = SubResource("StyleBoxEmpty_vml2c")
 Button/styles/hover = SubResource("StyleBoxEmpty_73gov")
-Button/styles/hover_pressed = SubResource("StyleBoxFlat_k5fkv")
+Button/styles/hover_pressed = SubResource("StyleBoxEmpty_tb42q")
 Button/styles/normal = SubResource("StyleBoxFlat_k5fkv")
 Button/styles/pressed = SubResource("StyleBoxEmpty_73gov")
 GridContainer/constants/h_separation = 10

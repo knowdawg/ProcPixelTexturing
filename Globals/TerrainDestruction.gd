@@ -18,7 +18,7 @@ func addTileImage(worldPosition : Vector2, image : Image, tilemapType : int):
 			var pixel : Color = image.get_pixel(x, y)
 			if pixel.r == 0.0: #Skip if blank
 				continue
-			var tile : int = int(floor(pixel.r * TerrainRendering.uniqueTiles))
+			var tile : int = int(floor(pixel.r * TerrainRendering.uniqueTiles)) - 1
 			addTile(curPos, tile, tilemapType)
 
 

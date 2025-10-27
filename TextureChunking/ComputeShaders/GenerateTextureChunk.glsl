@@ -65,11 +65,15 @@ vec2 getNearestEdgeAngle(ivec2 uv, int radiusSize, inout float dis) {
 
 
 void main() {
-    float TAU = 6.28318;
-
-    ivec2 outputSize = imageSize(OutputBuffer);
-
     ivec2 UV = ivec2(gl_GlobalInvocationID.xy);
+    ivec2 size = imageSize(OutputBuffer);
+
+	if(UV.x < 0 || UV.y < 0 || UV.x > size.x - 1 || UV.y > size.y - 1){ //If you leave the screen, you failed
+		return;
+	}
+
+    float TAU = 6.28318;
+    ivec2 outputSize = imageSize(OutputBuffer);
     ivec2 TILE_IMAGE_UV = UV + ivec2(chunkData.outlineBufferSize);
 	float tileTexVal = imageLoad(TileImage, TILE_IMAGE_UV).r;
 	
@@ -95,7 +99,4 @@ void main() {
 
     chunkOffsetUV = chunkOffsetUV % outputSize;
     imageStore(OutputBuffer, chunkOffsetUV, COLOR);
-    // if(chunkOffsetUV.x < outputSize.x && chunkOffsetUV.y < outputSize.y){
-    //     imageStore(OutputBuffer, chunkOffsetUV, COLOR);
-    // }
 }
