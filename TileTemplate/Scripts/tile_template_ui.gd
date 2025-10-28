@@ -9,6 +9,13 @@ var blueprintElementFile = preload("res://TileTemplate/Scenes/BlueprintElement.t
 
 var visibleChildren : Array[Control] = []
 
+func hideUI():
+	pass
+
+func showUI():
+	pass
+
+
 func _ready() -> void:
 	BlueprintManager.newBlueprint.connect(populateBlueprintElements)
 	populateBlueprintElements()

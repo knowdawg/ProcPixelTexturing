@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://dnfswhfd50ime"]
+[gd_scene load_steps=46 format=3 uid="uid://dnfswhfd50ime"]
 
 [ext_resource type="Script" uid="uid://pbfqywpblnd7" path="res://TileTemplate/Scripts/tile_template_ui.gd" id="1_6utn4"]
 [ext_resource type="Theme" uid="uid://b04ydxpqblepw" path="res://TileTemplate/Themes/TileTemplateTheme.tres" id="1_kkrh1"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://f83dx7sgg2qa" path="res://TileTemplate/Sprites/new_blueprint.gd" id="7_gfru7"]
 [ext_resource type="Script" uid="uid://wx6f2206vvln" path="res://TileTemplate/Sprites/TrashButton.gd" id="9_gfru7"]
 [ext_resource type="Texture2D" uid="uid://dpmdyamytq8s7" path="res://TileTemplate/Sprites/Trash.png" id="10_2cxm1"]
+[ext_resource type="Script" uid="uid://xylj5cjxsdtf" path="res://TileTemplate/Scripts/x_button.gd" id="10_fw6of"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gfru7"]
 atlas = ExtResource("6_fw6of")
@@ -547,17 +548,136 @@ _data = {
 &"Use": SubResource("Animation_ch2bb")
 }
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fw6of"]
+bg_color = Color(0.23529412, 0.36862746, 0.54509807, 0.78431374)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gfru7"]
+bg_color = Color(0.30980393, 0.56078434, 0.7294118, 0.78431374)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2cxm1"]
+bg_color = Color(0.14509805, 0.22745098, 0.36862746, 0.78431374)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ns818"]
+bg_color = Color(0.30980393, 0.56078434, 0.7294118, 0.78431374)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+anti_aliasing = false
+
+[sub_resource type="Theme" id="Theme_1kmdl"]
+Button/styles/hover = SubResource("StyleBoxFlat_fw6of")
+Button/styles/hover_pressed = SubResource("StyleBoxFlat_gfru7")
+Button/styles/normal = SubResource("StyleBoxFlat_2cxm1")
+Button/styles/pressed = SubResource("StyleBoxFlat_ns818")
+
+[sub_resource type="Animation" id="Animation_waaxi"]
+resource_name = "Hover"
+length = 0.1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:scale")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.10000001),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(1.3, 1.3), Vector2(1, 1), Vector2(1.1, 1.1)]
+}
+
+[sub_resource type="Animation" id="Animation_hhirb"]
+resource_name = "UnHover"
+length = 0.1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:scale")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_oxuep"]
+resource_name = "Select"
+
+[sub_resource type="Animation" id="Animation_pi2ef"]
+resource_name = "Use"
+
+[sub_resource type="Animation" id="Animation_h6sy0"]
+resource_name = "Reset"
+
+[sub_resource type="Animation" id="Animation_hgjn6"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hgjn6"]
+_data = {
+&"Hover": SubResource("Animation_waaxi"),
+&"RESET": SubResource("Animation_hgjn6"),
+&"Reset": SubResource("Animation_h6sy0"),
+&"Select": SubResource("Animation_oxuep"),
+&"UnHover": SubResource("Animation_hhirb"),
+&"Use": SubResource("Animation_pi2ef")
+}
+
 [node name="BlueprintUI" type="CanvasLayer"]
+visible = false
 script = ExtResource("1_6utn4")
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 texture_filter = 1
+custom_minimum_size = Vector2(320, 248)
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_top = -248.0
-offset_right = 300.0
+offset_right = 320.0
 grow_vertical = 0
+pivot_offset = Vector2(0, 250)
+size_flags_horizontal = 4
+size_flags_vertical = 4
 theme = ExtResource("1_kkrh1")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
@@ -629,7 +749,7 @@ libraries = {
 &"": SubResource("AnimationLibrary_ns818")
 }
 
-[node name="NewBlueprint" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("bpUI", "tt")]
+[node name="NewBlueprint" type="Button" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
 custom_minimum_size = Vector2(20, 40)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -637,7 +757,6 @@ size_flags_vertical = 2
 theme = ExtResource("5_fw6of")
 toggle_mode = true
 script = ExtResource("7_gfru7")
-bpUI = NodePath("../../../../..")
 tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint"]
@@ -681,13 +800,30 @@ libraries = {
 &"": SubResource("AnimationLibrary_2ffdm")
 }
 
-[node name="XButton" type="TextureButton" parent="MarginContainer"]
+[node name="XButton" type="Button" parent="MarginContainer" node_paths=PackedStringArray("tt")]
 texture_filter = 1
-custom_minimum_size = Vector2(40, 16)
+custom_minimum_size = Vector2(40, 17)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
-texture_normal = ExtResource("5_xmwcd")
+theme = SubResource("Theme_1kmdl")
+toggle_mode = true
+script = ExtResource("10_fw6of")
+tt = NodePath("../..")
+
+[node name="TextureRect" type="TextureRect" parent="MarginContainer/XButton"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 20.0
+pivot_offset = Vector2(20, 10)
+texture = ExtResource("5_xmwcd")
+expand_mode = 1
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="MarginContainer/XButton"]
+libraries = {
+&"": SubResource("AnimationLibrary_hgjn6")
+}
 
 [connection signal="mouse_entered" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_exited"]
@@ -698,3 +834,6 @@ texture_normal = ExtResource("5_xmwcd")
 [connection signal="mouse_entered" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" method="_on_mouse_exited"]
 [connection signal="pressed" from="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" to="MarginContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" method="_on_pressed"]
+[connection signal="mouse_entered" from="MarginContainer/XButton" to="MarginContainer/XButton" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="MarginContainer/XButton" to="MarginContainer/XButton" method="_on_mouse_exited"]
+[connection signal="toggled" from="MarginContainer/XButton" to="MarginContainer/XButton" method="_on_toggled"]

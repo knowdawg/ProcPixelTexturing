@@ -1,7 +1,5 @@
 extends AnimatedSideButton
 
-@export var bpUI : BlueprintUI
-
 var active : bool = false
 
 var startingMousePos : Vector2i = Vector2i.ZERO
@@ -31,6 +29,10 @@ func _draw() -> void:
 	if active == true:
 		var rect := getLocalRect()
 		rect.position -= Vector2i(global_position)
+		
+		rect.position = Vector2i(Vector2(rect.position) / get_global_transform().get_scale())
+		rect.size = Vector2i(Vector2(rect.size) / get_global_transform().get_scale())
+		
 		draw_rect(rect, Color(1.0, 1.0, 1.0, 0.5), true)
 		draw_rect(rect, Color(1.0, 1.0, 1.0, 1.0), false, 2.0)
 
@@ -63,5 +65,21 @@ func _process(_delta: float) -> void:
 			active = false
 			finalMousePos = TerrainDestruction.foreground.get_global_mouse_position()
 			
-			button_pressed = false
 			$AnimationPlayer.play("Use")
+			button_pressed = false
+
+func _on_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		$AnimationPlayer.play("Select")
+		prevAnimation = "Select"
+		if tt.activeSideButton:
+			if tt.activeSideButton != self:
+				tt.activeSideButton.button_pressed = false
+		tt.activeSideButton = self
+	else:
+		if tt.activeSideButton:
+			if tt.activeSideButton == self:
+				tt.activeSideButton = null
+		if $AnimationPlayer.current_animation != "Use":
+			$AnimationPlayer.play("Reset")
+			prevAnimation = "Reset"
