@@ -20,6 +20,7 @@ config/icon="res://icon.svg"
 TerrainRendering="*res://Globals/TerrainRendering.gd"
 TerrainDestruction="*res://Globals/TerrainDestruction.gd"
 BlueprintManager="*res://Globals/BlueprintManager.gd"
+UI="*res://Globals/UI.gd"
 
 [debug]
 

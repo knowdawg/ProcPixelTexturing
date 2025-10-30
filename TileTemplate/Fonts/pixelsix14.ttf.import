@@ -2,19 +2,19 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dgfeqj6murv3k"
-path="res://.godot/imported/5x5PixelFont.ttf-63bc49881f3d24ce1e85c35431273349.fontdata"
+uid="uid://b1yihdxsa1ltk"
+path="res://.godot/imported/pixelsix14.ttf-2ebda2a11d2e3dee146729f6fa45a2a1.fontdata"
 
 [deps]
 
-source_file="res://TileTemplate/Fonts/5x5PixelFont.ttf"
-dest_files=["res://.godot/imported/5x5PixelFont.ttf-63bc49881f3d24ce1e85c35431273349.fontdata"]
+source_file="res://TileTemplate/Fonts/pixelsix14.ttf"
+dest_files=["res://.godot/imported/pixelsix14.ttf-2ebda2a11d2e3dee146729f6fa45a2a1.fontdata"]
 
 [params]
 
 Rendering=null
 antialiasing=0
-generate_mipmaps=true
+generate_mipmaps=false
 disable_embedded_bitmaps=true
 multichannel_signed_distance_field=false
 msdf_pixel_range=8

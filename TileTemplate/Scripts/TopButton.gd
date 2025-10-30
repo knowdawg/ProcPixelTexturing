@@ -1,6 +1,10 @@
 extends Button
+class_name BlueprintUITopButton
 
 @export var tt : BlueprintUI
+
+enum topButonType {HIDE, SHOW}
+@export var type : topButonType = topButonType.HIDE
 
 var prevAnimation : String = ""
 
@@ -15,10 +19,9 @@ func _on_mouse_exited() -> void:
 		$AnimationPlayer.play("UnHover")
 		prevAnimation = "UnHover"
 
-func _on_toggled(toggled_on: bool) -> void:
-	if toggled_on:
-		$AnimationPlayer.play("Select")
-		prevAnimation = "Select"
-	else:
-		$AnimationPlayer.play("Reset")
-		prevAnimation = "Reset"
+
+func _on_pressed() -> void:
+	if type == topButonType.SHOW:
+		tt.showUI()
+	if type == topButonType.HIDE:
+		tt.hideUI()

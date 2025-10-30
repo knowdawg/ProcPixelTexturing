@@ -1,6 +1,6 @@
-[gd_resource type="Theme" load_steps=13 format=3 uid="uid://b04ydxpqblepw"]
+[gd_resource type="Theme" load_steps=12 format=3 uid="uid://b04ydxpqblepw"]
 
-[ext_resource type="FontFile" uid="uid://dgfeqj6murv3k" path="res://TileTemplate/Fonts/5x5PixelFont.ttf" id="1_vml2c"]
+[ext_resource type="FontFile" uid="uid://bdm15tkei41yd" path="res://TileTemplate/Fonts/Pixellari.ttf" id="1_tb42q"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vml2c"]
 
@@ -48,22 +48,7 @@ expand_margin_left = 4.0
 expand_margin_right = 4.0
 anti_aliasing = false
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kshn6"]
-content_margin_top = 0.0
-bg_color = Color(0.14509805, 0.22745098, 0.36862746, 0.78431374)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-expand_margin_left = 4.0
-expand_margin_right = 4.0
-expand_margin_bottom = 2.0
-anti_aliasing = false
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_73gov"]
-content_margin_top = 0.0
 bg_color = Color(0.23529412, 0.36862746, 0.54509807, 0.78431374)
 border_width_left = 4
 border_width_top = 4
@@ -76,7 +61,6 @@ expand_margin_right = 4.0
 anti_aliasing = false
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rmu08"]
-content_margin_top = 0.0
 bg_color = Color(0.14509805, 0.22745098, 0.36862746, 0.78431374)
 border_width_left = 4
 border_width_top = 4
@@ -90,7 +74,6 @@ expand_margin_bottom = 2.0
 anti_aliasing = false
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4e27c"]
-content_margin_top = 0.0
 bg_color = Color(0.09019608, 0.1254902, 0.21960784, 0.78431374)
 border_width_left = 4
 border_width_top = 4
@@ -118,10 +101,10 @@ MarginContainer/constants/margin_top = 4
 Panel/styles/panel = SubResource("StyleBoxFlat_hjlaf")
 TabContainer/constants/tab_separation = 10
 TabContainer/font_sizes/font_size = 16
-TabContainer/fonts/font = ExtResource("1_vml2c")
+TabContainer/fonts/font = ExtResource("1_tb42q")
 TabContainer/styles/panel = SubResource("StyleBoxFlat_vml2c")
 TabContainer/styles/tab_disabled = SubResource("StyleBoxFlat_faqpw")
-TabContainer/styles/tab_focus = SubResource("StyleBoxFlat_kshn6")
+TabContainer/styles/tab_focus = null
 TabContainer/styles/tab_hovered = SubResource("StyleBoxFlat_73gov")
 TabContainer/styles/tab_selected = SubResource("StyleBoxFlat_rmu08")
 TabContainer/styles/tab_unselected = SubResource("StyleBoxFlat_4e27c")

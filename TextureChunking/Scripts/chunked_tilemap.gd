@@ -119,7 +119,7 @@ func _process(_delta: float) -> void:
 			#if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 				##TerrainDestruction.addTileImage(get_global_mouse_position(), imageTest.get_image(), TerrainDestruction.FOREGROUND)
 				##TerrainDestruction.addTileBitmap(get_global_mouse_position(), TILE.SANDSTONE, bm, TerrainDestruction.FOREGROUND)
-				#TerrainDestruction.addTileRadius(get_global_mouse_position(), TILE.SANDSTONE, 6, TerrainDestruction.FOREGROUND)
+				#TerrainDestruction.addTileRadius(get_global_mouse_position(), TILE.WOOD, 6, TerrainDestruction.FOREGROUND)
 				#
 			#if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 				#var pos : Vector2 = local_to_map(get_global_mouse_position())
@@ -128,7 +128,7 @@ func _process(_delta: float) -> void:
 	#if type == tilemapType.BACKGROUND:
 		#if Input.is_action_pressed("ui_accept"):
 			#if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-				#TerrainDestruction.addTileRadius(get_global_mouse_position(), TILE.SANDSTONE, 10, TerrainDestruction.BACKGROUND)
+				#TerrainDestruction.addTileRadius(get_global_mouse_position(), TILE.WOOD, 10, TerrainDestruction.BACKGROUND)
 				#
 			#if Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 				#var pos : Vector2 = local_to_map(get_global_mouse_position())
