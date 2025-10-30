@@ -43,6 +43,7 @@ func _draw() -> void:
 		draw_rect(rect, Color(1.0, 1.0, 1.0, 0.5), true)
 		draw_rect(rect, Color(1.0, 1.0, 1.0, 1.0), false, 2.0)
 
+
 func getLocalRect() -> Rect2i:
 	var cameraOffset = Vector2i(get_viewport().get_camera_2d().zoom) * Vector2i(startingCameraPos - get_viewport().get_camera_2d().get_screen_center_position())
 	var ogPos = startingMousePosLocal + cameraOffset

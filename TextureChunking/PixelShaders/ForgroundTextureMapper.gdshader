@@ -192,7 +192,7 @@ void light() {
 				sdfVal *= -1.0;
 			}
 			intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
-			disTraveled += abs(sdfVal);
+			disTraveled += abs(sdfVal) / CAMERA_ZOOM.x;
 			
 			float moveAmount = length((1.0 / RENDER_QUADRANT_SIZE) * angleVector);
 			disTraveled += moveAmount;

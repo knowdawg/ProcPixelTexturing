@@ -194,7 +194,7 @@ void light() {
 			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 			vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
 			sdfVal = sdfData.r;
-			disTraveled += abs(sdfVal) * 0.8; //* 0.8 to prevent some artfacting
+			disTraveled += abs(sdfVal) / CAMERA_ZOOM.x;
 			
 			closestSdfVal = min(sdfVal * 200.0 * textureScalling, closestSdfVal);
 			
@@ -203,7 +203,7 @@ void light() {
 				break;
 			}
 			if(disTraveled > distanceNeededToTravel){
-				finished = closestSdfVal;
+				finished = 1.0;//closestSdfVal;
 				break;
 			}
 		}

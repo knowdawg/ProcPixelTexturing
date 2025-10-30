@@ -27,10 +27,10 @@ anti_aliasing = false
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vml2c"]
 bg_color = Color(0.14509805, 0.22745098, 0.36862746, 0.78431374)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
 border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
 corner_radius_bottom_left = 4
 shadow_color = Color(0.09019608, 0.1254902, 0.21960784, 0)
@@ -100,7 +100,7 @@ MarginContainer/constants/margin_right = 4
 MarginContainer/constants/margin_top = 4
 Panel/styles/panel = SubResource("StyleBoxFlat_hjlaf")
 TabContainer/constants/tab_separation = 10
-TabContainer/font_sizes/font_size = 16
+TabContainer/font_sizes/font_size = 32
 TabContainer/fonts/font = ExtResource("1_tb42q")
 TabContainer/styles/panel = SubResource("StyleBoxFlat_vml2c")
 TabContainer/styles/tab_disabled = SubResource("StyleBoxFlat_faqpw")

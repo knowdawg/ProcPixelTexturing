@@ -1,4 +1,4 @@
-[gd_scene load_steps=47 format=3 uid="uid://dnfswhfd50ime"]
+[gd_scene load_steps=51 format=3 uid="uid://dnfswhfd50ime"]
 
 [ext_resource type="Script" uid="uid://pbfqywpblnd7" path="res://TileTemplate/Scripts/tile_template_ui.gd" id="1_6utn4"]
 [ext_resource type="Theme" uid="uid://b04ydxpqblepw" path="res://TileTemplate/Themes/TileTemplateTheme.tres" id="1_kkrh1"]
@@ -12,6 +12,7 @@
 [ext_resource type="Texture2D" uid="uid://dpmdyamytq8s7" path="res://TileTemplate/Sprites/Trash.png" id="10_2cxm1"]
 [ext_resource type="Script" uid="uid://xylj5cjxsdtf" path="res://TileTemplate/Scripts/TopButton.gd" id="10_fw6of"]
 [ext_resource type="Texture2D" uid="uid://dcpwglbgfonjb" path="res://TileTemplate/Sprites/ShowButtonNormal.png" id="12_2cxm1"]
+[ext_resource type="Shader" uid="uid://dhvcn5mmlsat1" path="res://TileTemplate/Shaders/BrushPreview.gdshader" id="13_ns818"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gfru7"]
 atlas = ExtResource("6_fw6of")
@@ -36,26 +37,14 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("TextureRect:scale")
+tracks/1/path = NodePath(".:custom_minimum_size")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath(".:custom_minimum_size")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(26, 40)]
+"values": [Vector2(52, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_fw6of"]
@@ -75,26 +64,14 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("TextureRect:scale")
+tracks/1/path = NodePath(".:custom_minimum_size")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath(".:custom_minimum_size")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(20, 40)]
+"values": [Vector2(40, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_1kmdl"]
@@ -108,34 +85,22 @@ tracks/0/path = NodePath("TextureRect:texture:region")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.05),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Rect2(380, 0, 20, 20), Rect2(0, 0, 20, 20)]
+"values": [Rect2(0, 0, 20, 20)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("TextureRect:scale")
+tracks/1/path = NodePath(".:custom_minimum_size")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.05, 0.1, 0.15),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(1, 1), Vector2(1.2, 0.8), Vector2(0.8, 1.2), Vector2(1, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath(".:custom_minimum_size")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(20, 40)]
+"values": [Vector2(40, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_gfru7"]
@@ -157,26 +122,14 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("TextureRect:scale")
+tracks/1/path = NodePath(".:custom_minimum_size")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath(".:custom_minimum_size")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
 "times": PackedFloat32Array(0, 0.05),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(32, 40), Vector2(26, 40)]
+"values": [Vector2(64, 80), Vector2(52, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_ns818"]
@@ -190,34 +143,22 @@ tracks/0/path = NodePath("TextureRect:texture:region")
 tracks/0/interp = 0
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 0.05),
-"transitions": PackedFloat32Array(1, 1),
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Rect2(100, 0, 20, 20), Rect2(20, 0, 20, 20)]
+"values": [Rect2(20, 0, 20, 20)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("TextureRect:scale")
+tracks/1/path = NodePath(".:custom_minimum_size")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.05, 0.10000001, 0.15),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [Vector2(1, 1), Vector2(1.2, 0.8), Vector2(0.8, 1.2), Vector2(1, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath(".:custom_minimum_size")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(20, 40)]
+"values": [Vector2(40, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_2cxm1"]
@@ -239,26 +180,14 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("TextureRect:scale")
+tracks/1/path = NodePath(".:custom_minimum_size")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(1, 1)]
-}
-tracks/2/type = "value"
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/path = NodePath(".:custom_minimum_size")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Vector2(26, 40)]
+"values": [Vector2(52, 80)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ns818"]
@@ -301,7 +230,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(26, 40)]
+"values": [Vector2(52, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_sqnu3"]
@@ -328,7 +257,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(20, 40)]
+"values": [Vector2(40, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_nvh1r"]
@@ -357,7 +286,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(20, 40)]
+"values": [Vector2(40, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_saemf"]
@@ -386,7 +315,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.05),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(32, 40), Vector2(26, 40)]
+"values": [Vector2(64, 80), Vector2(52, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_3b8by"]
@@ -415,7 +344,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(20, 40)]
+"values": [Vector2(40, 80)]
 }
 
 [sub_resource type="Animation" id="Animation_760ov"]
@@ -444,7 +373,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.25, 0.3, 0.35),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(26, 40), Vector2(34, 40), Vector2(38, 40), Vector2(40, 40), Vector2(40, 40), Vector2(16, 40), Vector2(20, 40)]
+"values": [Vector2(52, 80), Vector2(68, 80), Vector2(76, 80), Vector2(80, 80), Vector2(80, 80), Vector2(32, 80), Vector2(40, 80)]
 }
 tracks/2/type = "method"
 tracks/2/imported = false
@@ -551,9 +480,9 @@ _data = {
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fw6of"]
 bg_color = Color(0.23529412, 0.36862746, 0.54509807, 0.78431374)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
 border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
@@ -561,9 +490,9 @@ anti_aliasing = false
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gfru7"]
 bg_color = Color(0.30980393, 0.56078434, 0.7294118, 0.78431374)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
 border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
@@ -571,9 +500,9 @@ anti_aliasing = false
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2cxm1"]
 bg_color = Color(0.14509805, 0.22745098, 0.36862746, 0.78431374)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
 border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
@@ -581,9 +510,9 @@ anti_aliasing = false
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ns818"]
 bg_color = Color(0.30980393, 0.56078434, 0.7294118, 0.78431374)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
 border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
 corner_radius_top_left = 4
 corner_radius_top_right = 4
@@ -663,6 +592,16 @@ _data = {
 &"Use": SubResource("Animation_pi2ef")
 }
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1kmdl"]
+shader = ExtResource("13_ns818")
+
+[sub_resource type="Gradient" id="Gradient_82bl7"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_k50tt"]
+gradient = SubResource("Gradient_82bl7")
+
 [node name="BlueprintUI" type="CanvasLayer"]
 script = ExtResource("1_6utn4")
 
@@ -673,8 +612,8 @@ custom_minimum_size = Vector2(320, 248)
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_top = -248.0
-offset_right = 320.0
+offset_top = -496.0
+offset_right = 640.0
 grow_vertical = 0
 pivot_offset = Vector2(160, 124)
 size_flags_horizontal = 4
@@ -683,15 +622,13 @@ theme = ExtResource("1_kkrh1")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="BlueprintContainer"]
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
 theme_override_constants/separation = 0
 
 [node name="TabContainer" type="TabContainer" parent="BlueprintContainer/HBoxContainer"]
 texture_filter = 1
 custom_minimum_size = Vector2(272, 240)
 layout_mode = 2
-size_flags_vertical = 0
+size_flags_horizontal = 3
 focus_behavior_recursive = 1
 theme = ExtResource("1_kkrh1")
 tab_alignment = 1
@@ -736,25 +673,26 @@ columns = 3
 [node name="SideButtons" type="MarginContainer" parent="BlueprintContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 20
+theme_override_constants/margin_top = 36
 theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="BlueprintContainer/HBoxContainer/SideButtons"]
 layout_mode = 2
 
-[node name="Brush" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
-custom_minimum_size = Vector2(20, 40)
+[node name="Brush" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("preview", "tt")]
+custom_minimum_size = Vector2(40, 80)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
 theme = ExtResource("5_fw6of")
 toggle_mode = true
 script = ExtResource("4_gfru7")
+preview = NodePath("../../../../../BrushPreview")
 tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(80, 80)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -770,7 +708,7 @@ libraries = {
 }
 
 [node name="NewBlueprint" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
-custom_minimum_size = Vector2(20, 40)
+custom_minimum_size = Vector2(40, 80)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 2
@@ -780,7 +718,7 @@ script = ExtResource("7_gfru7")
 tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(80, 80)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -796,7 +734,7 @@ libraries = {
 }
 
 [node name="Trash" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 10
@@ -805,7 +743,7 @@ script = ExtResource("9_gfru7")
 tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Trash"]
-custom_minimum_size = Vector2(40, 40)
+custom_minimum_size = Vector2(80, 80)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -821,7 +759,7 @@ libraries = {
 }
 
 [node name="TopButtons" type="MarginContainer" parent="BlueprintContainer"]
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
@@ -829,7 +767,7 @@ mouse_filter = 2
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 0
+theme_override_constants/margin_bottom = 2
 
 [node name="TopButtons" type="HBoxContainer" parent="BlueprintContainer/TopButtons"]
 layout_mode = 2
@@ -838,7 +776,7 @@ theme_override_constants/separation = 0
 
 [node name="XButton" type="Button" parent="BlueprintContainer/TopButtons/TopButtons" node_paths=PackedStringArray("tt")]
 texture_filter = 1
-custom_minimum_size = Vector2(40, 17)
+custom_minimum_size = Vector2(80, 30)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
@@ -847,13 +785,15 @@ script = ExtResource("10_fw6of")
 tt = NodePath("../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="BlueprintContainer/TopButtons/TopButtons/XButton"]
-custom_minimum_size = Vector2(40, 20)
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 20.0
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 pivot_offset = Vector2(20, 10)
 texture = ExtResource("5_xmwcd")
-expand_mode = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="BlueprintContainer/TopButtons/TopButtons/XButton"]
 libraries = {
@@ -866,7 +806,7 @@ custom_minimum_size = Vector2(0, 15)
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
-color = Color(1, 1, 1, 0.19607843)
+color = Color(1, 1, 1, 0)
 
 [node name="ShowButtonContainer" type="MarginContainer" parent="."]
 unique_name_in_owner = true
@@ -880,7 +820,7 @@ theme_override_constants/margin_bottom = 0
 
 [node name="ShowButton" type="Button" parent="ShowButtonContainer" node_paths=PackedStringArray("tt")]
 texture_filter = 1
-custom_minimum_size = Vector2(40, 17)
+custom_minimum_size = Vector2(80, 40)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
@@ -892,24 +832,23 @@ type = 1
 [node name="TextureRect" type="TextureRect" parent="ShowButtonContainer/ShowButton"]
 custom_minimum_size = Vector2(40, 20)
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
 grow_horizontal = 2
-grow_vertical = 0
-pivot_offset = Vector2(20, 20)
+grow_vertical = 2
+pivot_offset = Vector2(40, 40)
 texture = ExtResource("12_2cxm1")
-expand_mode = 1
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="ShowButtonContainer/ShowButton"]
 libraries = {
 &"": SubResource("AnimationLibrary_hgjn6")
 }
+
+[node name="BrushPreview" type="Sprite2D" parent="."]
+texture_filter = 1
+material = SubResource("ShaderMaterial_1kmdl")
+texture = SubResource("GradientTexture2D_k50tt")
 
 [connection signal="mouse_entered" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_exited"]
