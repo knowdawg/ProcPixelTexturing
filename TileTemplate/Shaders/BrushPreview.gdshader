@@ -27,7 +27,7 @@ void fragment() {
 	float alpha = (abs(sin(TIME * 2.0)) + 2.0) / 4.0;
 	c.a = tex.a * alpha;
 	
-	if(isBorder(TEXTURE, UV, TEXTURE_PIXEL_SIZE)){
+	if(isBorder(TEXTURE, UV, TEXTURE_PIXEL_SIZE * 0.5)){
 		c = vec4(1.0, 1.0, 1.0, 1.0);
 	}
 	

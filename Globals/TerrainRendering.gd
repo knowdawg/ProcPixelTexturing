@@ -27,13 +27,13 @@ var textureSize := Vector2i(256, 256)
 var foregroundTextureData : TextureData = preload("uid://dmla4e53rjkn6")
 var backgroundTextureData : TextureData = preload("uid://bidpxtfdflemt")
 
-#Global Signals Related to Rendering
-var enviermentDirty : bool = false
-signal onEnviermentalChanged
+var IMAGE_FORMAT : int = Image.FORMAT_RGBAF
 
-
-func enviromentChanged():
-	enviermentDirty = true
+#returns an image of the specified size filled with the specified material
+func generateSampleImage(tile : int, size : Vector2i) -> Image:
+	var im : Image = Image.create_empty(size.x, size.y, false, IMAGE_FORMAT)
+	im.fill(Color(float(tile) / float(uniqueTiles), 0.0, 0.0, 1.0))
+	return im
 
 func contructTextureArrays():
 	#Foreground
@@ -67,6 +67,7 @@ func isPositionLoaded(pos : Vector2) -> bool:
 
 func _ready() -> void:
 	RenderingServer.global_shader_parameter_set("RENDER_QUADRANT_SIZE", Vector2(renderSectionSize, renderSectionSize))
+	RenderingServer.global_shader_parameter_set("UNIQUE_TILES", uniqueTiles)
 	contructTextureArrays()
 	
 	#Setup pipeline for calculate Enviermental Textures
@@ -78,10 +79,6 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed("ReloadTexture"):
 		contructTextureArrays()
-		
-	if enviermentDirty:
-		enviermentDirty = false
-		onEnviermentalChanged.emit()
 
 var renDev : RenderingDevice
 var textureChunkShaderFile

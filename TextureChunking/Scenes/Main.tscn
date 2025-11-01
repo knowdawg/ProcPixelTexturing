@@ -1,5 +1,6 @@
-[gd_scene load_steps=41 format=4 uid="uid://c726gqd04n3yb"]
+[gd_scene load_steps=42 format=4 uid="uid://c726gqd04n3yb"]
 
+[ext_resource type="Script" uid="uid://b1381eapkmqjg" path="res://Test/FPSLabel.gd" id="1_dvw3m"]
 [ext_resource type="Texture2D" uid="uid://cggo1js6exgbg" path="res://Tiles/Material1Tile.png" id="1_kgdbp"]
 [ext_resource type="Texture2D" uid="uid://qv3pqu6rkh5d" path="res://Tiles/Material2Tile.png" id="2_hcy24"]
 [ext_resource type="Texture2D" uid="uid://2lf8vp10huhc" path="res://Tiles/Material3Tile.png" id="3_u2jdx"]
@@ -84,7 +85,6 @@ sources/4 = SubResource("TileSetAtlasSource_txt8w")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_kvn5q"]
 shader = ExtResource("7_mu78b")
 shader_parameter/brightness = 0.50000002375
-shader_parameter/numOfUniqueTiles = 64
 shader_parameter/warp = -0.02999995392499999
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7ewyy"]
@@ -92,7 +92,6 @@ shader = ExtResource("8_dvw3m")
 shader_parameter/falloff = 10.000000475
 shader_parameter/modulate = Color(1, 1, 1, 1)
 shader_parameter/warp = -0.02999995392499999
-shader_parameter/numOfUniqueTiles = 64
 
 [sub_resource type="Gradient" id="Gradient_2b3lv"]
 interpolation_mode = 2
@@ -186,6 +185,7 @@ position = Vector2(160, 90)
 script = ExtResource("6_bnr5j")
 
 [node name="Camera2D" type="Camera2D" parent="World2D/CameraHolder"]
+zoom = Vector2(6, 6)
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
 script = ExtResource("8_xil5r")
@@ -411,3 +411,14 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="TileTemplateUI" parent="GUI" instance=ExtResource("16_txt8w")]
+
+[node name="FPSLabalLayer" type="CanvasLayer" parent="GUI"]
+
+[node name="Label" type="Label" parent="GUI/FPSLabalLayer"]
+offset_left = 8.0
+offset_top = 5.0
+offset_right = 62.0
+offset_bottom = 50.0
+theme_override_font_sizes/font_size = 32
+text = "FPS"
+script = ExtResource("1_dvw3m")

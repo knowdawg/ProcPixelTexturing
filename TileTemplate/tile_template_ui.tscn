@@ -634,12 +634,34 @@ theme = ExtResource("1_kkrh1")
 tab_alignment = 1
 current_tab = 0
 
+[node name="Materials" type="HBoxContainer" parent="BlueprintContainer/HBoxContainer/TabContainer"]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="MaterialsScroll" type="ScrollContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MaterialsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MaterialGridContainer" type="GridContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MaterialsScroll/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 6
+
 [node name="Blueprints" type="ScrollContainer" parent="BlueprintContainer/HBoxContainer/TabContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 3
-metadata/_tab_index = 0
+metadata/_tab_index = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Blueprints"]
 layout_mode = 2
@@ -649,24 +671,6 @@ theme = ExtResource("1_kkrh1")
 unique_name_in_owner = true
 custom_minimum_size = Vector2(140, 90)
 layout_mode = 2
-theme = ExtResource("1_kkrh1")
-columns = 3
-
-[node name="Blueprints2" type="ScrollContainer" parent="BlueprintContainer/HBoxContainer/TabContainer"]
-visible = false
-layout_mode = 2
-horizontal_scroll_mode = 0
-vertical_scroll_mode = 3
-metadata/_tab_index = 1
-
-[node name="MarginContainer" type="MarginContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Blueprints2"]
-layout_mode = 2
-theme = ExtResource("1_kkrh1")
-
-[node name="BlueprintGridContainer" type="GridContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Blueprints2/MarginContainer"]
-layout_mode = 2
-size_flags_horizontal = 6
-size_flags_vertical = 0
 theme = ExtResource("1_kkrh1")
 columns = 3
 

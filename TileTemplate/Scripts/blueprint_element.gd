@@ -5,8 +5,9 @@ class_name BlueprintElement
 var blueprint : Blueprint
 var tileTemplateUI : BlueprintUI
 var filePath : String
+var isSample : bool
 
-func setup(b : Blueprint, tt : BlueprintUI, file : String):
+func setup(b : Blueprint, tt : BlueprintUI, file : String, isSampleElement : bool = false):
 	blueprint = b
 	tileTemplateUI = tt
 	filePath = file
@@ -16,6 +17,10 @@ func setup(b : Blueprint, tt : BlueprintUI, file : String):
 	var tex2dRD := Texture2DRD.new()
 	tex2dRD.texture_rd_rid = b.thumbnailRID
 	$MarginContainer/BlueprintTexture.texture = tex2dRD
+	
+	isSample = isSampleElement
+	if isSample:
+		custom_minimum_size /= 2.0
 	
 
 func deactivate():

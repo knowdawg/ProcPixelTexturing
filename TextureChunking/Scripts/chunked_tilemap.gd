@@ -34,7 +34,6 @@ func addTile(pos : Vector2, tileIndex : int):
 	var chunkCoord : Vector2i = floor(chunkPos)
 	if isChunkInBounds(chunkCoord):
 		chunks[chunkCoord.x][chunkCoord.y].makeDirty()
-		TerrainRendering.enviromentChanged()
 	else:
 		return
 	
@@ -103,8 +102,6 @@ func _ready() -> void:
 			var chunkType = TextureChunk.tilemapType.FOREGROUND if type == tilemapType.FOREGROUND else TextureChunk.tilemapType.BACKGROUND
 			c.setup(TerrainRendering.chunkSize, TerrainRendering.outlineBufferSize, self, Vector2(x,y), chunkType)
 
-#var bitmapImage = preload("res://Globals/Bitmaps/bitmapTest.png")
-#var imageTest = preload("res://Globals/Bitmaps/imageTest.png")
 func _process(_delta: float) -> void:
 	updateChunks()
 	if dirty:
@@ -173,7 +170,6 @@ func updateChunks() -> void:
 		if !prevActiveChunks.has(c):
 			c.activate()
 			c.makeDirty()
-			TerrainRendering.enviromentChanged()
 	
 	for c : TextureChunk in prevActiveChunks:
 		if !activeChunks.has(c):

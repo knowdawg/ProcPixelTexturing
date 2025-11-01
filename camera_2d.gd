@@ -1,6 +1,6 @@
 extends Sprite2D
 
-var moveSpeed = 200.0
+var moveSpeed = 225.0
 
 func _process(delta: float) -> void:
 	if Input.is_action_pressed("ui_left"):

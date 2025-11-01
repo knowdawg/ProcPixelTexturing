@@ -8,6 +8,7 @@ var dir : DirAccess
 
 signal newBlueprint
 
+
 func loadBlueprints():
 	blueprints.clear()
 	if dir.dir_exists(blueprintDir):

@@ -12,8 +12,8 @@ func use():
 	var forground = TerrainDestruction.foreground
 	if !is_instance_valid(forground):
 		return
-	startingMousePos = forground.get_global_mouse_position()
-	startingMousePosLocal = get_global_mouse_position()
+	startingMousePos = forground.get_global_mouse_position().snapped(Vector2(1.0, 1.0))
+	startingMousePosLocal = snapToTilemap(get_global_mouse_position())
 	startingCameraPos = get_viewport().get_camera_2d().global_position
 	active = true
 
@@ -23,6 +23,9 @@ func createBlueprint():
 		return
 	
 	var selectedRect : Rect2i = getCurRect(finalMousePos)
+	
+	if selectedRect.size.x == 0 or selectedRect.size.y == 0:
+		return
 	
 	var im : Image = Image.new()
 	im = Image.create_empty(selectedRect.size.x, selectedRect.size.y, false, Image.FORMAT_RGBAF)
@@ -35,19 +38,31 @@ func createBlueprint():
 func _draw() -> void:
 	if active == true:
 		var rect := getLocalRect()
+		
 		rect.position -= Vector2i(global_position)
 		
 		rect.position = Vector2i(Vector2(rect.position) / get_global_transform().get_scale())
 		rect.size = Vector2i(Vector2(rect.size) / get_global_transform().get_scale())
 		
+		
 		draw_rect(rect, Color(1.0, 1.0, 1.0, 0.5), true)
-		draw_rect(rect, Color(1.0, 1.0, 1.0, 1.0), false, 2.0)
-
-
+		draw_rect(rect, Color(1.0, 1.0, 1.0, 1.0), false, getScallar().x / 2.0)
+	elif tt.activeSideButton == self:
+		var mouseTile : Rect2 = Rect2(0.0, 0.0, 0.0, 0.0)
+		mouseTile.position = snapToTilemap(get_global_mouse_position()) - global_position
+		mouseTile.size = getScallar()
+		
+		var itter : int = 5
+		for i in itter:
+			draw_line(mouseTile.position - Vector2(getScallar().x * float(i + 1), 0.0), mouseTile.position + Vector2(getScallar().x * float(i + 1), 0.0), Color(1.0, 1.0, 1.0, 0.5), getScallar().x / 2.0)
+			draw_line(mouseTile.position - Vector2(0.0, getScallar().y * float(i + 1)), mouseTile.position + Vector2(0.0, getScallar().y * float(i + 1)), Color(1.0, 1.0, 1.0, 0.5), getScallar().y / 2.0)
+	
 func getLocalRect() -> Rect2i:
-	var cameraOffset = Vector2i(get_viewport().get_camera_2d().zoom) * Vector2i(startingCameraPos - get_viewport().get_camera_2d().get_screen_center_position())
-	var ogPos = startingMousePosLocal + cameraOffset
-	var curMousePos : Vector2i = Vector2i(get_global_mouse_position())
+	var cameraOffset  : Vector2 = getScallar() * (startingCameraPos - get_viewport().get_camera_2d().get_screen_center_position())
+	var ogPos : Vector2 = Vector2(startingMousePosLocal) + cameraOffset
+	
+	var curMousePos : Vector2i = Vector2i(snapToTilemap(get_global_mouse_position()))
+	
 	var selectedRect : Rect2i = Rect2i(0, 0, 0, 0)
 	selectedRect.position.x = min(ogPos.x, curMousePos.x)
 	selectedRect.position.y = min(ogPos.y, curMousePos.y)
@@ -76,7 +91,7 @@ func _process(_delta: float) -> void:
 	if active:
 		if Input.is_action_just_released("TileTemplateUse"):
 			active = false
-			finalMousePos = forground.get_global_mouse_position()
+			finalMousePos = forground.get_global_mouse_position().snapped(Vector2(1.0, 1.0))
 			
 			$AnimationPlayer.play("Use")
 			button_pressed = false

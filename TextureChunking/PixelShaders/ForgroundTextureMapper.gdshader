@@ -1,6 +1,7 @@
 shader_type canvas_item;
 
 global uniform vec2 RENDER_QUADRANT_SIZE;
+global uniform  int UNIQUE_TILES;
 global uniform vec2 WORLD_POSITION;
 global uniform vec2 CAMERA_ZOOM;
 global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
@@ -16,7 +17,6 @@ group_uniforms lighting;
 uniform float falloff : hint_range(0.0, 100.0);
 uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform float warp : hint_range(-1.0, 1.0) = -0.03;
-uniform int numOfUniqueTiles = 128;
 
 varying vec2 screenSize;
 varying vec4 screen;
@@ -24,12 +24,12 @@ varying vec4 screen;
 vec4 getColor(int type, vec2 uv, vec4 self, inout vec3 normal){
 	vec4 c = vec4(1.0);
 	vec2 offsetUV = uv * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
-	float tileIndex = self.r * float(numOfUniqueTiles);
+	float tileIndex = self.r * float(UNIQUE_TILES);
 	tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
 	
 	vec3 arrayUV = vec3(offsetUV, tileIndex);
 	
-	vec4 border = texture(FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(numOfUniqueTiles)), 0.0));
+	vec4 border = texture(FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(UNIQUE_TILES)), 0.0));
 	vec4 tVal = texture(FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
 	vec4 nVal = texture(FOREGROUND_NORMALS_SAMPLER_2D_ARRAY, arrayUV);
 	

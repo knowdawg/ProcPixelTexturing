@@ -3,24 +3,24 @@ shader_type canvas_item;
 global uniform sampler2DArray FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
 global uniform sampler2DArray FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest;
 global uniform sampler2D FOREGROUND_BORDER_COLORS : filter_nearest;
+global uniform int UNIQUE_TILES;
 
 group_uniforms lighting;
 uniform float falloff : hint_range(0.0, 100.0);
 uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform float warp : hint_range(-1.0, 1.0) = -0.03;
-uniform int numOfUniqueTiles = 128;
 
 varying vec2 size;
 
 vec4 getColor(int type, vec2 uv, vec4 self){
 	vec4 c = vec4(1.0);
 	vec2 offsetUV = uv * (size / vec2(256.0, 256.0));
-	float tileIndex = self.r * float(numOfUniqueTiles);
+	float tileIndex = self.r * float(UNIQUE_TILES);
 	tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
 	
 	vec3 arrayUV = vec3(offsetUV, tileIndex);
 	
-	vec4 border = texture(FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(numOfUniqueTiles)), 0.0));
+	vec4 border = texture(FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(UNIQUE_TILES)), 0.0));
 	vec4 tVal = texture(FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
 	
 	switch(type){

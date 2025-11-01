@@ -29,6 +29,18 @@ func _ready() -> void:
 	populateBlueprintElements()
 	
 	call_deferred("hideUI")
+	call_deferred("setupSamples")
+
+func setupSamples():
+	for i in TerrainRendering.uniqueTiles:
+		var im = TerrainRendering.generateSampleImage(i, Vector2i(32, 32))
+		
+		var bp : Blueprint = Blueprint.new()
+		bp.setup(im, Vector2.ZERO, true)
+		
+		var blueprintElement : BlueprintElement = blueprintElementFile.instantiate()
+		blueprintElement.setup(bp, self, "", true)
+		%MaterialGridContainer.add_child(blueprintElement)
 
 func _process(_delta: float) -> void:
 	checkForDrag()
@@ -41,10 +53,12 @@ var dragging : bool = false
 func checkForDrag():
 	var mousePos := get_viewport().get_mouse_position()
 	var isMouseInside = %DragButton.get_global_rect().has_point(mousePos)
-	if isMouseInside or dragging:
+	
+	if isMouseInside and Input.is_action_just_pressed("TileTemplateUse"):
+		dragging = true
+	
+	if dragging:
 		if Input.is_action_pressed("TileTemplateUse"):
-			dragging = true
-			
 			var mouseDelta : Vector2 = mousePos - prevMousePos
 			var containerRect : Rect2 = %BlueprintContainer.get_global_rect()
 			for i in range(4):
@@ -65,6 +79,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("TileTemplateUse"):
 		if canClick():
 			activeSideButton.use()
+	if event.is_action_pressed("TileTemplateAltUse"):
+		if canClick():
+			activeSideButton.altUse()
 
 func canClick():
 	if !is_instance_valid(activeSideButton):
