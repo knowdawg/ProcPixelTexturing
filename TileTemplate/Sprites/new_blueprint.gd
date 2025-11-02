@@ -1,5 +1,7 @@
 extends AnimatedSideButton
 
+@export var magnify : Sprite2D
+
 var active : bool = false
 
 var startingMousePos : Vector2i = Vector2i.ZERO
@@ -19,7 +21,10 @@ func use():
 
 func createBlueprint():
 	var forground = TerrainDestruction.foreground
+	var background = TerrainDestruction.background
 	if !is_instance_valid(forground):
+		return
+	if !is_instance_valid(background):
 		return
 	
 	var selectedRect : Rect2i = getCurRect(finalMousePos)
@@ -27,12 +32,16 @@ func createBlueprint():
 	if selectedRect.size.x == 0 or selectedRect.size.y == 0:
 		return
 	
-	var im : Image = Image.new()
-	im = Image.create_empty(selectedRect.size.x, selectedRect.size.y, false, Image.FORMAT_RGBAF)
-	im.blit_rect(forground.mapImage, selectedRect, Vector2i(0, 0))
+	var forIm : Image = Image.new()
+	forIm = Image.create_empty(selectedRect.size.x, selectedRect.size.y, false, Image.FORMAT_RGBAF)
+	forIm.blit_rect(forground.mapImage, selectedRect, Vector2i(0, 0))
+	
+	var backIm : Image = Image.new()
+	backIm = Image.create_empty(selectedRect.size.x, selectedRect.size.y, false, Image.FORMAT_RGBAF)
+	backIm.blit_rect(background.mapImage, selectedRect, Vector2i(0, 0))
 	
 	var b : Blueprint = Blueprint.new()
-	b.setup(im, selectedRect.position)
+	b.setup(forIm, backIm, selectedRect.position, false)
 	BlueprintManager.saveBlueprint(b)
 
 func _draw() -> void:
@@ -44,19 +53,25 @@ func _draw() -> void:
 		rect.position = Vector2i(Vector2(rect.position) / get_global_transform().get_scale())
 		rect.size = Vector2i(Vector2(rect.size) / get_global_transform().get_scale())
 		
-		
 		draw_rect(rect, Color(1.0, 1.0, 1.0, 0.5), true)
 		draw_rect(rect, Color(1.0, 1.0, 1.0, 1.0), false, getScallar().x / 2.0)
+		
+		magnify.visible = true
+		magnify.position = snapToTilemap(get_global_mouse_position())
+		
 	elif tt.activeSideButton == self:
 		var mouseTile : Rect2 = Rect2(0.0, 0.0, 0.0, 0.0)
 		mouseTile.position = snapToTilemap(get_global_mouse_position()) - global_position
 		mouseTile.size = getScallar()
 		
-		var itter : int = 5
-		for i in itter:
-			draw_line(mouseTile.position - Vector2(getScallar().x * float(i + 1), 0.0), mouseTile.position + Vector2(getScallar().x * float(i + 1), 0.0), Color(1.0, 1.0, 1.0, 0.5), getScallar().x / 2.0)
-			draw_line(mouseTile.position - Vector2(0.0, getScallar().y * float(i + 1)), mouseTile.position + Vector2(0.0, getScallar().y * float(i + 1)), Color(1.0, 1.0, 1.0, 0.5), getScallar().y / 2.0)
-	
+		draw_line(mouseTile.position - Vector2(getScallar().x * 5.0, 0.0), mouseTile.position + Vector2(getScallar().x * 5.0, 0.0), Color.WHITE, getScallar().x / 4.0)
+		draw_line(mouseTile.position - Vector2(0.0, getScallar().y * 5.0), mouseTile.position + Vector2(0.0, getScallar().y * 5.0), Color.WHITE, getScallar().y / 4.0)
+		
+		magnify.visible = true
+		magnify.position = snapToTilemap(get_global_mouse_position())
+	else:
+		magnify.visible = false
+
 func getLocalRect() -> Rect2i:
 	var cameraOffset  : Vector2 = getScallar() * (startingCameraPos - get_viewport().get_camera_2d().get_screen_center_position())
 	var ogPos : Vector2 = Vector2(startingMousePosLocal) + cameraOffset

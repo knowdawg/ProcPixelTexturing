@@ -1,9 +1,13 @@
 extends AnimatedSideButton
 
-@export var preview : Sprite2D
+@export var previewForground : Sprite2D
+@export var previewBackground : Sprite2D
 
-var activeIm : Image
-var activeTex : ImageTexture
+var forActiveIm : Image
+var forActiveTex : ImageTexture
+
+var backActiveIm : Image
+var backActiveTex : ImageTexture
 
 func _process(_delta: float) -> void:
 	updatePreview()
@@ -14,32 +18,45 @@ func _process(_delta: float) -> void:
 
 func updatePreview() -> void:
 	if tt.activeSideButton == self and is_instance_valid(tt.activeElement):
-		preview.visible = true
+		previewForground.visible = false
+		previewBackground.visible = false
+		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.FOREGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
+			previewForground.visible = true
+		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BACKGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
+			previewBackground.visible = true
 		
-		activeIm = getActiveElementImage()
-		activeTex = ImageTexture.create_from_image(activeIm)
+		forActiveIm = getActiveElementImage(true)
+		forActiveTex = ImageTexture.create_from_image(forActiveIm)
+		
+		backActiveIm = getActiveElementImage(false)
+		backActiveTex = ImageTexture.create_from_image(backActiveIm)
 		
 		var pos = get_global_mouse_position()
 		var scallar : Vector2 = get_viewport().get_camera_2d().zoom
 		
-		if(activeIm.get_size().x % 2 == 0):
+		if(forActiveIm.get_size().x % 2 == 0):
 			pos -= Vector2(0.5, 0.0) * scallar
-		if(activeIm.get_size().y % 2 == 0):
+		if(forActiveIm.get_size().y % 2 == 0):
 			pos -= Vector2(0.0, 0.5) * scallar
 		
 		pos = snapToTilemap(pos)
 		
-		if(activeIm.get_size().x % 2 != 0):
+		if(forActiveIm.get_size().x % 2 != 0):
 			pos -= Vector2(0.5, 0.0) * scallar
-		if(activeIm.get_size().y % 2 != 0):
+		if(forActiveIm.get_size().y % 2 != 0):
 			pos -= Vector2(0.0, 0.5) * scallar
 		
-		preview.texture = activeTex
-		preview.position = pos
-		preview.scale = scallar
+		previewForground.texture = forActiveTex
+		previewForground.position = pos
+		previewForground.scale = scallar
+		
+		previewBackground.texture = backActiveTex
+		previewBackground.position = pos
+		previewBackground.scale = scallar
 		
 	else:
-		preview.visible = false
+		previewForground.visible = false
+		previewBackground.visible = false
 
 var sampleBrushSize : Vector2i = Vector2i(8, 8)
 var useContinous : bool = false
@@ -50,10 +67,15 @@ func use():
 		else:
 			useContinous = false
 			
-		var i : Image = getActiveElementImage()
+		var forIm : Image = getActiveElementImage(true)
+		var backIm : Image = getActiveElementImage(false)
+		var mousePos := TerrainDestruction.foreground.get_global_mouse_position()
 		
-		var mousePos := TerrainDestruction.foreground.get_global_mouse_position() #mous position is relative to the canvas layer
-		TerrainDestruction.addTileImage(mousePos, i, TerrainDestruction.FOREGROUND)
+		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.FOREGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
+			TerrainDestruction.addTileImage(mousePos, forIm, TerrainDestruction.FOREGROUND)
+		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BACKGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
+			TerrainDestruction.addTileImage(mousePos, backIm, TerrainDestruction.BACKGROUND)
+		
 		if useContinous == false:
 			$AnimationPlayer.stop()
 		$AnimationPlayer.play("Use")
@@ -66,25 +88,46 @@ func altUse():
 		else:
 			altUseContinous = false
 		
-		var i : Image = getActiveElementImage()
-		var bitmap : BitMap = BitMap.new()
-		bitmap.create_from_image_alpha(i, 0.5)
+		var forIm : Image = getActiveElementImage(true)
+		var forBitmap : BitMap = BitMap.new()
+		forBitmap.create_from_image_alpha(forIm, 0.5)
+		
+		var backIm : Image = getActiveElementImage(false)
+		var backBitmap : BitMap = BitMap.new()
+		backBitmap.create_from_image_alpha(backIm, 0.5)
 		
 		var mousePos := TerrainDestruction.foreground.get_global_mouse_position()
 		
-		TerrainDestruction.addTileBitmap(mousePos, -1, bitmap, TerrainDestruction.FOREGROUND)
-		if useContinous == false:
+
+		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.FOREGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
+			TerrainDestruction.addTileBitmap(mousePos, -1, forBitmap, TerrainDestruction.FOREGROUND)
+		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BACKGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
+			TerrainDestruction.addTileBitmap(mousePos, -1, backBitmap, TerrainDestruction.BACKGROUND)
+		
+		
+		if altUseContinous == false:
 			$AnimationPlayer.stop()
 		$AnimationPlayer.play("Use")
 
-func getActiveElementImage() -> Image:
-	var i : Image = tt.activeElement.blueprint.image
-	if tt. activeElement.isSample:
-		i = Image.create_empty(sampleBrushSize.x, sampleBrushSize.y, false, TerrainRendering.IMAGE_FORMAT)
-		i.blit_rect(tt.activeElement.blueprint.image, Rect2i(Vector2i(0, 0), sampleBrushSize), Vector2i(0, 0))
+func getActiveElementImage(isForeground : bool = true) -> Image:
+	var im : Image
+	if isForeground:
+		im = tt.activeElement.blueprint.imageForground
+	else:
+		im = tt.activeElement.blueprint.imageBackground
 	
-	return i
+	if tt. activeElement.isSample:
+		sampleBrushSize = tt.brushSize
+		im = Image.create_empty(sampleBrushSize.x, sampleBrushSize.y, false, TerrainRendering.IMAGE_FORMAT)
+		
+		if isForeground:
+			im.blit_rect(tt.activeElement.blueprint.imageForground, Rect2i(Vector2i(0, 0), sampleBrushSize), Vector2i(0, 0))
+		else:
+			im.blit_rect(tt.activeElement.blueprint.imageBackground, Rect2i(Vector2i(0, 0), sampleBrushSize), Vector2i(0, 0))
+	return im
 
 func _ready() -> void:
-	activeIm = Image.new()
-	activeTex = ImageTexture.new()
+	forActiveIm = Image.new()
+	forActiveTex = ImageTexture.new()
+	backActiveIm = Image.new()
+	backActiveTex = ImageTexture.new()

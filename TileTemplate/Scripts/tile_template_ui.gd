@@ -9,6 +9,9 @@ var blueprintElementFile = preload("res://TileTemplate/Scenes/BlueprintElement.t
 
 var visibleChildren : Array[Control] = []
 
+var brushSize : Vector2i = Vector2i(8, 8)
+var sampleSize : Vector2i =  Vector2i(32, 32)
+
 func hideUI():
 	%BlueprintContainer.visible = false
 	%ShowButtonContainer.visible = true
@@ -33,10 +36,10 @@ func _ready() -> void:
 
 func setupSamples():
 	for i in TerrainRendering.uniqueTiles:
-		var im = TerrainRendering.generateSampleImage(i, Vector2i(32, 32))
+		var im = TerrainRendering.generateSampleImage(i, sampleSize)
 		
 		var bp : Blueprint = Blueprint.new()
-		bp.setup(im, Vector2.ZERO, true)
+		bp.setup(im, im, Vector2.ZERO, true)
 		
 		var blueprintElement : BlueprintElement = blueprintElementFile.instantiate()
 		blueprintElement.setup(bp, self, "", true)
@@ -47,6 +50,12 @@ func _process(_delta: float) -> void:
 	
 	for e in blueprintElements:
 		%BlueprintsScrollContainer.get_global_rect().size()
+	
+	if %Materials.visible and %BlueprintContainer.visible:
+		if Input.is_action_just_pressed("TileTemplateDecreaseSize"):
+			changeBrushSize(Vector2i(-1, -1))
+		if Input.is_action_just_pressed("TileTemplateIncreaseSize"):
+			changeBrushSize(Vector2i(1, 1))
 
 var prevMousePos : Vector2 = Vector2.ZERO
 var dragging : bool = false
@@ -104,3 +113,20 @@ func deleteCurrentBlueprint():
 
 func canUseSideButton() -> bool:
 	return true
+
+
+func changeBrushSize(amount : Vector2i):
+	brushSize += amount
+	brushSize = clamp(brushSize, Vector2i(1, 1), sampleSize)
+	%Label.text = str(brushSize.x) + "x" + str(brushSize.y)
+
+func _on_minus_pressed() -> void:
+	changeBrushSize(Vector2i(-1, -1))
+
+func _on_plus_pressed() -> void:
+	changeBrushSize(Vector2i(1, 1))
+
+func _on_tab_container_tab_changed(_tab: int) -> void:
+	if is_instance_valid(activeElement):
+		activeElement.deactivate()
+	activeElement = null

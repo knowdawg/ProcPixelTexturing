@@ -3,12 +3,18 @@ shader_type canvas_item;
 global uniform sampler2DArray FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
 global uniform sampler2DArray FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest;
 global uniform sampler2D FOREGROUND_BORDER_COLORS : filter_nearest;
+
+global uniform sampler2DArray BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
+global uniform sampler2DArray BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest;
+global uniform sampler2D BACKGROUND_BORDER_COLORS : filter_nearest;
+
 global uniform int UNIQUE_TILES;
 
+uniform bool isForeground = true;
 group_uniforms lighting;
 uniform float falloff : hint_range(0.0, 100.0);
-uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform float warp : hint_range(-1.0, 1.0) = -0.03;
+
 
 varying vec2 size;
 
@@ -20,8 +26,16 @@ vec4 getColor(int type, vec2 uv, vec4 self){
 	
 	vec3 arrayUV = vec3(offsetUV, tileIndex);
 	
-	vec4 border = texture(FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(UNIQUE_TILES)), 0.0));
-	vec4 tVal = texture(FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
+	vec4 border;
+	vec4 tVal;
+	
+	if(isForeground){
+		border = texture(FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(UNIQUE_TILES)), 0.0));
+		tVal = texture(FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
+	}else{
+		border = texture(BACKGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(UNIQUE_TILES)), 0.0));
+		tVal = texture(BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
+	}
 	
 	switch(type){
 		case 0:
@@ -34,7 +48,11 @@ vec4 getColor(int type, vec2 uv, vec4 self){
 			c = border;
 			break;
 		case 3:
-			c = texture(FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY, vec3(vec2(tVal.r), tileIndex));
+			if(isForeground){
+				c = texture(FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY, vec3(vec2(tVal.r), tileIndex));
+			}else{
+				c = texture(BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY, vec3(vec2(tVal.r), tileIndex));
+			}
 			break;
 		default:
 			c.a = 0.0;
@@ -89,7 +107,8 @@ void fragment() {
 		c = vec4(0.0, 0.0, 0.0, 1.0);
 	}
 	
-	COLOR = c * modulate;
+	COLOR.rgb = c.rgb;
+	COLOR.a *= c.a;
 	
 	//NORMAL_MAP = nVal;
 	//COLOR.rg = NORMAL_MAP.xy;

@@ -1,5 +1,7 @@
 shader_type canvas_item;
 
+uniform vec4 color : source_color;
+
 bool isBorder(sampler2D tex, vec2 uv, vec2 texSize){
 	float center = texture(tex, uv).a;
 	float left = texture(tex, uv + vec2(-1.0, 0.0) * texSize).a;
@@ -21,9 +23,8 @@ bool isBorder(sampler2D tex, vec2 uv, vec2 texSize){
 
 void fragment() {
 	vec4 tex = texture(TEXTURE, UV);
-	vec4 c = vec4(1.0);
+	vec4 c = color;
 	
-	c.rgb = vec3(0.0);
 	float alpha = (abs(sin(TIME * 2.0)) + 2.0) / 4.0;
 	c.a = tex.a * alpha;
 	

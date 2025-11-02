@@ -1,8 +1,12 @@
-[gd_scene load_steps=51 format=3 uid="uid://dnfswhfd50ime"]
+[gd_scene load_steps=59 format=3 uid="uid://dnfswhfd50ime"]
 
 [ext_resource type="Script" uid="uid://pbfqywpblnd7" path="res://TileTemplate/Scripts/tile_template_ui.gd" id="1_6utn4"]
 [ext_resource type="Theme" uid="uid://b04ydxpqblepw" path="res://TileTemplate/Themes/TileTemplateTheme.tres" id="1_kkrh1"]
+[ext_resource type="Shader" uid="uid://bfbscpxhbtp8i" path="res://TileTemplate/Shaders/MagnifyGlass.gdshader" id="3_ch2bb"]
+[ext_resource type="Theme" uid="uid://cjb778w5r0yi2" path="res://TileTemplate/Themes/ButtonTheme.tres" id="4_1kmdl"]
 [ext_resource type="Script" uid="uid://cbwwy5mdqus1x" path="res://TileTemplate/Scripts/brushButton.gd" id="4_gfru7"]
+[ext_resource type="Texture2D" uid="uid://dqqki5p7274ro" path="res://TileTemplate/Sprites/MinnusButton.png" id="4_k50tt"]
+[ext_resource type="Texture2D" uid="uid://bcg3srybglcvy" path="res://TileTemplate/Sprites/PlusButton.png" id="5_ch2bb"]
 [ext_resource type="Theme" uid="uid://cci8d63xkuh8a" path="res://TileTemplate/Themes/SideButtonsTheme.tres" id="5_fw6of"]
 [ext_resource type="Texture2D" uid="uid://doppfrjrklq2y" path="res://TileTemplate/Sprites/XButtonNormal.png" id="5_xmwcd"]
 [ext_resource type="Texture2D" uid="uid://b71ij5puxo538" path="res://TileTemplate/Sprites/Brush.png" id="6_fw6of"]
@@ -13,6 +17,23 @@
 [ext_resource type="Script" uid="uid://xylj5cjxsdtf" path="res://TileTemplate/Scripts/TopButton.gd" id="10_fw6of"]
 [ext_resource type="Texture2D" uid="uid://dcpwglbgfonjb" path="res://TileTemplate/Sprites/ShowButtonNormal.png" id="12_2cxm1"]
 [ext_resource type="Shader" uid="uid://dhvcn5mmlsat1" path="res://TileTemplate/Shaders/BrushPreview.gdshader" id="13_ns818"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ch2bb"]
+resource_local_to_scene = true
+shader = ExtResource("13_ns818")
+shader_parameter/color = Color(0, 0.09803922, 0.19607843, 0.5882353)
+
+[sub_resource type="Gradient" id="Gradient_82bl7"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_k50tt"]
+gradient = SubResource("Gradient_82bl7")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_71jjk"]
+resource_local_to_scene = true
+shader = ExtResource("13_ns818")
+shader_parameter/color = Color(0.19607843, 0.09803922, 0, 0.5882353)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_gfru7"]
 atlas = ExtResource("6_fw6of")
@@ -592,18 +613,32 @@ _data = {
 &"Use": SubResource("Animation_pi2ef")
 }
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_1kmdl"]
-shader = ExtResource("13_ns818")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2ffdm"]
+shader = ExtResource("3_ch2bb")
+shader_parameter/intensity = 0.10000024225000015
 
-[sub_resource type="Gradient" id="Gradient_82bl7"]
-offsets = PackedFloat32Array(1)
-colors = PackedColorArray(1, 1, 1, 1)
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ch2bb"]
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_k50tt"]
-gradient = SubResource("Gradient_82bl7")
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_2ffdm"]
+width = 256
+height = 256
+noise = SubResource("FastNoiseLite_ch2bb")
 
 [node name="BlueprintUI" type="CanvasLayer"]
 script = ExtResource("1_6utn4")
+
+[node name="BrushBackgroundPreview" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+material = SubResource("ShaderMaterial_ch2bb")
+position = Vector2(-5, 3)
+texture = SubResource("GradientTexture2D_k50tt")
+
+[node name="BrushForegroundPreview" type="Sprite2D" parent="."]
+texture_filter = 1
+material = SubResource("ShaderMaterial_71jjk")
+position = Vector2(-5, 3)
+texture = SubResource("GradientTexture2D_k50tt")
 
 [node name="BlueprintContainer" type="MarginContainer" parent="."]
 unique_name_in_owner = true
@@ -631,10 +666,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 focus_behavior_recursive = 1
 theme = ExtResource("1_kkrh1")
-tab_alignment = 1
+tab_alignment = 2
 current_tab = 0
 
-[node name="Materials" type="HBoxContainer" parent="BlueprintContainer/HBoxContainer/TabContainer"]
+[node name="Materials" type="VBoxContainer" parent="BlueprintContainer/HBoxContainer/TabContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 metadata/_tab_index = 0
 
@@ -642,6 +678,7 @@ metadata/_tab_index = 0
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 3
 
@@ -654,6 +691,56 @@ size_flags_vertical = 3
 unique_name_in_owner = true
 layout_mode = 2
 columns = 6
+
+[node name="HSeparator" type="HSeparator" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials"]
+layout_mode = 2
+theme = ExtResource("1_kkrh1")
+
+[node name="MarginContainer" type="MarginContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer"]
+layout_mode = 2
+size_flags_vertical = 8
+
+[node name="Minus" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme = ExtResource("4_1kmdl")
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer/Minus"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_k50tt")
+
+[node name="VSeparator" type="VSeparator" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_kkrh1")
+
+[node name="Plus" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme = ExtResource("4_1kmdl")
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer/Plus"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_ch2bb")
+
+[node name="Label" type="Label" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 10
+theme = ExtResource("1_kkrh1")
+text = "8x8"
 
 [node name="Blueprints" type="ScrollContainer" parent="BlueprintContainer/HBoxContainer/TabContainer"]
 unique_name_in_owner = true
@@ -677,14 +764,14 @@ columns = 3
 [node name="SideButtons" type="MarginContainer" parent="BlueprintContainer/HBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 36
+theme_override_constants/margin_top = 53
 theme_override_constants/margin_right = 0
 theme_override_constants/margin_bottom = 0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="BlueprintContainer/HBoxContainer/SideButtons"]
 layout_mode = 2
 
-[node name="Brush" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("preview", "tt")]
+[node name="Brush" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("previewForground", "previewBackground", "tt")]
 custom_minimum_size = Vector2(40, 80)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -692,7 +779,8 @@ size_flags_vertical = 0
 theme = ExtResource("5_fw6of")
 toggle_mode = true
 script = ExtResource("4_gfru7")
-preview = NodePath("../../../../../BrushPreview")
+previewForground = NodePath("../../../../../BrushForegroundPreview")
+previewBackground = NodePath("../../../../../BrushBackgroundPreview")
 tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush"]
@@ -711,7 +799,7 @@ libraries = {
 &"": SubResource("AnimationLibrary_ns818")
 }
 
-[node name="NewBlueprint" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
+[node name="NewBlueprint" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("magnify", "tt")]
 custom_minimum_size = Vector2(40, 80)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -719,6 +807,7 @@ size_flags_vertical = 2
 theme = ExtResource("5_fw6of")
 toggle_mode = true
 script = ExtResource("7_gfru7")
+magnify = NodePath("../../../../../MagnifyGlass")
 tt = NodePath("../../../../..")
 
 [node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint"]
@@ -763,13 +852,13 @@ libraries = {
 }
 
 [node name="TopButtons" type="MarginContainer" parent="BlueprintContainer"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
 mouse_filter = 2
 theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 0
+theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 2
 
@@ -780,7 +869,7 @@ theme_override_constants/separation = 0
 
 [node name="XButton" type="Button" parent="BlueprintContainer/TopButtons/TopButtons" node_paths=PackedStringArray("tt")]
 texture_filter = 1
-custom_minimum_size = Vector2(80, 30)
+custom_minimum_size = Vector2(80, 48)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
@@ -791,12 +880,18 @@ tt = NodePath("../../../..")
 [node name="TextureRect" type="TextureRect" parent="BlueprintContainer/TopButtons/TopButtons/XButton"]
 custom_minimum_size = Vector2(80, 40)
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -30.0
+offset_right = 60.0
+offset_bottom = 30.0
 grow_horizontal = 2
 grow_vertical = 2
-pivot_offset = Vector2(20, 10)
+pivot_offset = Vector2(40, 20)
 texture = ExtResource("5_xmwcd")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="BlueprintContainer/TopButtons/TopButtons/XButton"]
@@ -849,11 +944,17 @@ libraries = {
 &"": SubResource("AnimationLibrary_hgjn6")
 }
 
-[node name="BrushPreview" type="Sprite2D" parent="."]
+[node name="MagnifyGlass" type="Sprite2D" parent="."]
+visible = false
+z_index = 1
 texture_filter = 1
-material = SubResource("ShaderMaterial_1kmdl")
-texture = SubResource("GradientTexture2D_k50tt")
+texture_repeat = 2
+material = SubResource("ShaderMaterial_2ffdm")
+texture = SubResource("NoiseTexture2D_2ffdm")
 
+[connection signal="tab_changed" from="BlueprintContainer/HBoxContainer/TabContainer" to="." method="_on_tab_container_tab_changed"]
+[connection signal="pressed" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer/Minus" to="." method="_on_minus_pressed"]
+[connection signal="pressed" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer/Plus" to="." method="_on_plus_pressed"]
 [connection signal="mouse_entered" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_exited"]
 [connection signal="toggled" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_toggled"]

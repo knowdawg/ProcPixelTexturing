@@ -89,7 +89,7 @@ shader_parameter/warp = -0.02999995392499999
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7ewyy"]
 shader = ExtResource("8_dvw3m")
-shader_parameter/falloff = 10.000000475
+shader_parameter/falloff = 15.0000007125
 shader_parameter/modulate = Color(1, 1, 1, 1)
 shader_parameter/warp = -0.02999995392499999
 
