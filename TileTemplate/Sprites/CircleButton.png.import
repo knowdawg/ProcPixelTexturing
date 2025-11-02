@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cwtcq3w7lfli"
-path="res://.godot/imported/bitmapTest.png-152217cbf9a8931b48c759a9cfaa54c0.ctex"
+uid="uid://dpaib00e68n5s"
+path="res://.godot/imported/CircleButton.png-a571a0a84a9ae775eec224feeb76e62d.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Globals/Bitmaps/bitmapTest.png"
-dest_files=["res://.godot/imported/bitmapTest.png-152217cbf9a8931b48c759a9cfaa54c0.ctex"]
+source_file="res://TileTemplate/Sprites/CircleButton.png"
+dest_files=["res://.godot/imported/CircleButton.png-a571a0a84a9ae775eec224feeb76e62d.ctex"]
 
 [params]
 

@@ -3,6 +3,7 @@ class_name BlueprintUI
 
 var activeElement : BlueprintElement
 var activeSideButton : AnimatedSideButton
+var activeShapeButton : Button
 
 var blueprintElements : Array[Blueprint] = []
 var blueprintElementFile = preload("res://TileTemplate/Scenes/BlueprintElement.tscn")
@@ -130,3 +131,16 @@ func _on_tab_container_tab_changed(_tab: int) -> void:
 	if is_instance_valid(activeElement):
 		activeElement.deactivate()
 	activeElement = null
+
+
+func _on_square_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		if is_instance_valid(activeShapeButton):
+			activeShapeButton.button_pressed = false
+		activeShapeButton = %Square
+
+func _on_circle_toggled(toggled_on: bool) -> void:
+	if toggled_on:
+		if is_instance_valid(activeShapeButton):
+			activeShapeButton.button_pressed = false
+		activeShapeButton = %Circle

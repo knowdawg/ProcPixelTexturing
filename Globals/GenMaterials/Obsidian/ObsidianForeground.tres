@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="GenMaterial" load_steps=5 format=3 uid="uid://devc6clvstrj6"]
 
-[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://Globals/GenMaterial.gd" id="1_1rnos"]
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://Globals/GenMaterials/GenMaterial.gd" id="1_1rnos"]
 [ext_resource type="Texture2D" uid="uid://dyqjl75k42htp" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundGrad.tres" id="1_feu3d"]
 [ext_resource type="Texture2D" uid="uid://dmdw0p5kdq3fw" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundNormal.png" id="2_fo4qp"]
 [ext_resource type="Texture2D" uid="uid://hhukqgvivmu1" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundTexture.png" id="4_n4erf"]

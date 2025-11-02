@@ -1,4 +1,4 @@
-[gd_scene load_steps=59 format=3 uid="uid://dnfswhfd50ime"]
+[gd_scene load_steps=61 format=3 uid="uid://dnfswhfd50ime"]
 
 [ext_resource type="Script" uid="uid://pbfqywpblnd7" path="res://TileTemplate/Scripts/tile_template_ui.gd" id="1_6utn4"]
 [ext_resource type="Theme" uid="uid://b04ydxpqblepw" path="res://TileTemplate/Themes/TileTemplateTheme.tres" id="1_kkrh1"]
@@ -10,8 +10,10 @@
 [ext_resource type="Theme" uid="uid://cci8d63xkuh8a" path="res://TileTemplate/Themes/SideButtonsTheme.tres" id="5_fw6of"]
 [ext_resource type="Texture2D" uid="uid://doppfrjrklq2y" path="res://TileTemplate/Sprites/XButtonNormal.png" id="5_xmwcd"]
 [ext_resource type="Texture2D" uid="uid://b71ij5puxo538" path="res://TileTemplate/Sprites/Brush.png" id="6_fw6of"]
+[ext_resource type="Texture2D" uid="uid://dpaib00e68n5s" path="res://TileTemplate/Sprites/CircleButton.png" id="7_71jjk"]
 [ext_resource type="Texture2D" uid="uid://dypnbpnu2ivpb" path="res://TileTemplate/Sprites/NewBlueprint.png" id="7_fw6of"]
 [ext_resource type="Script" uid="uid://f83dx7sgg2qa" path="res://TileTemplate/Sprites/new_blueprint.gd" id="7_gfru7"]
+[ext_resource type="Texture2D" uid="uid://c4w5kbw3a61lj" path="res://TileTemplate/Sprites/SquareButton.png" id="8_sqnu3"]
 [ext_resource type="Script" uid="uid://wx6f2206vvln" path="res://TileTemplate/Sprites/TrashButton.gd" id="9_gfru7"]
 [ext_resource type="Texture2D" uid="uid://dpmdyamytq8s7" path="res://TileTemplate/Sprites/Trash.png" id="10_2cxm1"]
 [ext_resource type="Script" uid="uid://xylj5cjxsdtf" path="res://TileTemplate/Scripts/TopButton.gd" id="10_fw6of"]
@@ -617,12 +619,14 @@ _data = {
 shader = ExtResource("3_ch2bb")
 shader_parameter/intensity = 0.10000024225000015
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_ch2bb"]
+[sub_resource type="Gradient" id="Gradient_71jjk"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 1, 1, 1)
 
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_2ffdm"]
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sqnu3"]
+gradient = SubResource("Gradient_71jjk")
 width = 256
 height = 256
-noise = SubResource("FastNoiseLite_ch2bb")
 
 [node name="BlueprintUI" type="CanvasLayer"]
 script = ExtResource("1_6utn4")
@@ -635,6 +639,7 @@ position = Vector2(-5, 3)
 texture = SubResource("GradientTexture2D_k50tt")
 
 [node name="BrushForegroundPreview" type="Sprite2D" parent="."]
+visible = false
 texture_filter = 1
 material = SubResource("ShaderMaterial_71jjk")
 position = Vector2(-5, 3)
@@ -696,19 +701,19 @@ columns = 6
 layout_mode = 2
 theme = ExtResource("1_kkrh1")
 
-[node name="MarginContainer" type="MarginContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials"]
+[node name="BottomButtons" type="MarginContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials"]
 layout_mode = 2
 
-[node name="HBoxContainer" type="HBoxContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons"]
 layout_mode = 2
 size_flags_vertical = 8
 
-[node name="Minus" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer"]
+[node name="Minus" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme = ExtResource("4_1kmdl")
 
-[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer/Minus"]
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Minus"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -717,16 +722,16 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("4_k50tt")
 
-[node name="VSeparator" type="VSeparator" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer"]
+[node name="VSeparator" type="VSeparator" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
 layout_mode = 2
 theme = ExtResource("1_kkrh1")
 
-[node name="Plus" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer"]
+[node name="Plus" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
 custom_minimum_size = Vector2(50, 50)
 layout_mode = 2
 theme = ExtResource("4_1kmdl")
 
-[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer/Plus"]
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Plus"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -735,12 +740,48 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("5_ch2bb")
 
-[node name="Label" type="Label" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_horizontal = 10
+size_flags_horizontal = 6
 theme = ExtResource("1_kkrh1")
 text = "8x8"
+
+[node name="Circle" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme = ExtResource("4_1kmdl")
+toggle_mode = true
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Circle"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_71jjk")
+
+[node name="VSeparator2" type="VSeparator" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_kkrh1")
+
+[node name="Square" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme = ExtResource("4_1kmdl")
+toggle_mode = true
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Square"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8_sqnu3")
 
 [node name="Blueprints" type="ScrollContainer" parent="BlueprintContainer/HBoxContainer/TabContainer"]
 unique_name_in_owner = true
@@ -950,11 +991,13 @@ z_index = 1
 texture_filter = 1
 texture_repeat = 2
 material = SubResource("ShaderMaterial_2ffdm")
-texture = SubResource("NoiseTexture2D_2ffdm")
+texture = SubResource("GradientTexture2D_sqnu3")
 
 [connection signal="tab_changed" from="BlueprintContainer/HBoxContainer/TabContainer" to="." method="_on_tab_container_tab_changed"]
-[connection signal="pressed" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer/Minus" to="." method="_on_minus_pressed"]
-[connection signal="pressed" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/MarginContainer/HBoxContainer/Plus" to="." method="_on_plus_pressed"]
+[connection signal="pressed" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Minus" to="." method="_on_minus_pressed"]
+[connection signal="pressed" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Plus" to="." method="_on_plus_pressed"]
+[connection signal="toggled" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Circle" to="." method="_on_circle_toggled"]
+[connection signal="toggled" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Square" to="." method="_on_square_toggled"]
 [connection signal="mouse_entered" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_entered"]
 [connection signal="mouse_exited" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_exited"]
 [connection signal="toggled" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_toggled"]

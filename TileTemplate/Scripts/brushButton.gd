@@ -66,7 +66,7 @@ func use():
 			useContinous = true
 		else:
 			useContinous = false
-			
+		
 		var forIm : Image = getActiveElementImage(true)
 		var backIm : Image = getActiveElementImage(false)
 		var mousePos := TerrainDestruction.foreground.get_global_mouse_position()
@@ -124,6 +124,16 @@ func getActiveElementImage(isForeground : bool = true) -> Image:
 			im.blit_rect(tt.activeElement.blueprint.imageForground, Rect2i(Vector2i(0, 0), sampleBrushSize), Vector2i(0, 0))
 		else:
 			im.blit_rect(tt.activeElement.blueprint.imageBackground, Rect2i(Vector2i(0, 0), sampleBrushSize), Vector2i(0, 0))
+		
+		if tt.activeShapeButton:
+			if tt.activeShapeButton.name == "Circle":
+				var centerVec = Vector2(im.get_size() - Vector2i(1, 1)) / 2.0
+				for x in im.get_size().x:
+					for y in im.get_size().y:
+						var r : float = Vector2(x, y).distance_to(centerVec)
+						if r > float(tt.brushSize.x) / 2.0:
+							im.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
+	
 	return im
 
 func _ready() -> void:
