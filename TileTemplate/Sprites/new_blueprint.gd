@@ -11,10 +11,10 @@ var startingMousePosLocal : Vector2i = Vector2i.ZERO
 var startingCameraPos : Vector2 = Vector2.ZERO
 
 func use():
-	var forground = TerrainDestruction.foreground
-	if !is_instance_valid(forground):
+	var world = GameController.WORLD
+	if !is_instance_valid(world):
 		return
-	startingMousePos = forground.get_global_mouse_position().snapped(Vector2(1.0, 1.0))
+	startingMousePos = world.get_global_mouse_position().snapped(Vector2(1.0, 1.0))
 	startingMousePosLocal = snapToTilemap(get_global_mouse_position())
 	startingCameraPos = get_viewport().get_camera_2d().global_position
 	active = true
@@ -99,14 +99,14 @@ func getCurRect(mousePos : Vector2) -> Rect2i:
 func _process(_delta: float) -> void:
 	queue_redraw()
 	
-	var forground = TerrainDestruction.foreground
-	if !is_instance_valid(forground):
+	var world = GameController.WORLD
+	if !is_instance_valid(world):
 		return
 	
 	if active:
 		if Input.is_action_just_released("TileTemplateUse"):
 			active = false
-			finalMousePos = forground.get_global_mouse_position().snapped(Vector2(1.0, 1.0))
+			finalMousePos = world.get_global_mouse_position().snapped(Vector2(1.0, 1.0))
 			
 			$AnimationPlayer.play("Use")
 			button_pressed = false

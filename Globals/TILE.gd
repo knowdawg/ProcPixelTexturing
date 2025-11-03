@@ -8,3 +8,8 @@ enum{
 	BRICK
 	
 }
+
+func toTile():
+	
+	
+	return EMPTY

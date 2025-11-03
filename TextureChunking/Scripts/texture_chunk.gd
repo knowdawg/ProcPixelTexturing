@@ -1,31 +1,27 @@
 extends Node2D
 class_name TextureChunk
 
-enum tilemapType {FOREGROUND, BACKGROUND}
-
 var chunkSize : int #Start with 64
 var outlineBufferSize : int #6
 var totalChunkSize : int
 
 var dirty : bool = true
-var tilemapArrayTex : Image
-var tilemap : ChunkedTilemap
+var chunkImage : Image
 var chunkCoord : Vector2i
-var type : tilemapType
+var layer : TerrainRendering.LAYER_TYPE
 
-var visualizeChunk : bool = true
+var visualizeChunk : bool = false
 var active : bool = false
 
 var bitmap : BitMap
 var polygons : Array[PackedVector2Array]
 var collPolys : Array[CollisionPolygon2D] = []
 
-func setup(chunk_size : int, outline_buffer_size : int, t_map : ChunkedTilemap, chunk_coord : Vector2i, typeOfChunk : tilemapType):
+func setup(chunk_size : int, outline_buffer_size : int, chunk_coord : Vector2i, layerType : TerrainRendering.LAYER_TYPE):
 	chunkSize = chunk_size
 	outlineBufferSize = outline_buffer_size
-	tilemap = t_map
 	chunkCoord = chunk_coord
-	type = typeOfChunk
+	layer = layerType
 	
 	totalChunkSize = chunkSize + (outlineBufferSize * 2)
 	
@@ -37,11 +33,11 @@ func makeDirty():
 	dirty = true
 
 func updateBuffer():
-	tilemapArrayTex = tilemap.getArrayTexture(chunkCoord)
-	tilemap.executeTextureChunkShader(chunkCoord, tilemapArrayTex)
+	chunkImage = TerrainRendering.getChunkImage(chunkCoord, layer)
+	TerrainRendering.executeTextureChunkShader(chunkCoord, chunkImage, layer)
 	
-	if type == tilemapType.FOREGROUND:
-		bitmap.create_from_image_alpha(tilemapArrayTex, 0.5)
+	if layer == TerrainRendering.LAYER_TYPE.FOREGROUND:
+		bitmap.create_from_image_alpha(chunkImage, 0.5)
 		var rect := Rect2i(Vector2i(outlineBufferSize, outlineBufferSize), Vector2i(chunkSize, chunkSize))
 		polygons = bitmap.opaque_to_polygons(rect, 1.0)
 		
@@ -62,7 +58,7 @@ func updateChunk():
 
 
 func _draw() -> void:
-	if visualizeChunk:
+	if visualizeChunk and layer:
 		var c : Color = Color.LIME_GREEN
 		if (chunkCoord.x + chunkCoord.y) % 2 == 0:
 			c = Color.DARK_GREEN

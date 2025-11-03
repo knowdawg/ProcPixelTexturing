@@ -1,9 +1,6 @@
 #Global script for adding and removing terrain from the world
 extends Node
 
-var foreground : ChunkedTilemap
-var background : ChunkedTilemap
-
 enum{
 	FOREGROUND,
 	BACKGROUND
@@ -41,10 +38,8 @@ func addTileRadius(worldPosition : Vector2, tileIndex : int, radius : int, tilem
 
 func addTile(worldPosition : Vector2, tileIndex : int, tilemapType : int) -> void:
 	if tilemapType == FOREGROUND:
-		if is_instance_valid(foreground):
-			foreground.addTile(worldPosition, tileIndex)
-			return
+		TerrainRendering.setPixel(worldPosition, tileIndex, TerrainRendering.LAYER_TYPE.FOREGROUND)
+		return
 	if tilemapType == BACKGROUND:
-		if is_instance_valid(background):
-			background.addTile(worldPosition, tileIndex)
-			return
+		TerrainRendering.setPixel(worldPosition, tileIndex, TerrainRendering.LAYER_TYPE.BACKGROUND)
+		return

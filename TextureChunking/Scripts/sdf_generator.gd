@@ -150,13 +150,13 @@ func updateSDF():
 	t.texture_rd_rid = TerrainRendering.backgroundSDF
 	backgroundSdfVisualizer.texture = t
 	
-	var forgroundSDFRID : RID = createSDF(TerrainRendering.envirementalDataTextureRID, forgroundSDFim1RID, forgroundSDFim2RID)
+	var forgroundSDFRID : RID = createSDF(TerrainRendering.textureForegroundRID, forgroundSDFim1RID, forgroundSDFim2RID)
 	TerrainRendering.foregroundSDF = forgroundSDFRID
 	t = Texture2DRD.new()
 	t.texture_rd_rid = forgroundSDFRID
 	RenderingServer.global_shader_parameter_set("FOREGROUND_SDF", t)
 
-	var backgroudnSDFRID : RID = createSDF(TerrainRendering.backgroundDataTextureRID, backgroundSDFim1RID, backgroundSDFim2RID)
+	var backgroudnSDFRID : RID = createSDF(TerrainRendering.textureBackgroundRID, backgroundSDFim1RID, backgroundSDFim2RID)
 	TerrainRendering.backgroundSDF = backgroudnSDFRID
 	
 	var c : Camera2D = get_viewport().get_camera_2d()
