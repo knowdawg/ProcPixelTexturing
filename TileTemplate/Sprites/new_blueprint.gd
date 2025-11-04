@@ -11,7 +11,7 @@ var startingMousePosLocal : Vector2i = Vector2i.ZERO
 var startingCameraPos : Vector2 = Vector2.ZERO
 
 func use():
-	var world = GameController.WORLD
+	var world = GameController.world2d
 	if !is_instance_valid(world):
 		return
 	startingMousePos = world.get_global_mouse_position().snapped(Vector2(1.0, 1.0))
@@ -20,13 +20,6 @@ func use():
 	active = true
 
 func createBlueprint():
-	var forground = TerrainDestruction.foreground
-	var background = TerrainDestruction.background
-	if !is_instance_valid(forground):
-		return
-	if !is_instance_valid(background):
-		return
-	
 	var selectedRect : Rect2i = getCurRect(finalMousePos)
 	
 	if selectedRect.size.x == 0 or selectedRect.size.y == 0:
@@ -34,11 +27,11 @@ func createBlueprint():
 	
 	var forIm : Image = Image.new()
 	forIm = Image.create_empty(selectedRect.size.x, selectedRect.size.y, false, Image.FORMAT_RGBAF)
-	forIm.blit_rect(forground.mapImage, selectedRect, Vector2i(0, 0))
+	forIm.blit_rect(TerrainRendering.imageForeground, selectedRect, Vector2i(0, 0))
 	
 	var backIm : Image = Image.new()
 	backIm = Image.create_empty(selectedRect.size.x, selectedRect.size.y, false, Image.FORMAT_RGBAF)
-	backIm.blit_rect(background.mapImage, selectedRect, Vector2i(0, 0))
+	backIm.blit_rect(TerrainRendering.imageBackground, selectedRect, Vector2i(0, 0))
 	
 	var b : Blueprint = Blueprint.new()
 	b.setup(forIm, backIm, selectedRect.position, false)
@@ -99,7 +92,7 @@ func getCurRect(mousePos : Vector2) -> Rect2i:
 func _process(_delta: float) -> void:
 	queue_redraw()
 	
-	var world = GameController.WORLD
+	var world = GameController.world2d
 	if !is_instance_valid(world):
 		return
 	

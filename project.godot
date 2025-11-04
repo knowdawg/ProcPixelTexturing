@@ -21,6 +21,7 @@ TerrainRendering="*res://Globals/TerrainRendering.gd"
 TerrainDestruction="*res://Globals/TerrainDestruction.gd"
 BlueprintManager="*res://Globals/BlueprintManager.gd"
 GameController="*res://Globals/GameController.gd"
+WorldManager="*res://Globals/WorldManager.gd"
 
 [debug]
 

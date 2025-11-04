@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=14 format=3 uid="uid://b04ydxpqblepw"]
+[gd_resource type="Theme" load_steps=16 format=3 uid="uid://b04ydxpqblepw"]
 
 [ext_resource type="FontFile" uid="uid://dr7o1fp45ddcr" path="res://TileTemplate/Fonts/chary___.ttf" id="1_tb42q"]
 
@@ -14,6 +14,25 @@ bg_color = Color(0, 0, 0, 0.39215687)
 [sub_resource type="StyleBoxLine" id="StyleBoxLine_tb42q"]
 color = Color(0.09019608, 0.1254902, 0.21960784, 1)
 thickness = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vdlkf"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.4509804, 0.74509805, 0.827451, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tb42q"]
+bg_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hjlaf"]
 bg_color = Color(0.14509805, 0.22745098, 0.36862746, 1)
@@ -106,6 +125,8 @@ GridContainer/constants/v_separation = 10
 HSeparator/styles/separator = SubResource("StyleBoxLine_tb42q")
 Label/font_sizes/font_size = 48
 Label/fonts/font = ExtResource("1_tb42q")
+LineEdit/styles/focus = SubResource("StyleBoxFlat_vdlkf")
+LineEdit/styles/normal = SubResource("StyleBoxFlat_tb42q")
 MarginContainer/constants/margin_bottom = 4
 MarginContainer/constants/margin_left = 4
 MarginContainer/constants/margin_right = 4

@@ -4,13 +4,14 @@ class_name ChunkedTilemap
 @export var layer := TerrainRendering.LAYER_TYPE.FOREGROUND
 
 func _ready() -> void:
+	return
 	var tilemapSize : Vector2i = get_used_rect().size
 	var tilemapPos : Vector2i = get_used_rect().position
 	
 	#add tilemapdata to map image
 	for x in tilemapSize.x:
 		for y in tilemapSize.y:
-			var tileMapPos : Vector2i = Vector2i(x, y)# + tilemapPos
+			var tileMapPos : Vector2i = Vector2i(x, y)
 			var index = get_cell_source_id(tileMapPos)
 			
 			var coord := Vector2i(x, y)

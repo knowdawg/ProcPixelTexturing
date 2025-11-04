@@ -1,8 +1,4 @@
 extends Node
 
-var WORLD : World
+var world2d : GLOBAL_WORLD
 var GUI : GUIContainer
-
-#func _ready() -> void:
-	#WORLD2D = $World2D
-	#GUI = $GUI

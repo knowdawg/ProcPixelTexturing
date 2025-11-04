@@ -657,7 +657,7 @@ offset_right = 640.0
 grow_vertical = 0
 pivot_offset = Vector2(160, 124)
 size_flags_horizontal = 4
-size_flags_vertical = 4
+size_flags_vertical = 8
 theme = ExtResource("1_kkrh1")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="BlueprintContainer"]

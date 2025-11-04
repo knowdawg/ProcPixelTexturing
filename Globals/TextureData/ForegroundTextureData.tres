@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="TextureData" load_steps=10 format=3 uid="uid://dmla4e53rjkn6"]
 
-[ext_resource type="Script" uid="uid://bykil1fb2qabg" path="res://Globals/Resources/TextureData/TextureData.gd" id="1_3irde"]
+[ext_resource type="Script" uid="uid://bykil1fb2qabg" path="res://Globals/TextureData/TextureData.gd" id="1_3irde"]
 [ext_resource type="Texture2D" uid="uid://e6evdtxvbbrd" path="res://Textures/MaterialMakerTextures/Error/ErrorGradient.tres" id="1_tky1p"]
 [ext_resource type="Texture2D" uid="uid://dis8mj6lpdvxq" path="res://Textures/MaterialMakerTextures/Error/ErrorTexture.tres" id="2_8g4xb"]
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://Globals/GenMaterials/GenMaterial.gd" id="3_8g4xb"]

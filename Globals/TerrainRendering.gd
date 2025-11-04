@@ -45,6 +45,13 @@ var backgroundTextureData : TextureData = preload("uid://bidpxtfdflemt")
 #Constants
 var IMAGE_FORMAT : int = Image.FORMAT_RGBAF
 
+func dirtyAll():
+	var numOfChunks : Vector2i = Vector2i(chunksForeground.size(), chunksForeground[0].size())
+	for x in numOfChunks.x:
+		for y in numOfChunks.y:
+			chunksForeground[x][y].makeDirty()
+			chunksBackground[x][y].makeDirty()
+
 #returns an image of the specified size filled with the specified material
 func generateSampleImage(tile : int, size : Vector2i) -> Image:
 	var im : Image = Image.create_empty(size.x, size.y, false, IMAGE_FORMAT)

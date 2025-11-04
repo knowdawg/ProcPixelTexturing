@@ -1,5 +1,5 @@
 extends Node2D
-class_name World
+class_name GLOBAL_WORLD
 
 func _ready() -> void:
-	GameController.WORLD = self
+	GameController.world2d = self

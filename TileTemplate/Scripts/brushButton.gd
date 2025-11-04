@@ -69,7 +69,7 @@ func use():
 		
 		var forIm : Image = getActiveElementImage(true)
 		var backIm : Image = getActiveElementImage(false)
-		var mousePos := GameController.WORLD.get_global_mouse_position()
+		var mousePos := GameController.world2d.get_global_mouse_position()
 		
 		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.FOREGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
 			TerrainDestruction.addTileImage(mousePos, forIm, TerrainDestruction.FOREGROUND)
@@ -96,7 +96,7 @@ func altUse():
 		var backBitmap : BitMap = BitMap.new()
 		backBitmap.create_from_image_alpha(backIm, 0.5)
 		
-		var mousePos := GameController.WORLD.get_global_mouse_position()
+		var mousePos := GameController.world2d.get_global_mouse_position()
 		
 
 		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.FOREGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
