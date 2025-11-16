@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://b5mwxvmfxtn33"]
+
+[ext_resource type="Shader" uid="uid://dd6cxy2m7c1tb" path="res://addons/pixel_sandbox/Shaders/PixelShaders/ForgroundTextureMapper.gdshader" id="1_4un5q"]
+[ext_resource type="Script" uid="uid://dkld325kkh5m2" path="res://addons/pixel_sandbox/Scenes/TerrainTexture/terrain_texture.gd" id="1_ulijc"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6gpix"]
+resource_local_to_scene = true
+shader = ExtResource("1_4un5q")
+shader_parameter/falloff = 10.0
+shader_parameter/modulate = Color(1, 1, 1, 1)
+shader_parameter/warp = -0.03
+
+[node name="TerrainTexture" type="Sprite2D"]
+texture_filter = 1
+material = SubResource("ShaderMaterial_6gpix")
+script = ExtResource("1_ulijc")

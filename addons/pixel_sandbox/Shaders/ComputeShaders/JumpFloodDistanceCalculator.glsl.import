@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cvtjqjev0utwf"
+path="res://.godot/imported/JumpFloodDistanceCalculator.glsl-47b13dbaa04a0357975de3e3f069b46c.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/JumpFloodDistanceCalculator.glsl"
+dest_files=["res://.godot/imported/JumpFloodDistanceCalculator.glsl-47b13dbaa04a0357975de3e3f069b46c.res"]
+
+[params]
+

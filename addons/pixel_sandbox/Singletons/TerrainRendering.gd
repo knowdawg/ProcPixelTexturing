@@ -37,6 +37,7 @@ var chunk = preload("uid://dafgjgn78ehp2")
 #Texture Details
 var uniqueTiles : int = 64
 var textureSize := Vector2i(256, 256)
+
 var foregroundTextureData : TextureData = preload("uid://dmla4e53rjkn6")
 var backgroundTextureData : TextureData = preload("uid://bidpxtfdflemt")
 
@@ -64,20 +65,20 @@ func contructTextureArrays():
 	var normal2dArray := foregroundTextureData.getNormalArray(uniqueTiles)
 	var gradient2dArray := foregroundTextureData.getGradientArray(uniqueTiles)
 	var borderColors := foregroundTextureData.getBorderTexture(uniqueTiles)
-	RenderingServer.global_shader_parameter_set("FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY", tex2dArray)
-	RenderingServer.global_shader_parameter_set("FOREGROUND_NORMALS_SAMPLER_2D_ARRAY", normal2dArray)
-	RenderingServer.global_shader_parameter_set("FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY", gradient2dArray)
-	RenderingServer.global_shader_parameter_set("FOREGROUND_BORDER_COLORS", borderColors)
+	RenderingServer.global_shader_parameter_set("PS_FOREGROUND_TEXTURES", tex2dArray)
+	RenderingServer.global_shader_parameter_set("PS_FOREGROUND_NORMALS", normal2dArray)
+	RenderingServer.global_shader_parameter_set("PS_FOREGROUND_GRADIENTS", gradient2dArray)
+	RenderingServer.global_shader_parameter_set("PS_FOREGROUND_BORDER_COLORS", borderColors)
 	
 	#Background
 	tex2dArray = backgroundTextureData.getTextureArray(uniqueTiles)
 	normal2dArray = backgroundTextureData.getNormalArray(uniqueTiles)
 	gradient2dArray = backgroundTextureData.getGradientArray(uniqueTiles)
 	borderColors = backgroundTextureData.getBorderTexture(uniqueTiles)
-	RenderingServer.global_shader_parameter_set("BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY", tex2dArray)
-	RenderingServer.global_shader_parameter_set("BACKGROUND_NORMALS_SAMPLER_2D_ARRAY", normal2dArray)
-	RenderingServer.global_shader_parameter_set("BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY", gradient2dArray)
-	RenderingServer.global_shader_parameter_set("BACKGROUND_BORDER_COLORS", borderColors)
+	RenderingServer.global_shader_parameter_set("PS_BACKGROUND_TEXTURES", tex2dArray)
+	RenderingServer.global_shader_parameter_set("PS_BACKGROUND_NORMALS", normal2dArray)
+	RenderingServer.global_shader_parameter_set("PS_BACKGROUND_GRADIENTS", gradient2dArray)
+	RenderingServer.global_shader_parameter_set("PS_BACKGROUND_BORDER_COLORS", borderColors)
 	
 
 func isPositionLoaded(pos : Vector2) -> bool:
@@ -89,8 +90,8 @@ func isPositionLoaded(pos : Vector2) -> bool:
 	return false
 
 func _ready() -> void:
-	RenderingServer.global_shader_parameter_set("RENDER_QUADRANT_SIZE", Vector2(renderSectionSize, renderSectionSize))
-	RenderingServer.global_shader_parameter_set("UNIQUE_TILES", uniqueTiles)
+	RenderingServer.global_shader_parameter_set("PS_RENDER_QUADRANT_SIZE", Vector2(renderSectionSize, renderSectionSize))
+	RenderingServer.global_shader_parameter_set("PS_UNIQUE_TILES", uniqueTiles)
 	contructTextureArrays()
 	
 	#Setup pipeline for calculate Enviermental Textures
@@ -275,7 +276,7 @@ func updateTileTextureScrollAndSpritePosition() -> void:
 	var scroll : Vector2 = Vector2.ZERO
 	scroll = Vector2(centerChunk * chunkSize) / float(renderSectionSize)
 	tileTextureOffset = scroll
-	RenderingServer.global_shader_parameter_set("TILE_TEXTURE_SCROLL", scroll)
+	RenderingServer.global_shader_parameter_set("PS_TILE_TEXTURE_SCROLL", scroll)
 	
 	if is_instance_valid(spriteForeground):
 		spriteForeground.global_position = (scroll * float(renderSectionSize))

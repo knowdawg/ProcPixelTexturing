@@ -1,9 +1,8 @@
 extends Node
 class_name SDFGenerator
 
-
-@export var foregroundSdfVisualizer : Sprite2D
-@export var backgroundSdfVisualizer : Sprite2D
+#@export var foregroundSdfVisualizer : Sprite2D
+#@export var backgroundSdfVisualizer : Sprite2D
 
 #RenderingDevice Vars DONT FORGET TO FREE RIDs
 var rd : RenderingDevice
@@ -144,17 +143,17 @@ func _process(_delta: float) -> void:
 func updateSDF():
 	var t = Texture2DRD.new()
 	t.texture_rd_rid = TerrainRendering.foregroundSDF
-	foregroundSdfVisualizer.texture = t
+	#foregroundSdfVisualizer.texture = t
 	
 	t = Texture2DRD.new()
 	t.texture_rd_rid = TerrainRendering.backgroundSDF
-	backgroundSdfVisualizer.texture = t
+	#backgroundSdfVisualizer.texture = t
 	
 	var forgroundSDFRID : RID = createSDF(TerrainRendering.textureForegroundRID, forgroundSDFim1RID, forgroundSDFim2RID)
 	TerrainRendering.foregroundSDF = forgroundSDFRID
 	t = Texture2DRD.new()
 	t.texture_rd_rid = forgroundSDFRID
-	RenderingServer.global_shader_parameter_set("FOREGROUND_SDF", t)
+	RenderingServer.global_shader_parameter_set("PS_FOREGROUND_SDF", t)
 
 	var backgroudnSDFRID : RID = createSDF(TerrainRendering.textureBackgroundRID, backgroundSDFim1RID, backgroundSDFim2RID)
 	TerrainRendering.backgroundSDF = backgroudnSDFRID
@@ -165,9 +164,9 @@ func updateSDF():
 		cPos -= get_viewport().get_visible_rect().size / 2.0
 		
 		TerrainRendering.worldPosition = cPos
-		RenderingServer.global_shader_parameter_set("WORLD_POSITION", cPos)
+		RenderingServer.global_shader_parameter_set("PS_WORLD_POSITION", cPos)
 		
-		RenderingServer.global_shader_parameter_set("CAMERA_ZOOM", c.zoom)
+		RenderingServer.global_shader_parameter_set("PS_CAMERA_ZOOM", c.zoom)
 		
 
 func _ready():

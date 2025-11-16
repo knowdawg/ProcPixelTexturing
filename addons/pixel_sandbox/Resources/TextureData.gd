@@ -1,5 +1,13 @@
+### Resource That Stores All GenMaterial Resources and Stores Them all in an array
+
 extends Resource
 class_name TextureData
+
+@export var materials : Array[GenMaterial]
+
+@export_group("Error")
+@export var errorTexture : Texture2D
+@export var errorGrad : GradientTexture1D
 
 func getTextureArray(numOfTextures : int) -> Texture2DArray:
 	var tex2dArray := Texture2DArray.new()
@@ -71,10 +79,3 @@ func getBorder(index : int) -> Color:
 	if index < materials.size():
 		return materials[index].border
 	return Color.DEEP_PINK
-
-
-@export var materials : Array[GenMaterial]
-
-@export_group("error")
-@export var errorTexture : Texture2D
-@export var errorGrad : GradientTexture1D

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://c7jemw6btcgn7"
+path="res://.godot/imported/JumpFloodSeed.glsl-4bf463b7170d412fee22def32933f810.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/JumpFloodSeed.glsl"
+dest_files=["res://.godot/imported/JumpFloodSeed.glsl-4bf463b7170d412fee22def32933f810.res"]
+
+[params]
+

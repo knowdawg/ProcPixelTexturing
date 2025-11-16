@@ -1,20 +1,18 @@
 extends TileMapLayer
-class_name ChunkedTilemap
+class_name TerrainTileMap
+
 
 @export var layer := TerrainRendering.LAYER_TYPE.FOREGROUND
 
 func _ready() -> void:
-	return
 	var tilemapSize : Vector2i = get_used_rect().size
-	var tilemapPos : Vector2i = get_used_rect().position
+	var offset : Vector2i = get_used_rect().position
 	
 	#add tilemapdata to map image
 	for x in tilemapSize.x:
 		for y in tilemapSize.y:
-			var tileMapPos : Vector2i = Vector2i(x, y)
-			var index = get_cell_source_id(tileMapPos)
-			
-			var coord := Vector2i(x, y)
+			var coord := Vector2i(x, y) + offset
+			var index = get_cell_source_id(coord)
 			if index == -1:
 				TerrainRendering.setPixel(coord, TILE.EMPTY, layer)
 			else:
@@ -23,5 +21,5 @@ func _ready() -> void:
 	#Clear the tilemap
 	for x in tilemapSize.x:
 		for y in tilemapSize.y:
-			var tileMapPos : Vector2i = Vector2i(x, y) + tilemapPos
+			var tileMapPos : Vector2i = Vector2i(x, y) + offset
 			set_cell(tileMapPos, -1, Vector2i(0, 0), 0)

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bw0seuypy6m0v"
+path="res://.godot/imported/CalculateLightrays.glsl-73ad9f646fa55ec34522c20416d1cb07.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/CalculateLightrays.glsl"
+dest_files=["res://.godot/imported/CalculateLightrays.glsl-73ad9f646fa55ec34522c20416d1cb07.res"]
+
+[params]
+

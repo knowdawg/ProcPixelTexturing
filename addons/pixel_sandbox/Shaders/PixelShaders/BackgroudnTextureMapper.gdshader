@@ -1,17 +1,17 @@
 shader_type canvas_item;
 
-global uniform vec2 RENDER_QUADRANT_SIZE;
-global uniform  int UNIQUE_TILES;
-global uniform vec2 WORLD_POSITION;
-global uniform vec2 CAMERA_ZOOM;
-global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
-global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
-global uniform vec2 TILE_TEXTURE_SCROLL;
+global uniform vec2 PS_RENDER_QUADRANT_SIZE;
+global uniform  int PS_UNIQUE_TILES;
+global uniform vec2 PS_WORLD_POSITION;
+global uniform vec2 PS_CAMERA_ZOOM;
+global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
+global uniform sampler2D PS_FOREGROUND_SDF : filter_nearest, repeat_enable;
+global uniform vec2 PS_TILE_TEXTURE_SCROLL;
 
-global uniform sampler2DArray BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
-global uniform sampler2DArray BACKGROUND_NORMALS_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
-global uniform sampler2DArray BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest;
-global uniform sampler2D BACKGROUND_BORDER_COLORS : filter_nearest;
+global uniform sampler2DArray PS_BACKGROUND_TEXTURES : filter_nearest, repeat_enable;
+global uniform sampler2DArray PS_BACKGROUND_NORMALS : filter_nearest, repeat_enable;
+global uniform sampler2DArray PS_BACKGROUND_GRADIENTS : filter_nearest;
+global uniform sampler2D PS_BACKGROUND_BORDER_COLORS : filter_nearest;
 
 
 group_uniforms lighting;
@@ -54,15 +54,15 @@ vec3 darkenHSV(vec3 color, float factor) {
 
 vec4 getColor(int type, vec2 uv, vec4 self, inout vec3 normal){
 	vec4 c = vec4(1.0);
-	vec2 offsetUV = uv * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
-	float tileIndex = self.r * float(UNIQUE_TILES);
+	vec2 offsetUV = uv * (PS_RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
+	float tileIndex = self.r * float(PS_UNIQUE_TILES);
 	tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
 	
 	vec3 arrayUV = vec3(offsetUV, tileIndex);
 	
-	vec4 border = texture(BACKGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(UNIQUE_TILES)), 0.0));
-	vec4 tVal = texture(BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
-	vec4 nVal = texture(BACKGROUND_NORMALS_SAMPLER_2D_ARRAY, arrayUV);
+	vec4 border = texture(PS_BACKGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(PS_UNIQUE_TILES)), 0.0));
+	vec4 tVal = texture(PS_BACKGROUND_TEXTURES, arrayUV);
+	vec4 nVal = texture(PS_BACKGROUND_NORMALS, arrayUV);
 	
 	switch(type){
 		case 0:
@@ -77,7 +77,7 @@ vec4 getColor(int type, vec2 uv, vec4 self, inout vec3 normal){
 			break;
 		case 3:
 			normal = nVal.rgb;
-			c = texture(BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY, vec3(vec2(tVal.r), tileIndex));
+			c = texture(PS_BACKGROUND_GRADIENTS, vec3(vec2(tVal.r), tileIndex));
 			break;
 		default:
 			c.a = 0.0;
@@ -113,10 +113,10 @@ vec3 directionToNormal(vec2 direction) {
 }
 
 void fragment() {
-	float textureScalling = RENDER_QUADRANT_SIZE.x / 512.0;
-	vec2 qUV = UV + TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
+	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
+	vec2 qUV = UV + PS_TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
 	qUV = fract(qUV);
-	qUV = floor(qUV * RENDER_QUADRANT_SIZE) / RENDER_QUADRANT_SIZE;
+	qUV = floor(qUV * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE;
 	
 	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
@@ -153,9 +153,9 @@ void fragment() {
 
 void light() {
 	vec2 screenCenter = vec2(0.5, 0.5);
-	vec2 unzoomedUV = screenCenter + (SCREEN_UV - screenCenter) / CAMERA_ZOOM;
+	vec2 unzoomedUV = screenCenter + (SCREEN_UV - screenCenter) / PS_CAMERA_ZOOM;
 	
-	vec2 unzoomedLightPos = screenCenter + ((LIGHT_POSITION.xy * screenSize) - screenCenter) / CAMERA_ZOOM;
+	vec2 unzoomedLightPos = screenCenter + ((LIGHT_POSITION.xy * screenSize) - screenCenter) / PS_CAMERA_ZOOM;
 	
 	//Setup the variables for SDF Raymarching
 	vec2 lightPosNormalized = unzoomedLightPos.xy;
@@ -170,18 +170,18 @@ void light() {
 	
 	float closestSdfVal = 1.0;
 	
-	float textureScalling = RENDER_QUADRANT_SIZE.x / 512.0;
+	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		vec2 lightMapTexturePos = (unzoomedUV / screenSize) + WORLD_POSITION;
-		lightMapTexturePos /= RENDER_QUADRANT_SIZE;
-		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		vec2 lightMapTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION;
+		lightMapTexturePos /= PS_RENDER_QUADRANT_SIZE;
+		lightMapTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		
-		vec4 lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos) * 2.0;
+		vec4 lightVal = texture(PS_GLOBAL_ILLUMINATION, lightMapTexturePos) * 2.0;
 		intensity = lightVal.r;
 		finished = 1.0;
 	}else{
-		float threshold = (1.0 / RENDER_QUADRANT_SIZE.x);
+		float threshold = (1.0 / PS_RENDER_QUADRANT_SIZE.x);
 		for(int i = 0; i < 80; i++){
 			if(distanceNeededToTravel > 0.6){
 				finished = 0.0;
@@ -189,12 +189,12 @@ void light() {
 			}
 			
 			vec2 curPos = unzoomedUV + (angleVector * disTraveled);
-			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
-			sdfTexturePos /= RENDER_QUADRANT_SIZE;
-			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-			vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
+			vec2 sdfTexturePos = (curPos / screenSize) + PS_WORLD_POSITION;
+			sdfTexturePos /= PS_RENDER_QUADRANT_SIZE;
+			sdfTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+			vec2 sdfData = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
 			sdfVal = sdfData.r;
-			disTraveled += abs(sdfVal) / CAMERA_ZOOM.x;
+			disTraveled += abs(sdfVal) / PS_CAMERA_ZOOM.x;
 			
 			closestSdfVal = min(sdfVal * 200.0 * textureScalling, closestSdfVal);
 			

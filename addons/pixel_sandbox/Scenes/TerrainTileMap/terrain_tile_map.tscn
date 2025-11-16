@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://bycg6xbjbc4tm"]
+
+[ext_resource type="TileSet" uid="uid://dnn77rqk72fv" path="res://addons/pixel_sandbox/Scenes/TerrainTileMap/PlaceholderTileset.tres" id="1_b724o"]
+[ext_resource type="Script" uid="uid://bh6g1yuy71cqc" path="res://addons/pixel_sandbox/Scenes/TerrainTileMap/terrain_tile_map.gd" id="1_wpnwn"]
+
+[node name="TerrainTileMap" type="TileMapLayer"]
+tile_set = ExtResource("1_b724o")
+script = ExtResource("1_wpnwn")

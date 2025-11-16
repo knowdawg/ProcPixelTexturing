@@ -1,14 +1,14 @@
 shader_type canvas_item;
 
-global uniform sampler2DArray FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
-global uniform sampler2DArray FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest;
-global uniform sampler2D FOREGROUND_BORDER_COLORS : filter_nearest;
+global uniform sampler2DArray PS_FOREGROUND_TEXTURES : filter_nearest, repeat_enable;
+global uniform sampler2DArray PS_FOREGROUND_GRADIENTS : filter_nearest;
+global uniform sampler2D PS_FOREGROUND_BORDER_COLORS : filter_nearest;
 
-global uniform sampler2DArray BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
-global uniform sampler2DArray BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest;
-global uniform sampler2D BACKGROUND_BORDER_COLORS : filter_nearest;
+global uniform sampler2DArray PS_BACKGROUND_TEXTURES : filter_nearest, repeat_enable;
+global uniform sampler2DArray PS_BACKGROUND_GRADIENTS : filter_nearest;
+global uniform sampler2D PS_BACKGROUND_BORDER_COLORS : filter_nearest;
 
-global uniform int UNIQUE_TILES;
+global uniform int PS_UNIQUE_TILES;
 
 uniform bool isForeground = true;
 group_uniforms lighting;
@@ -21,7 +21,7 @@ varying vec2 size;
 vec4 getColor(int type, vec2 uv, vec4 self){
 	vec4 c = vec4(1.0);
 	vec2 offsetUV = uv * (size / vec2(256.0, 256.0));
-	float tileIndex = self.r * float(UNIQUE_TILES);
+	float tileIndex = self.r * float(PS_UNIQUE_TILES);
 	tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
 	
 	vec3 arrayUV = vec3(offsetUV, tileIndex);
@@ -30,11 +30,11 @@ vec4 getColor(int type, vec2 uv, vec4 self){
 	vec4 tVal;
 	
 	if(isForeground){
-		border = texture(FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(UNIQUE_TILES)), 0.0));
-		tVal = texture(FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
+		border = texture(PS_FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(PS_UNIQUE_TILES)), 0.0));
+		tVal = texture(PS_FOREGROUND_TEXTURES, arrayUV);
 	}else{
-		border = texture(BACKGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(UNIQUE_TILES)), 0.0));
-		tVal = texture(BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
+		border = texture(PS_BACKGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(PS_UNIQUE_TILES)), 0.0));
+		tVal = texture(PS_BACKGROUND_TEXTURES, arrayUV);
 	}
 	
 	switch(type){
@@ -49,9 +49,9 @@ vec4 getColor(int type, vec2 uv, vec4 self){
 			break;
 		case 3:
 			if(isForeground){
-				c = texture(FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY, vec3(vec2(tVal.r), tileIndex));
+				c = texture(PS_FOREGROUND_GRADIENTS, vec3(vec2(tVal.r), tileIndex));
 			}else{
-				c = texture(BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY, vec3(vec2(tVal.r), tileIndex));
+				c = texture(PS_BACKGROUND_GRADIENTS, vec3(vec2(tVal.r), tileIndex));
 			}
 			break;
 		default:

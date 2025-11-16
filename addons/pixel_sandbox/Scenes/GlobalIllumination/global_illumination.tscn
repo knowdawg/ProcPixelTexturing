@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b22snyd5lo4mp"]
+
+[ext_resource type="Script" uid="uid://dgwsi1mfwgc3q" path="res://addons/pixel_sandbox/Scenes/GlobalIllumination/global_illumination.gd" id="1_rjuj2"]
+
+[node name="GlobalIllumination" type="Node"]
+script = ExtResource("1_rjuj2")

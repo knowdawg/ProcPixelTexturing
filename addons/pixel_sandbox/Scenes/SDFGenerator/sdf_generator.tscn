@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bs3ob7drvovjj"]
+
+[ext_resource type="Script" uid="uid://cjcgl164vb7ri" path="res://addons/pixel_sandbox/Scenes/SDFGenerator/sdf_generator.gd" id="1_rk8de"]
+
+[node name="SDFGenerator" type="Node"]
+script = ExtResource("1_rk8de")

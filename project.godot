@@ -17,11 +17,12 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-TerrainRendering="*res://Globals/TerrainRendering.gd"
-TerrainDestruction="*res://Globals/TerrainDestruction.gd"
 BlueprintManager="*res://Globals/BlueprintManager.gd"
 GameController="*res://Globals/GameController.gd"
-WorldManager="*res://Globals/WorldManager.gd"
+RuntimeShaderGlobals="*res://addons/pixel_sandbox/Singletons/RuntimeShaderGlobals.gd"
+TerrainRendering="*res://addons/pixel_sandbox/Singletons/TerrainRendering.gd"
+TerrainDestruction="*res://addons/pixel_sandbox/Singletons/TerrainDestruction.gd"
+WorldManager="*res://addons/pixel_sandbox/Singletons/WorldManager.gd"
 
 [debug]
 
@@ -106,70 +107,3 @@ TileTemplateDecreaseSize={
 [rendering]
 
 2d/sdf/scale=0
-
-[shader_globals]
-
-WORLD_POSITION={
-"type": "vec2",
-"value": Vector2(0, 0)
-}
-SUN_DIRECTION={
-"type": "float",
-"value": 0.0
-}
-GLOBAL_ILLUMINATION={
-"type": "sampler2D",
-"value": ""
-}
-FOREGROUND_SDF={
-"type": "sampler2D",
-"value": ""
-}
-TILE_TEXTURE_SCROLL={
-"type": "vec2",
-"value": Vector2(0, 0)
-}
-RENDER_QUADRANT_SIZE={
-"type": "vec2",
-"value": Vector2(0, 0)
-}
-CAMERA_ZOOM={
-"type": "vec2",
-"value": Vector2(0, 0)
-}
-FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY={
-"type": "sampler2DArray",
-"value": ""
-}
-FOREGROUND_NORMALS_SAMPLER_2D_ARRAY={
-"type": "sampler2DArray",
-"value": ""
-}
-FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY={
-"type": "sampler2DArray",
-"value": ""
-}
-FOREGROUND_BORDER_COLORS={
-"type": "sampler2D",
-"value": ""
-}
-BACKGROUND_TEXTURES_SAMPLER_2D_ARRAY={
-"type": "sampler2DArray",
-"value": ""
-}
-BACKGROUND_GRADIENTS_SAMPLER_2D_ARRAY={
-"type": "sampler2DArray",
-"value": ""
-}
-BACKGROUND_NORMALS_SAMPLER_2D_ARRAY={
-"type": "sampler2DArray",
-"value": ""
-}
-BACKGROUND_BORDER_COLORS={
-"type": "sampler2D",
-"value": ""
-}
-UNIQUE_TILES={
-"type": "int",
-"value": 0
-}

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://baitjqntj0whw"
+path="res://.godot/imported/GlobalIlluminationFinal.glsl-1764a9f70c6f33cb20e92f2bd9bce5ed.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/GlobalIlluminationFinal.glsl"
+dest_files=["res://.godot/imported/GlobalIlluminationFinal.glsl-1764a9f70c6f33cb20e92f2bd9bce5ed.res"]
+
+[params]
+

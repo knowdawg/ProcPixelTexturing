@@ -1,17 +1,17 @@
 [gd_resource type="Resource" script_class="TextureData" load_steps=10 format=3 uid="uid://dmla4e53rjkn6"]
 
-[ext_resource type="Script" uid="uid://bykil1fb2qabg" path="res://Globals/TextureData/TextureData.gd" id="1_3irde"]
 [ext_resource type="Texture2D" uid="uid://e6evdtxvbbrd" path="res://Textures/MaterialMakerTextures/Error/ErrorGradient.tres" id="1_tky1p"]
 [ext_resource type="Texture2D" uid="uid://dis8mj6lpdvxq" path="res://Textures/MaterialMakerTextures/Error/ErrorTexture.tres" id="2_8g4xb"]
-[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://Globals/GenMaterials/GenMaterial.gd" id="3_8g4xb"]
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="3_8g4xb"]
 [ext_resource type="Resource" uid="uid://sb63kv0m01qc" path="res://Globals/GenMaterials/Sandstone/SandstoneForeground.tres" id="4_b43ev"]
 [ext_resource type="Resource" uid="uid://oq1frewneuwv" path="res://Globals/GenMaterials/Sand/SandForeground.tres" id="5_ldssj"]
 [ext_resource type="Resource" uid="uid://devc6clvstrj6" path="res://Globals/GenMaterials/Obsidian/ObsidianForeground.tres" id="6_m3hhm"]
 [ext_resource type="Resource" uid="uid://cph2h4bqyorxq" path="res://Globals/GenMaterials/Wood/WoodForeground.tres" id="7_vidxy"]
 [ext_resource type="Resource" uid="uid://bf8wsjfm01hjr" path="res://Globals/GenMaterials/Brick/BrickForeground.tres" id="8_4mal0"]
+[ext_resource type="Script" uid="uid://bykil1fb2qabg" path="res://addons/pixel_sandbox/Resources/TextureData.gd" id="9_pdsdv"]
 
 [resource]
-script = ExtResource("1_3irde")
+script = ExtResource("9_pdsdv")
 materials = Array[ExtResource("3_8g4xb")]([ExtResource("4_b43ev"), ExtResource("5_ldssj"), ExtResource("6_m3hhm"), ExtResource("7_vidxy"), ExtResource("8_4mal0")])
 errorTexture = ExtResource("2_8g4xb")
 errorGrad = ExtResource("1_tky1p")

@@ -46,7 +46,7 @@ func removeWorldFromMemotry(w : World):
 	if worlds.has(w.name):
 		worlds.erase(w.name)
 		worldsChanged.emit()
-		print("World removed From memotry")
+		print("World removed From memory")
 
 func _ready() -> void:
 	dir = DirAccess.open("user://")

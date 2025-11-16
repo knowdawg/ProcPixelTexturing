@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://txbtpr7bv3gw"
+path="res://.godot/imported/JumpFloodPass.glsl-509d4be87f3d3390753c39af54cc215d.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/JumpFloodPass.glsl"
+dest_files=["res://.godot/imported/JumpFloodPass.glsl-509d4be87f3d3390753c39af54cc215d.res"]
+
+[params]
+

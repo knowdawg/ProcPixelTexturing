@@ -1,10 +1,11 @@
 extends Node
+class_name GlobalIllumination
 
 @export var sdfGen : SDFGenerator
 
-@export var lightRayVisualizer : Sprite2D
-@export var lightSDFVisualize : Sprite2D
-@export var GlobalIlluminationVisualize : Sprite2D
+#@export var lightRayVisualizer : Sprite2D
+#@export var lightSDFVisualize : Sprite2D
+#@export var GlobalIlluminationVisualize : Sprite2D
 
 var rd : RenderingDevice
 var lightrayShaderFile = preload("uid://bw0seuypy6m0v")
@@ -29,14 +30,14 @@ func updateGI():
 	
 	var t = Texture2DRD.new()
 	t.texture_rd_rid = rid
-	lightRayVisualizer.texture = t
+	#lightRayVisualizer.texture = t
 	
 	if sdfGen:
 		lightRaySDFRID = sdfGen.createSDF(lightrayImRID, jumpFloodIm1RID, jumpFloodIm2RID, 0.6, 1, 0, Vector2i(int(float(TerrainRendering.renderSectionSize) / 2.0), int(float(TerrainRendering.renderSectionSize) / 2.0)))
 		
 		var s = Texture2DRD.new()
 		s.texture_rd_rid = lightRaySDFRID
-		lightSDFVisualize.texture = s
+		#lightSDFVisualize.texture = s
 		
 		#Final Light Spreading
 		var lightmap : RDUniform = TerrainRendering.getUniformImage(lightrayImRID, 0)
@@ -52,8 +53,8 @@ func updateGI():
 		
 		var d = Texture2DRD.new()
 		d.texture_rd_rid = globalIlluminationRID
-		RenderingServer.global_shader_parameter_set("GLOBAL_ILLUMINATION", d)
-		GlobalIlluminationVisualize.texture = d
+		RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION", d)
+		#GlobalIlluminationVisualize.texture = d
 
 func _ready() -> void:
 	setupRenderingDevice()

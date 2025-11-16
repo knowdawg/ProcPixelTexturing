@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://bywyhourisvim"]
+
+[ext_resource type="Script" uid="uid://cjtm5mrchg8dy" path="res://addons/pixel_sandbox/Scenes/Sun/sun.gd" id="1_2pcjs"]
+
+[node name="Sun" type="DirectionalLight2D"]
+script = ExtResource("1_2pcjs")

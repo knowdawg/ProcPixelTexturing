@@ -1,20 +1,20 @@
 shader_type canvas_item;
 
-global uniform vec2 RENDER_QUADRANT_SIZE;
-global uniform  int UNIQUE_TILES;
-global uniform vec2 WORLD_POSITION;
-global uniform vec2 CAMERA_ZOOM;
-global uniform sampler2D GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
-global uniform sampler2D FOREGROUND_SDF : filter_nearest, repeat_enable;
-global uniform vec2 TILE_TEXTURE_SCROLL;
+global uniform vec2 PS_RENDER_QUADRANT_SIZE;
+global uniform  int PS_UNIQUE_TILES;
+global uniform vec2 PS_WORLD_POSITION;
+global uniform vec2 PS_CAMERA_ZOOM;
+global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
+global uniform sampler2D PS_FOREGROUND_SDF : filter_nearest, repeat_enable;
+global uniform vec2 PS_TILE_TEXTURE_SCROLL;
 
-global uniform sampler2DArray FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
-global uniform sampler2DArray FOREGROUND_NORMALS_SAMPLER_2D_ARRAY : filter_nearest, repeat_enable;
-global uniform sampler2DArray FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY : filter_nearest;
-global uniform sampler2D FOREGROUND_BORDER_COLORS : filter_nearest;
+global uniform sampler2DArray PS_FOREGROUND_TEXTURES : filter_nearest, repeat_enable;
+global uniform sampler2DArray PS_FOREGROUND_NORMALS : filter_nearest, repeat_enable;
+global uniform sampler2DArray PS_FOREGROUND_GRADIENTS : filter_nearest;
+global uniform sampler2D PS_FOREGROUND_BORDER_COLORS : filter_nearest;
 
 group_uniforms lighting;
-uniform float falloff : hint_range(0.0, 100.0);
+uniform float falloff : hint_range(0.0, 100.0) = 10.0;
 uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform float warp : hint_range(-1.0, 1.0) = -0.03;
 
@@ -23,15 +23,15 @@ varying vec4 screen;
 
 vec4 getColor(int type, vec2 uv, vec4 self, inout vec3 normal){
 	vec4 c = vec4(1.0);
-	vec2 offsetUV = uv * (RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
-	float tileIndex = self.r * float(UNIQUE_TILES);
+	vec2 offsetUV = uv * (PS_RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
+	float tileIndex = self.r * float(PS_UNIQUE_TILES);
 	tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
 	
 	vec3 arrayUV = vec3(offsetUV, tileIndex);
 	
-	vec4 border = texture(FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(UNIQUE_TILES)), 0.0));
-	vec4 tVal = texture(FOREGROUND_TEXTURES_SAMPLER_2D_ARRAY, arrayUV);
-	vec4 nVal = texture(FOREGROUND_NORMALS_SAMPLER_2D_ARRAY, arrayUV);
+	vec4 border = texture(PS_FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(PS_UNIQUE_TILES)), 0.0));
+	vec4 tVal = texture(PS_FOREGROUND_TEXTURES, arrayUV);
+	vec4 nVal = texture(PS_FOREGROUND_NORMALS, arrayUV);
 	
 	switch(type){
 		case 0:
@@ -46,7 +46,7 @@ vec4 getColor(int type, vec2 uv, vec4 self, inout vec3 normal){
 			break;
 		case 3:
 			normal = nVal.rgb;
-			c = texture(FOREGROUND_GRADIENTS_SAMPLER_2D_ARRAY, vec3(vec2(tVal.r), tileIndex));
+			c = texture(PS_FOREGROUND_GRADIENTS, vec3(vec2(tVal.r), tileIndex));
 			break;
 		default:
 			c.a = 0.0;
@@ -82,10 +82,10 @@ vec3 directionToNormal(vec2 direction) {
 }
 
 void fragment() {
-	float textureScalling = RENDER_QUADRANT_SIZE.x / 512.0;
-	vec2 qUV = UV + TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
+	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
+	vec2 qUV = UV + PS_TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
 	qUV = fract(qUV);
-	qUV = floor(qUV * RENDER_QUADRANT_SIZE) / RENDER_QUADRANT_SIZE;
+	qUV = floor(qUV * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE;
 	
 	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
@@ -128,8 +128,8 @@ void fragment() {
 
 void light() {
 	vec2 screenCenter = vec2(0.5, 0.5);
-	vec2 unzoomedUV = screenCenter + (SCREEN_UV - screenCenter) / CAMERA_ZOOM;
-	vec2 unzoomedLightPos = screenCenter + ((LIGHT_POSITION.xy * screenSize) - screenCenter) / CAMERA_ZOOM;
+	vec2 unzoomedUV = screenCenter + (SCREEN_UV - screenCenter) / PS_CAMERA_ZOOM;
+	vec2 unzoomedLightPos = screenCenter + ((LIGHT_POSITION.xy * screenSize) - screenCenter) / PS_CAMERA_ZOOM;
 	
 	//Setup the variables for SDF Raymarching
 	vec2 lightPosNormalized = unzoomedLightPos.xy;
@@ -141,23 +141,23 @@ void light() {
 
 	float finished = 0.0;
 	
-	float textureScalling = RENDER_QUADRANT_SIZE.x / 512.0;
+	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
 
 	if(LIGHT_IS_DIRECTIONAL){
-		vec2 lightMapTexturePos = (unzoomedUV / screenSize) + WORLD_POSITION; //Get rid of world pos?
-		lightMapTexturePos /= RENDER_QUADRANT_SIZE;
-		lightMapTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		vec2 lightMapTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION; //Get rid of world pos?
+		lightMapTexturePos /= PS_RENDER_QUADRANT_SIZE;
+		lightMapTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		lightMapTexturePos = fract(lightMapTexturePos);
 		
-		float lightVal = texture(GLOBAL_ILLUMINATION, lightMapTexturePos).r;
+		float lightVal = texture(PS_GLOBAL_ILLUMINATION, lightMapTexturePos).r;
 		//lightVal *= 2.0;
 		
 		//Highlights
-		vec2 sdfTexturePos = (unzoomedUV / screenSize) + WORLD_POSITION;
-		sdfTexturePos /= RENDER_QUADRANT_SIZE;
-		sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		vec2 sdfTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION;
+		sdfTexturePos /= PS_RENDER_QUADRANT_SIZE;
+		sdfTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		sdfTexturePos = fract(sdfTexturePos);
-		vec2 sdfVal = texture(FOREGROUND_SDF, sdfTexturePos).rg;
+		vec2 sdfVal = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
 		sdfVal.r *= ((sdfVal.g - 0.5) * -2.0);
 		float subtract = min(sdfVal.r * 10.0 * textureScalling, 0.0);
 		float bonus = 0.0;
@@ -182,19 +182,19 @@ void light() {
 				break;
 			}
 			vec2 curPos = unzoomedUV + (angleVector * disTraveled);
-			vec2 sdfTexturePos = (curPos / screenSize) + WORLD_POSITION;
-			sdfTexturePos /= RENDER_QUADRANT_SIZE;
-			sdfTexturePos -= TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+			vec2 sdfTexturePos = (curPos / screenSize) + PS_WORLD_POSITION;
+			sdfTexturePos /= PS_RENDER_QUADRANT_SIZE;
+			sdfTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 			sdfTexturePos = fract(sdfTexturePos);
-			vec2 sdfData = texture(FOREGROUND_SDF, sdfTexturePos).rg;
+			vec2 sdfData = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
 			sdfVal = sdfData.r;
 			if(sdfData.g > 0.5){
 				sdfVal *= -1.0;
 			}
 			intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
-			disTraveled += abs(sdfVal) / CAMERA_ZOOM.x;
+			disTraveled += abs(sdfVal) / PS_CAMERA_ZOOM.x;
 			
-			float moveAmount = length((1.0 / RENDER_QUADRANT_SIZE) * angleVector);
+			float moveAmount = length((1.0 / PS_RENDER_QUADRANT_SIZE) * angleVector);
 			disTraveled += moveAmount;
 			intensity += falloff * moveAmount * clamp(floor(sdfVal), -1.0, 0.0);
 		}

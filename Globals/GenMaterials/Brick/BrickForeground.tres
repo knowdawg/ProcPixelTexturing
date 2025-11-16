@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="GenMaterial" load_steps=6 format=3 uid="uid://bf8wsjfm01hjr"]
 
-[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://Globals/GenMaterials/GenMaterial.gd" id="1_dp0ln"]
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_dp0ln"]
 [ext_resource type="Texture2D" uid="uid://crpm03ywi5rd0" path="res://Textures/MaterialMakerTextures/Brick/BrickForegroundNormal.png" id="1_puckh"]
 [ext_resource type="Texture2D" uid="uid://b6hp6jigwtarx" path="res://Textures/MaterialMakerTextures/Brick/BrickForegroundTexture.png" id="3_dtfia"]
 

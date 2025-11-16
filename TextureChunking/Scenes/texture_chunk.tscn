@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://dafgjgn78ehp2"]
-
-[ext_resource type="Script" uid="uid://d3esgvd0lg8bs" path="res://TextureChunking/Scripts/texture_chunk.gd" id="1_qrs86"]
-
-[node name="TextureChunk" type="Node2D"]
-script = ExtResource("1_qrs86")
-
-[node name="StaticBody2D" type="StaticBody2D" parent="."]
