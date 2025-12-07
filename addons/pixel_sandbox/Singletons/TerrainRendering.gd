@@ -17,10 +17,10 @@ var lightrays : RID
 var GI : RID
 
 #World Details
-var chunkSize : int = 32
-var outlineBufferSize : int = 12 #Buffer size on each side
-var renderSectionSize : int = 512
-var mapSize : Vector2i = Vector2i(2048, 2048)
+var chunkSize : int = PixelSandboxSettings.chunkSize
+var outlineBufferSize : int = PixelSandboxSettings.outlineBufferSize
+var renderSectionSize : int = PixelSandboxSettings.renderSectionSize
+var mapSize : Vector2i = PixelSandboxSettings.mapSize
 var loadedRect : Rect2
 
 #World Objects
@@ -38,8 +38,8 @@ var chunk = preload("uid://dafgjgn78ehp2")
 var uniqueTiles : int = 64
 var textureSize := Vector2i(256, 256)
 
-var foregroundTextureData : TextureData = preload("uid://dmla4e53rjkn6")
-var backgroundTextureData : TextureData = preload("uid://bidpxtfdflemt")
+var foregroundTextureData : TextureData = load(PixelSandboxSettings.textureDataForeground)
+var backgroundTextureData : TextureData = load(PixelSandboxSettings.textureDataBackground)
 
 
 
@@ -90,6 +90,8 @@ func isPositionLoaded(pos : Vector2) -> bool:
 	return false
 
 func _ready() -> void:
+	RuntimeShaderGlobals.addGlobals()
+	
 	RenderingServer.global_shader_parameter_set("PS_RENDER_QUADRANT_SIZE", Vector2(renderSectionSize, renderSectionSize))
 	RenderingServer.global_shader_parameter_set("PS_UNIQUE_TILES", uniqueTiles)
 	contructTextureArrays()
@@ -111,8 +113,8 @@ func _process(_delta: float) -> void:
 	updateChunks(LAYER_TYPE.FOREGROUND)
 	updateChunks(LAYER_TYPE.BACKGROUND)
 	
-	if Input.is_action_just_pressed("ReloadTexture"):
-		contructTextureArrays()
+	#if Input.is_action_just_pressed("ReloadTexture"):
+		#contructTextureArrays()
 
 func setupEnviromentObjects() -> void:
 	imageForeground = Image.create_empty(mapSize.x, mapSize.y, false, IMAGE_FORMAT)
@@ -204,6 +206,21 @@ func getChunkImage(coord : Vector2i, layer : LAYER_TYPE) -> Image:
 	
 	return chunkImage
 
+func getPixel(pos : Vector2i, layer : LAYER_TYPE) -> int:
+	var mapImage : Image
+	if layer == LAYER_TYPE.FOREGROUND:
+		mapImage = imageForeground
+	if layer == LAYER_TYPE.BACKGROUND:
+		mapImage = imageBackground
+	
+	if pos.x < 0 or pos.x > mapImage.get_size().x - 1:
+		return -1
+	if pos.y < 0 or pos.y > mapImage.get_size().y - 1:
+		return -1
+	
+	var val : float = mapImage.get_pixelv(pos).r
+	
+	return int(val * TerrainRendering.uniqueTiles) - 1
 
 func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE):
 	var chunks : Array
@@ -300,9 +317,13 @@ func updateLoadedRect() -> void:
 		if topLeftChunkCoord.x < 0:
 			newLoadedRect.position.x = 0.0
 			newLoadedRect.size.x += topLeftChunkCoord.x * chunkSize
+		else:
+			newLoadedRect.position.x = topLeftChunkCoord.x * chunkSize
 		if topLeftChunkCoord.y < 0:
 			newLoadedRect.position.y = 0.0
 			newLoadedRect.size.y += topLeftChunkCoord.y * chunkSize
+		else:
+			newLoadedRect.position.y = topLeftChunkCoord.y * chunkSize
 		if topLeftChunkCoord.x >= 0 and topLeftChunkCoord.y >= 0:
 			newLoadedRect.position = chunksForeground[topLeftChunkCoord.x][topLeftChunkCoord.y].global_position
 		loadedRect = newLoadedRect

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="GenMaterial" load_steps=6 format=3 uid="uid://bf8wsjfm01hjr"]
+
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_dp0ln"]
+[ext_resource type="Texture2D" uid="uid://crpm03ywi5rd0" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Brick/BrickForegroundNormal.png" id="1_puckh"]
+[ext_resource type="Texture2D" uid="uid://b6hp6jigwtarx" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Brick/BrickForegroundTexture.png" id="3_dtfia"]
+
+[sub_resource type="Gradient" id="Gradient_niydy"]
+colors = PackedColorArray(0.53333336, 0.29411766, 0.16862746, 1, 0.9098039, 0.75686276, 0.4392157, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_0l6b7"]
+gradient = SubResource("Gradient_niydy")
+
+[resource]
+script = ExtResource("1_dp0ln")
+texture = ExtResource("3_dtfia")
+normal = ExtResource("1_puckh")
+gradient = SubResource("GradientTexture1D_0l6b7")
+border = Color(0.9098039, 0.75686276, 0.4392157, 1)
+metadata/_custom_type_script = "uid://di707vap5isgj"

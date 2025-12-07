@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TextureData" load_steps=9 format=3 uid="uid://bp6n8tyh8kgct"]
+
+[ext_resource type="Texture2D" uid="uid://e6evdtxvbbrd" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Error/ErrorGradient.tres" id="1_dlnrt"]
+[ext_resource type="Script" uid="uid://bykil1fb2qabg" path="res://addons/pixel_sandbox/Resources/TextureData.gd" id="1_gjqv8"]
+[ext_resource type="Texture2D" uid="uid://dis8mj6lpdvxq" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Error/ErrorTexture.tres" id="2_57raw"]
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="3_qtl88"]
+[ext_resource type="Resource" uid="uid://bgbnasysuksr" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Sandstone/SandstoneBackground.tres" id="4_jgj6a"]
+[ext_resource type="Resource" uid="uid://b0bgnk5wdblcc" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Sand/SandBackground.tres" id="5_3d0kk"]
+[ext_resource type="Resource" uid="uid://bsr5hqvsvdap8" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Obsidian/ObsidianBackground.tres" id="6_3d0kk"]
+[ext_resource type="Resource" uid="uid://ecdcbo8k8e6m" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Wood/WoodBackground.tres" id="7_hy46j"]
+
+[resource]
+script = ExtResource("1_gjqv8")
+materials = Array[ExtResource("3_qtl88")]([ExtResource("4_jgj6a"), ExtResource("5_3d0kk"), ExtResource("6_3d0kk"), ExtResource("7_hy46j")])
+errorTexture = ExtResource("2_57raw")
+errorGrad = ExtResource("1_dlnrt")
+metadata/_custom_type_script = "uid://bykil1fb2qabg"

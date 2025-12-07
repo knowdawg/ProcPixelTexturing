@@ -3,4 +3,5 @@
 [ext_resource type="Script" uid="uid://cjtm5mrchg8dy" path="res://addons/pixel_sandbox/Scenes/Sun/sun.gd" id="1_2pcjs"]
 
 [node name="Sun" type="DirectionalLight2D"]
+height = 0.7
 script = ExtResource("1_2pcjs")

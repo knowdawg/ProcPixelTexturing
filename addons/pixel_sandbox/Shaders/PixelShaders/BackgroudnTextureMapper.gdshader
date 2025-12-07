@@ -177,7 +177,7 @@ void light() {
 		lightMapTexturePos /= PS_RENDER_QUADRANT_SIZE;
 		lightMapTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
 		
-		vec4 lightVal = texture(PS_GLOBAL_ILLUMINATION, lightMapTexturePos) * 2.0;
+		vec4 lightVal = texture(PS_GLOBAL_ILLUMINATION, lightMapTexturePos);// * 2.0;
 		intensity = lightVal.r;
 		finished = 1.0;
 	}else{
@@ -199,7 +199,7 @@ void light() {
 			closestSdfVal = min(sdfVal * 200.0 * textureScalling, closestSdfVal);
 			
 			if(sdfVal <= threshold){
-				finished = 0.3;
+				finished = 0.0;
 				break;
 			}
 			if(disTraveled > distanceNeededToTravel){

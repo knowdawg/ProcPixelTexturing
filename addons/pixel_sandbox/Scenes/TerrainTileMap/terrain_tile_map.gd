@@ -3,8 +3,11 @@ class_name TerrainTileMap
 
 
 @export var layer := TerrainRendering.LAYER_TYPE.FOREGROUND
+@export var active : bool = true
 
 func _ready() -> void:
+	if !active:
+		return
 	var tilemapSize : Vector2i = get_used_rect().size
 	var offset : Vector2i = get_used_rect().position
 	
@@ -14,7 +17,7 @@ func _ready() -> void:
 			var coord := Vector2i(x, y) + offset
 			var index = get_cell_source_id(coord)
 			if index == -1:
-				TerrainRendering.setPixel(coord, TILE.EMPTY, layer)
+				TerrainRendering.setPixel(coord, -1, layer)
 			else:
 				TerrainRendering.setPixel(coord, index, layer)
 	

@@ -21,7 +21,7 @@ uniform float warp : hint_range(-1.0, 1.0) = -0.03;
 varying vec2 screenSize;
 varying vec4 screen;
 
-vec4 getColor(int type, vec2 uv, vec4 self, inout vec3 normal){
+vec4 getColor(int type, vec2 uv, vec4 self, float disToEdge, inout vec3 normal){
 	vec4 c = vec4(1.0);
 	vec2 offsetUV = uv * (PS_RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
 	float tileIndex = self.r * float(PS_UNIQUE_TILES);
@@ -46,6 +46,7 @@ vec4 getColor(int type, vec2 uv, vec4 self, inout vec3 normal){
 			break;
 		case 3:
 			normal = nVal.rgb;
+			tVal.r = (tVal.r * 0.8) + (1.0 - step(0.007, disToEdge)) * 0.2;
 			c = texture(PS_FOREGROUND_GRADIENTS, vec3(vec2(tVal.r), tileIndex));
 			break;
 		default:
@@ -90,17 +91,17 @@ void fragment() {
 	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
 	
-	float disToEdge = (self.a - 0.5) * 2.0;
-	disToEdge = clamp(disToEdge, 0.0, 1.0);
-	disToEdge += 0.1;
+	float disToEdge = texture(PS_FOREGROUND_SDF, UV).r;
+	
+	
 	vec2 dir = angleToVec2(self.b);
 	
-	if(disToEdge < 1.0){
-		qUV += (dir * clamp(1.0 - disToEdge, 0.0, 1.0)) * warp * textureScalling;
-	}
+	
+	qUV += smoothstep(0.8, 1.0, 1.0 - disToEdge) * warp * textureScalling; //* dir
+	
 	
 	vec4 c = vec4(1.0);
-	c = getColor(type, qUV, self, NORMAL_MAP);
+	c = getColor(type, qUV, self, disToEdge, NORMAL_MAP);
 	
 	if(type == 1){
 		c = vec4(0.0, 0.0, 0.0, 1.0);
@@ -114,15 +115,20 @@ void fragment() {
 	vec3 nVal = directionToNormal(dir);
 	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
 	
-	disToEdge += 0.2;
-	disToEdge = clamp(disToEdge, 0.0, 1.0);
-	NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge);
+	//disToEdge = smoothstep(0.0, 0.01, disToEdge);
+	disToEdge = step(0.005, disToEdge);
+	disToEdge = clamp(disToEdge + 0.5, 0.0, 1.0);
+	
+	
+	NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge); //modify normal to face outwards slightly. Curently creates a "teething" effect for slopes
+	
+	
 	
 	//NORMAL_MAP = nVal;
 	//COLOR.rg = NORMAL_MAP.xy;
 	//COLOR.b = 1.0;
 	
-	//COLOR = vec4(self.r, 0.0, 0.0, 1.0);
+	//COLOR = vec4(texture(PS_FOREGROUND_SDF, UV).r, 0.0, 0.0, 1.0);
 }
 
 
@@ -159,11 +165,11 @@ void light() {
 		sdfTexturePos = fract(sdfTexturePos);
 		vec2 sdfVal = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
 		sdfVal.r *= ((sdfVal.g - 0.5) * -2.0);
-		float subtract = min(sdfVal.r * 10.0 * textureScalling, 0.0);
+		float subtract = min(sdfVal.r * 10.0 * textureScalling, 0.0) * 2.0;
 		float bonus = 0.0;
-		if(lightVal > 0.75){
-			bonus = (lightVal + subtract * 10.0);
-		}
+		//if(lightVal > 0.75){
+			//bonus = (lightVal + subtract * 10.0);
+		//}
 		subtract = smoothstep(0.0, 0.5, lightVal + subtract);
 		lightVal = subtract + bonus;
 		

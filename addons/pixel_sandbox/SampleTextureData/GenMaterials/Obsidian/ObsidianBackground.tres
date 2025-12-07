@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="GenMaterial" load_steps=5 format=3 uid="uid://bsr5hqvsvdap8"]
+
+[ext_resource type="Texture2D" uid="uid://bao713otah12o" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Obsidian/ObsidianBackgroundGrad.tres" id="1_obxag"]
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_yt3pu"]
+[ext_resource type="Texture2D" uid="uid://dmdw0p5kdq3fw" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Obsidian/ObsidianForegroundNormal.png" id="2_b5bap"]
+[ext_resource type="Texture2D" uid="uid://hhukqgvivmu1" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Obsidian/ObsidianForegroundTexture.png" id="4_d0fit"]
+
+[resource]
+script = ExtResource("1_yt3pu")
+texture = ExtResource("4_d0fit")
+normal = ExtResource("2_b5bap")
+gradient = ExtResource("1_obxag")
+border = Color(0.015686275, 0.019607844, 0.039215688, 1)
+metadata/_custom_type_script = "uid://di707vap5isgj"

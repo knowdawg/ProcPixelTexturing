@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="GenMaterial" load_steps=5 format=3 uid="uid://bgbnasysuksr"]
+
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_3v6xf"]
+[ext_resource type="Texture2D" uid="uid://pxdhx4lkqbcr" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Sandstone/SandstoneBackgroundGrad.tres" id="1_nyvre"]
+[ext_resource type="Texture2D" uid="uid://cbv78x2jsbbfw" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Sandstone/SandstoneBackgroundNormal.png" id="2_wih6a"]
+[ext_resource type="Texture2D" uid="uid://bl1o8x2ixuh7x" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Sandstone/SandstoneBackgroundTexture.png" id="4_frnxk"]
+
+[resource]
+script = ExtResource("1_3v6xf")
+texture = ExtResource("4_frnxk")
+normal = ExtResource("2_wih6a")
+gradient = ExtResource("1_nyvre")
+border = Color(0.74509805, 0.46666667, 0.16862746, 1)
+metadata/_custom_type_script = "uid://di707vap5isgj"

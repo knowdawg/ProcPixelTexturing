@@ -17,12 +17,11 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-BlueprintManager="*res://Globals/BlueprintManager.gd"
 GameController="*res://Globals/GameController.gd"
-RuntimeShaderGlobals="*res://addons/pixel_sandbox/Singletons/RuntimeShaderGlobals.gd"
 TerrainRendering="*res://addons/pixel_sandbox/Singletons/TerrainRendering.gd"
 TerrainDestruction="*res://addons/pixel_sandbox/Singletons/TerrainDestruction.gd"
 WorldManager="*res://addons/pixel_sandbox/Singletons/WorldManager.gd"
+BlueprintManager="*res://addons/pixel_sandbox/Singletons/BlueprintManager.gd"
 
 [debug]
 

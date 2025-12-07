@@ -1,0 +1,1015 @@
+[gd_scene load_steps=61 format=3 uid="uid://dnfswhfd50ime"]
+
+[ext_resource type="Script" uid="uid://pbfqywpblnd7" path="res://addons/pixel_sandbox/TileTemplate/Scripts/tile_template_ui.gd" id="1_6utn4"]
+[ext_resource type="Theme" uid="uid://b04ydxpqblepw" path="res://addons/pixel_sandbox/TileTemplate/Themes/TileTemplateTheme.tres" id="1_kkrh1"]
+[ext_resource type="Shader" uid="uid://bfbscpxhbtp8i" path="res://addons/pixel_sandbox/TileTemplate/Shaders/MagnifyGlass.gdshader" id="3_ch2bb"]
+[ext_resource type="Theme" uid="uid://cjb778w5r0yi2" path="res://addons/pixel_sandbox/TileTemplate/Themes/ButtonTheme.tres" id="4_1kmdl"]
+[ext_resource type="Script" uid="uid://cbwwy5mdqus1x" path="res://addons/pixel_sandbox/TileTemplate/Scripts/brushButton.gd" id="4_gfru7"]
+[ext_resource type="Texture2D" uid="uid://dqqki5p7274ro" path="res://addons/pixel_sandbox/TileTemplate/Sprites/MinnusButton.png" id="4_k50tt"]
+[ext_resource type="Texture2D" uid="uid://bcg3srybglcvy" path="res://addons/pixel_sandbox/TileTemplate/Sprites/PlusButton.png" id="5_ch2bb"]
+[ext_resource type="Theme" uid="uid://cci8d63xkuh8a" path="res://addons/pixel_sandbox/TileTemplate/Themes/SideButtonsTheme.tres" id="5_fw6of"]
+[ext_resource type="Texture2D" uid="uid://doppfrjrklq2y" path="res://addons/pixel_sandbox/TileTemplate/Sprites/XButtonNormal.png" id="5_xmwcd"]
+[ext_resource type="Texture2D" uid="uid://b71ij5puxo538" path="res://addons/pixel_sandbox/TileTemplate/Sprites/Brush.png" id="6_fw6of"]
+[ext_resource type="Texture2D" uid="uid://dpaib00e68n5s" path="res://addons/pixel_sandbox/TileTemplate/Sprites/CircleButton.png" id="7_71jjk"]
+[ext_resource type="Texture2D" uid="uid://dypnbpnu2ivpb" path="res://addons/pixel_sandbox/TileTemplate/Sprites/NewBlueprint.png" id="7_fw6of"]
+[ext_resource type="Script" uid="uid://f83dx7sgg2qa" path="res://addons/pixel_sandbox/TileTemplate/Sprites/new_blueprint.gd" id="7_gfru7"]
+[ext_resource type="Texture2D" uid="uid://c4w5kbw3a61lj" path="res://addons/pixel_sandbox/TileTemplate/Sprites/SquareButton.png" id="8_sqnu3"]
+[ext_resource type="Script" uid="uid://wx6f2206vvln" path="res://addons/pixel_sandbox/TileTemplate/Sprites/TrashButton.gd" id="9_gfru7"]
+[ext_resource type="Texture2D" uid="uid://dpmdyamytq8s7" path="res://addons/pixel_sandbox/TileTemplate/Sprites/Trash.png" id="10_2cxm1"]
+[ext_resource type="Script" uid="uid://xylj5cjxsdtf" path="res://addons/pixel_sandbox/TileTemplate/Scripts/TopButton.gd" id="10_fw6of"]
+[ext_resource type="Texture2D" uid="uid://dcpwglbgfonjb" path="res://addons/pixel_sandbox/TileTemplate/Sprites/ShowButtonNormal.png" id="12_2cxm1"]
+[ext_resource type="Shader" uid="uid://dhvcn5mmlsat1" path="res://addons/pixel_sandbox/TileTemplate/Shaders/BrushPreview.gdshader" id="13_ns818"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ch2bb"]
+resource_local_to_scene = true
+shader = ExtResource("13_ns818")
+shader_parameter/color = Color(0, 0.09803922, 0.19607843, 0.5882353)
+
+[sub_resource type="Gradient" id="Gradient_82bl7"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_k50tt"]
+gradient = SubResource("Gradient_82bl7")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_71jjk"]
+resource_local_to_scene = true
+shader = ExtResource("13_ns818")
+shader_parameter/color = Color(0.19607843, 0.09803922, 0, 0.5882353)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gfru7"]
+atlas = ExtResource("6_fw6of")
+region = Rect2(0, 0, 20, 20)
+
+[sub_resource type="Animation" id="Animation_yjfr7"]
+resource_name = "Hover"
+length = 0.4
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(20, 0, 20, 20), Rect2(40, 0, 20, 20), Rect2(60, 0, 20, 20), Rect2(80, 0, 20, 20), Rect2(100, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(52, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_fw6of"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Rect2(0, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(40, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_1kmdl"]
+resource_name = "Reset"
+length = 0.2
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Rect2(0, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(40, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_gfru7"]
+resource_name = "Select"
+length = 0.7
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(140, 0, 20, 20), Rect2(160, 0, 20, 20), Rect2(180, 0, 20, 20), Rect2(200, 0, 20, 20), Rect2(220, 0, 20, 20), Rect2(240, 0, 20, 20), Rect2(260, 0, 20, 20), Rect2(280, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(64, 80), Vector2(52, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_ns818"]
+resource_name = "UnHover"
+length = 0.15
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Rect2(20, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(40, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_2cxm1"]
+resource_name = "Use"
+length = 0.4
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(320, 0, 20, 20), Rect2(340, 0, 20, 20), Rect2(360, 0, 20, 20), Rect2(380, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(52, 80)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ns818"]
+_data = {
+&"Hover": SubResource("Animation_yjfr7"),
+&"RESET": SubResource("Animation_fw6of"),
+&"Reset": SubResource("Animation_1kmdl"),
+&"Select": SubResource("Animation_gfru7"),
+&"UnHover": SubResource("Animation_ns818"),
+&"Use": SubResource("Animation_2cxm1")
+}
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2cxm1"]
+atlas = ExtResource("7_fw6of")
+region = Rect2(0, 0, 20, 20)
+
+[sub_resource type="Animation" id="Animation_71jjk"]
+resource_name = "Hover"
+length = 0.5
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.20000002, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(40, 0, 20, 20), Rect2(60, 0, 20, 20), Rect2(80, 0, 20, 20), Rect2(100, 0, 20, 20), Rect2(120, 0, 20, 20), Rect2(140, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(52, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_sqnu3"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Rect2(0, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(40, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_nvh1r"]
+resource_name = "Reset"
+length = 0.3
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.20000002, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(60, 0, 20, 20), Rect2(20, 0, 20, 20), Rect2(40, 0, 20, 20), Rect2(20, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(40, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_saemf"]
+resource_name = "Select"
+loop_mode = 2
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(160, 0, 20, 20), Rect2(180, 0, 20, 20), Rect2(200, 0, 20, 20), Rect2(220, 0, 20, 20), Rect2(240, 0, 20, 20), Rect2(260, 0, 20, 20), Rect2(280, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(64, 80), Vector2(52, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_3b8by"]
+resource_name = "UnHover"
+length = 0.3
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.20000002, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(60, 0, 20, 20), Rect2(20, 0, 20, 20), Rect2(40, 0, 20, 20), Rect2(20, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(40, 80)]
+}
+
+[sub_resource type="Animation" id="Animation_760ov"]
+resource_name = "Use"
+length = 0.6
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(320, 0, 20, 20), Rect2(340, 0, 20, 20), Rect2(360, 0, 20, 20), Rect2(380, 0, 20, 20), Rect2(400, 0, 20, 20), Rect2(420, 0, 20, 20), Rect2(440, 0, 20, 20)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath(".:custom_minimum_size")
+tracks/1/interp = 0
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.1, 0.15, 0.25, 0.3, 0.35),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(52, 80), Vector2(68, 80), Vector2(76, 80), Vector2(80, 80), Vector2(80, 80), Vector2(32, 80), Vector2(40, 80)]
+}
+tracks/2/type = "method"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath(".")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0.3),
+"transitions": PackedFloat32Array(1),
+"values": [{
+"args": [],
+"method": &"createBlueprint"
+}]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_nvh1r"]
+_data = {
+&"Hover": SubResource("Animation_71jjk"),
+&"RESET": SubResource("Animation_sqnu3"),
+&"Reset": SubResource("Animation_nvh1r"),
+&"Select": SubResource("Animation_saemf"),
+&"UnHover": SubResource("Animation_3b8by"),
+&"Use": SubResource("Animation_760ov")
+}
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ns818"]
+atlas = ExtResource("10_2cxm1")
+region = Rect2(0, 0, 20, 20)
+
+[sub_resource type="Animation" id="Animation_82bl7"]
+resource_name = "Hover"
+length = 0.2
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.20000002),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Rect2(40, 0, 20, 20), Rect2(60, 0, 20, 20), Rect2(80, 0, 20, 20)]
+}
+
+[sub_resource type="Animation" id="Animation_k50tt"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Rect2(0, 0, 20, 20)]
+}
+
+[sub_resource type="Animation" id="Animation_2ffdm"]
+resource_name = "UnHover"
+length = 0.2
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.099999994, 0.20000002),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Rect2(60, 0, 20, 20), Rect2(40, 0, 20, 20), Rect2(20, 0, 20, 20)]
+}
+
+[sub_resource type="Animation" id="Animation_ch2bb"]
+resource_name = "Use"
+length = 0.3
+step = 0.1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:texture:region")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.20000002, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Rect2(120, 0, 20, 20), Rect2(140, 0, 20, 20), Rect2(160, 0, 20, 20), Rect2(180, 0, 20, 20)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_2ffdm"]
+_data = {
+&"Hover": SubResource("Animation_82bl7"),
+&"RESET": SubResource("Animation_k50tt"),
+&"UnHover": SubResource("Animation_2ffdm"),
+&"Use": SubResource("Animation_ch2bb")
+}
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fw6of"]
+bg_color = Color(0.23529412, 0.36862746, 0.54509807, 0.78431374)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gfru7"]
+bg_color = Color(0.30980393, 0.56078434, 0.7294118, 0.78431374)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2cxm1"]
+bg_color = Color(0.14509805, 0.22745098, 0.36862746, 0.78431374)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ns818"]
+bg_color = Color(0.30980393, 0.56078434, 0.7294118, 0.78431374)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_color = Color(0.09019608, 0.1254902, 0.21960784, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+anti_aliasing = false
+
+[sub_resource type="Theme" id="Theme_1kmdl"]
+Button/styles/hover = SubResource("StyleBoxFlat_fw6of")
+Button/styles/hover_pressed = SubResource("StyleBoxFlat_gfru7")
+Button/styles/normal = SubResource("StyleBoxFlat_2cxm1")
+Button/styles/pressed = SubResource("StyleBoxFlat_ns818")
+
+[sub_resource type="Animation" id="Animation_waaxi"]
+resource_name = "Hover"
+length = 0.1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:scale")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.05, 0.10000001),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(1, 1.5), Vector2(1, 1), Vector2(1, 1.1)]
+}
+
+[sub_resource type="Animation" id="Animation_hgjn6"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_h6sy0"]
+resource_name = "Reset"
+
+[sub_resource type="Animation" id="Animation_oxuep"]
+resource_name = "Select"
+
+[sub_resource type="Animation" id="Animation_hhirb"]
+resource_name = "UnHover"
+length = 0.1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("TextureRect:scale")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(1, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_pi2ef"]
+resource_name = "Use"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_hgjn6"]
+_data = {
+&"Hover": SubResource("Animation_waaxi"),
+&"RESET": SubResource("Animation_hgjn6"),
+&"Reset": SubResource("Animation_h6sy0"),
+&"Select": SubResource("Animation_oxuep"),
+&"UnHover": SubResource("Animation_hhirb"),
+&"Use": SubResource("Animation_pi2ef")
+}
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2ffdm"]
+shader = ExtResource("3_ch2bb")
+shader_parameter/intensity = 0.10000024225000016
+
+[sub_resource type="Gradient" id="Gradient_71jjk"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_sqnu3"]
+gradient = SubResource("Gradient_71jjk")
+width = 256
+height = 256
+
+[node name="BlueprintUI" type="CanvasLayer"]
+script = ExtResource("1_6utn4")
+
+[node name="BrushBackgroundPreview" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+material = SubResource("ShaderMaterial_ch2bb")
+position = Vector2(-5, 3)
+texture = SubResource("GradientTexture2D_k50tt")
+
+[node name="BrushForegroundPreview" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+material = SubResource("ShaderMaterial_71jjk")
+position = Vector2(-5, 3)
+texture = SubResource("GradientTexture2D_k50tt")
+
+[node name="BlueprintContainer" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(320, 248)
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -309.0
+offset_right = 399.0
+grow_vertical = 0
+pivot_offset = Vector2(160, 124)
+size_flags_horizontal = 4
+size_flags_vertical = 8
+theme = ExtResource("1_kkrh1")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BlueprintContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="TabContainer" type="TabContainer" parent="BlueprintContainer/HBoxContainer"]
+texture_filter = 1
+custom_minimum_size = Vector2(272, 240)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_behavior_recursive = 1
+theme = ExtResource("1_kkrh1")
+tab_alignment = 2
+current_tab = 0
+
+[node name="Materials" type="VBoxContainer" parent="BlueprintContainer/HBoxContainer/TabContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="MaterialsScroll" type="ScrollContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MaterialsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MaterialGridContainer" type="GridContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/MaterialsScroll/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 6
+
+[node name="HSeparator" type="HSeparator" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials"]
+layout_mode = 2
+theme = ExtResource("1_kkrh1")
+
+[node name="BottomButtons" type="MarginContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons"]
+layout_mode = 2
+size_flags_vertical = 8
+
+[node name="Minus" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme = ExtResource("4_1kmdl")
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Minus"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("4_k50tt")
+
+[node name="VSeparator" type="VSeparator" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_kkrh1")
+
+[node name="Plus" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme = ExtResource("4_1kmdl")
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Plus"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("5_ch2bb")
+
+[node name="Label" type="Label" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+theme = ExtResource("1_kkrh1")
+text = "8x8"
+
+[node name="Circle" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme = ExtResource("4_1kmdl")
+toggle_mode = true
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Circle"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("7_71jjk")
+
+[node name="VSeparator2" type="VSeparator" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("1_kkrh1")
+
+[node name="Square" type="Button" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 2
+theme = ExtResource("4_1kmdl")
+toggle_mode = true
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Square"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8_sqnu3")
+
+[node name="Blueprints" type="ScrollContainer" parent="BlueprintContainer/HBoxContainer/TabContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+metadata/_tab_index = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Blueprints"]
+layout_mode = 2
+theme = ExtResource("1_kkrh1")
+
+[node name="BlueprintGridContainer" type="GridContainer" parent="BlueprintContainer/HBoxContainer/TabContainer/Blueprints/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 90)
+layout_mode = 2
+theme = ExtResource("1_kkrh1")
+columns = 3
+
+[node name="SideButtons" type="MarginContainer" parent="BlueprintContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 53
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BlueprintContainer/HBoxContainer/SideButtons"]
+layout_mode = 2
+
+[node name="Brush" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("previewForground", "previewBackground", "tt")]
+custom_minimum_size = Vector2(40, 80)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme = ExtResource("5_fw6of")
+toggle_mode = true
+script = ExtResource("4_gfru7")
+previewForground = NodePath("../../../../../BrushForegroundPreview")
+previewBackground = NodePath("../../../../../BrushBackgroundPreview")
+tt = NodePath("../../../../..")
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(20, 20)
+texture = SubResource("AtlasTexture_gfru7")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush"]
+libraries = {
+&"": SubResource("AnimationLibrary_ns818")
+}
+
+[node name="NewBlueprint" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("magnify", "tt")]
+custom_minimum_size = Vector2(40, 80)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 2
+theme = ExtResource("5_fw6of")
+toggle_mode = true
+script = ExtResource("7_gfru7")
+magnify = NodePath("../../../../../MagnifyGlass")
+tt = NodePath("../../../../..")
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(20, 20)
+texture = SubResource("AtlasTexture_2cxm1")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint"]
+libraries = {
+&"": SubResource("AnimationLibrary_nvh1r")
+}
+
+[node name="Trash" type="Button" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer" node_paths=PackedStringArray("tt")]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 10
+theme = ExtResource("5_fw6of")
+script = ExtResource("9_gfru7")
+tt = NodePath("../../../../..")
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Trash"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(20, 20)
+texture = SubResource("AtlasTexture_ns818")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Trash"]
+libraries = {
+&"": SubResource("AnimationLibrary_2ffdm")
+}
+
+[node name="TopButtons" type="MarginContainer" parent="BlueprintContainer"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 2
+
+[node name="TopButtons" type="HBoxContainer" parent="BlueprintContainer/TopButtons"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="XButton" type="Button" parent="BlueprintContainer/TopButtons/TopButtons" node_paths=PackedStringArray("tt")]
+texture_filter = 1
+custom_minimum_size = Vector2(80, 48)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+theme = SubResource("Theme_1kmdl")
+script = ExtResource("10_fw6of")
+tt = NodePath("../../../..")
+
+[node name="TextureRect" type="TextureRect" parent="BlueprintContainer/TopButtons/TopButtons/XButton"]
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -30.0
+offset_right = 60.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(40, 20)
+texture = ExtResource("5_xmwcd")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="BlueprintContainer/TopButtons/TopButtons/XButton"]
+libraries = {
+&"": SubResource("AnimationLibrary_hgjn6")
+}
+
+[node name="DragButton" type="ColorRect" parent="BlueprintContainer/TopButtons/TopButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
+
+[node name="ShowButtonContainer" type="MarginContainer" parent="."]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_kkrh1")
+theme_override_constants/margin_bottom = 0
+
+[node name="ShowButton" type="Button" parent="ShowButtonContainer" node_paths=PackedStringArray("tt")]
+texture_filter = 1
+custom_minimum_size = Vector2(80, 40)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+theme = SubResource("Theme_1kmdl")
+script = ExtResource("10_fw6of")
+tt = NodePath("../..")
+type = 1
+
+[node name="TextureRect" type="TextureRect" parent="ShowButtonContainer/ShowButton"]
+custom_minimum_size = Vector2(40, 20)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+pivot_offset = Vector2(40, 40)
+texture = ExtResource("12_2cxm1")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ShowButtonContainer/ShowButton"]
+libraries = {
+&"": SubResource("AnimationLibrary_hgjn6")
+}
+
+[node name="MagnifyGlass" type="Sprite2D" parent="."]
+visible = false
+z_index = 1
+texture_filter = 1
+texture_repeat = 2
+material = SubResource("ShaderMaterial_2ffdm")
+texture = SubResource("GradientTexture2D_sqnu3")
+
+[connection signal="tab_changed" from="BlueprintContainer/HBoxContainer/TabContainer" to="." method="_on_tab_container_tab_changed"]
+[connection signal="pressed" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Minus" to="." method="_on_minus_pressed"]
+[connection signal="pressed" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Plus" to="." method="_on_plus_pressed"]
+[connection signal="toggled" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Circle" to="." method="_on_circle_toggled"]
+[connection signal="toggled" from="BlueprintContainer/HBoxContainer/TabContainer/Materials/BottomButtons/HBoxContainer/Square" to="." method="_on_square_toggled"]
+[connection signal="mouse_entered" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_mouse_exited"]
+[connection signal="toggled" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Brush" method="_on_toggled"]
+[connection signal="mouse_entered" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" method="_on_mouse_exited"]
+[connection signal="toggled" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/NewBlueprint" method="_on_toggled"]
+[connection signal="mouse_entered" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" method="_on_mouse_exited"]
+[connection signal="pressed" from="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" to="BlueprintContainer/HBoxContainer/SideButtons/VBoxContainer/Trash" method="_on_pressed"]
+[connection signal="mouse_entered" from="BlueprintContainer/TopButtons/TopButtons/XButton" to="BlueprintContainer/TopButtons/TopButtons/XButton" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="BlueprintContainer/TopButtons/TopButtons/XButton" to="BlueprintContainer/TopButtons/TopButtons/XButton" method="_on_mouse_exited"]
+[connection signal="pressed" from="BlueprintContainer/TopButtons/TopButtons/XButton" to="BlueprintContainer/TopButtons/TopButtons/XButton" method="_on_pressed"]
+[connection signal="mouse_entered" from="ShowButtonContainer/ShowButton" to="ShowButtonContainer/ShowButton" method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="ShowButtonContainer/ShowButton" to="ShowButtonContainer/ShowButton" method="_on_mouse_exited"]
+[connection signal="pressed" from="ShowButtonContainer/ShowButton" to="ShowButtonContainer/ShowButton" method="_on_pressed"]
