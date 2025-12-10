@@ -4,8 +4,8 @@ global uniform vec2 PS_RENDER_QUADRANT_SIZE;
 global uniform  int PS_UNIQUE_TILES;
 global uniform vec2 PS_WORLD_POSITION;
 global uniform vec2 PS_CAMERA_ZOOM;
-global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
-global uniform sampler2D PS_FOREGROUND_SDF : filter_nearest, repeat_enable;
+global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_linear, repeat_enable;
+global uniform sampler2D PS_FOREGROUND_SDF : filter_linear, repeat_enable;
 global uniform vec2 PS_TILE_TEXTURE_SCROLL;
 
 global uniform sampler2DArray PS_FOREGROUND_TEXTURES : filter_nearest, repeat_enable;
@@ -14,7 +14,7 @@ global uniform sampler2DArray PS_FOREGROUND_GRADIENTS : filter_nearest;
 global uniform sampler2D PS_FOREGROUND_BORDER_COLORS : filter_nearest;
 
 group_uniforms lighting;
-uniform float falloff : hint_range(0.0, 100.0) = 10.0;
+uniform float falloff : hint_range(0.0, 100.0) = 15.0;
 uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
 uniform float warp : hint_range(-1.0, 1.0) = -0.03;
 
@@ -46,7 +46,7 @@ vec4 getColor(int type, vec2 uv, vec4 self, float disToEdge, inout vec3 normal){
 			break;
 		case 3:
 			normal = nVal.rgb;
-			tVal.r = (tVal.r * 0.8) + (1.0 - step(0.007, disToEdge)) * 0.2;
+			tVal.r = (tVal.r * 0.75) + (1.0 - step((0.5 + tVal.r) * (5.0 / PS_RENDER_QUADRANT_SIZE.x), disToEdge)) * 0.25;
 			c = texture(PS_FOREGROUND_GRADIENTS, vec3(vec2(tVal.r), tileIndex));
 			break;
 		default:
@@ -91,13 +91,16 @@ void fragment() {
 	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
 	
-	float disToEdge = texture(PS_FOREGROUND_SDF, UV).r;
+	float disToEdge = texture(PS_FOREGROUND_SDF, floor(UV * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE).r;
 	
 	
 	vec2 dir = angleToVec2(self.b);
 	
-	
-	qUV += smoothstep(0.8, 1.0, 1.0 - disToEdge) * warp * textureScalling; //* dir
+	//if(disToEdge < 0.01){
+		//qUV += smoothstep(0.99, 1.0, 1.0 - disToEdge) * warp * textureScalling * dir * -0.5;
+	//}
+	//float warpAmount = smoothstep(0.95, 1.0, 1.0 - disToEdge) * warp * textureScalling;
+	//qUV += warpAmount * warp * textureScalling;
 	
 	
 	vec4 c = vec4(1.0);
@@ -116,19 +119,28 @@ void fragment() {
 	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
 	
 	//disToEdge = smoothstep(0.0, 0.01, disToEdge);
-	disToEdge = step(0.005, disToEdge);
-	disToEdge = clamp(disToEdge + 0.5, 0.0, 1.0);
-	
-	
-	NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge); //modify normal to face outwards slightly. Curently creates a "teething" effect for slopes
-	
-	
+	//disToEdge = step(0.005, disToEdge);
+	//disToEdge = clamp(disToEdge + 0.5, 0.0, 1.0);
+	//
+	//NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge); //modify normal to face outwards slightly. Curently creates a "teething" effect for slopes
+	//
 	
 	//NORMAL_MAP = nVal;
 	//COLOR.rg = NORMAL_MAP.xy;
 	//COLOR.b = 1.0;
 	
 	//COLOR = vec4(texture(PS_FOREGROUND_SDF, UV).r, 0.0, 0.0, 1.0);
+	
+	//vec2 screenCenter = vec2(0.5, 0.5);
+	//vec2 unzoomedUV = screenCenter + (SCREEN_UV - screenCenter) / PS_CAMERA_ZOOM;
+	//vec2 lightMapTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION; //Get rid of world pos?
+	//lightMapTexturePos /= PS_RENDER_QUADRANT_SIZE;
+	//lightMapTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+	//lightMapTexturePos = fract(lightMapTexturePos);
+	//
+	//float lightVal = texture(PS_GLOBAL_ILLUMINATION, lightMapTexturePos).r;
+	//
+	//COLOR = vec4(vec3(lightVal), 1.0);
 }
 
 
@@ -156,7 +168,6 @@ void light() {
 		lightMapTexturePos = fract(lightMapTexturePos);
 		
 		float lightVal = texture(PS_GLOBAL_ILLUMINATION, lightMapTexturePos).r;
-		//lightVal *= 2.0;
 		
 		//Highlights
 		vec2 sdfTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION;
@@ -165,13 +176,10 @@ void light() {
 		sdfTexturePos = fract(sdfTexturePos);
 		vec2 sdfVal = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
 		sdfVal.r *= ((sdfVal.g - 0.5) * -2.0);
-		float subtract = min(sdfVal.r * 10.0 * textureScalling, 0.0) * 2.0;
-		float bonus = 0.0;
-		//if(lightVal > 0.75){
-			//bonus = (lightVal + subtract * 10.0);
-		//}
-		subtract = smoothstep(0.0, 0.5, lightVal + subtract);
-		lightVal = subtract + bonus;
+		float subtract = min(sdfVal.r * textureScalling, 0.0) * 10.0;// * 10.0 + 1.0;
+
+		//lightVal = clamp(lightVal * subtract, 0.0, 1.0);
+		lightVal = lightVal + subtract;
 		
 		intensity = lightVal;
 		
@@ -211,5 +219,6 @@ void light() {
 	intensity = clamp(intensity, 0.0, 100.0);
 	
 	float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));
+	cNdotL = (cNdotL / 2.0) + 0.5;//clamp(cNdotL + 0.5, 0.0, 1.0);
 	LIGHT = vec4(LIGHT_COLOR.rgb * screen.rgb * intensity * LIGHT_ENERGY * cNdotL, LIGHT_COLOR.a);
 }

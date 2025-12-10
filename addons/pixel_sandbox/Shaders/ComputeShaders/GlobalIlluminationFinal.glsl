@@ -29,7 +29,7 @@ void main(){
 
     float lightRay = imageLoad(lightmap, uv).r;
 
-    lightVal = max(lightRay, lightVal * 0.5);
+    lightVal = max(lightRay, lightVal);
 
     vec4 color = vec4(vec3(lightVal), 1.0);
 
