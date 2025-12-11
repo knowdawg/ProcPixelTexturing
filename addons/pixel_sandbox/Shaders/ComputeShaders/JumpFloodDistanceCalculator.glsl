@@ -51,7 +51,7 @@ void main(){
     bitmapVal = clamp(bitmapVal, 0.0, 1.0);
 
     if(bitmapVal > 0.5 && sined == 1){
-        color.g = 1.0;
+        color.r *= -1.0;
     }
     imageStore(outputBuffer, uv, color);
 }

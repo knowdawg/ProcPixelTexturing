@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=4 uid="uid://c726gqd04n3yb"]
+[gd_scene load_steps=23 format=4 uid="uid://c726gqd04n3yb"]
 
 [ext_resource type="Script" uid="uid://c4eeak2ynu8a3" path="res://TextureChunking/Scripts/world_2d.gd" id="1_aboe0"]
 [ext_resource type="Script" uid="uid://b1381eapkmqjg" path="res://Test/FPSLabel.gd" id="1_dvw3m"]
@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://bs3ob7drvovjj" path="res://addons/pixel_sandbox/Scenes/SDFGenerator/sdf_generator.tscn" id="8_hcy24"]
 [ext_resource type="Script" uid="uid://bviw0a8f2omnc" path="res://TextureChunking/Scripts/ScalingCamera.gd" id="8_xil5r"]
 [ext_resource type="PackedScene" uid="uid://b22snyd5lo4mp" path="res://addons/pixel_sandbox/Scenes/GlobalIllumination/global_illumination.tscn" id="9_u2jdx"]
+[ext_resource type="Script" uid="uid://dcqeltww30kok" path="res://addons/pixel_sandbox/Scenes/RadianceCascades/radiance_cascades.gd" id="10_txt8w"]
 [ext_resource type="Script" uid="uid://6j0j7o7cce52" path="res://point_light_2d.gd" id="11_yxens"]
 [ext_resource type="PackedScene" uid="uid://dnfswhfd50ime" path="res://addons/pixel_sandbox/TileTemplate/tile_template_ui.tscn" id="16_txt8w"]
 [ext_resource type="Script" uid="uid://u6j2w1st0jpy" path="res://TextureChunking/Scripts/gui.gd" id="20_16l4g"]
@@ -106,16 +107,22 @@ layer = 1
 material = SubResource("ShaderMaterial_kgdbp")
 
 [node name="Sun" parent="World2D" instance=ExtResource("7_k60dn")]
-rotation = -2.2759094
+rotation = -2.2060962
 height = 1.0
 
 [node name="SDFGenerator" parent="World2D" instance=ExtResource("8_hcy24")]
+
+[node name="RadianceCascades" type="Node" parent="World2D/SDFGenerator"]
+script = ExtResource("10_txt8w")
+cascadeCount = null
+initialCascadeRayCount = null
+initailCascadeRayLength = null
+initialCascadeResolution = null
 
 [node name="GlobalIllumination" parent="World2D" node_paths=PackedStringArray("sdfGen") instance=ExtResource("9_u2jdx")]
 sdfGen = NodePath("../SDFGenerator")
 
 [node name="MouseLight" type="PointLight2D" parent="World2D"]
-visible = false
 texture = SubResource("GradientTexture2D_bnr5j")
 texture_scale = 2.0
 height = 20.0
@@ -175,3 +182,9 @@ texture = SubResource("GradientTexture2D_ksob3")
 position = Vector2(294.4, 25.6)
 scale = Vector2(0.1, 0.1)
 texture = SubResource("GradientTexture2D_ksob3")
+
+[node name="CanvasLayer2" type="CanvasLayer" parent="."]
+
+[node name="DebugSprite" type="Sprite2D" parent="CanvasLayer2"]
+position = Vector2(919, 489)
+scale = Vector2(0.25, 0.25)

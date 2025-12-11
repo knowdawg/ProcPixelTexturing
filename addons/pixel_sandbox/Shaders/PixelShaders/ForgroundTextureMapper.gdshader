@@ -202,9 +202,9 @@ void light() {
 			sdfTexturePos = fract(sdfTexturePos);
 			vec2 sdfData = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
 			sdfVal = sdfData.r;
-			if(sdfData.g > 0.5){
-				sdfVal *= -1.0;
-			}
+			//if(sdfData.g > 0.5){
+				//sdfVal *= -1.0;
+			//}
 			intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
 			disTraveled += abs(sdfVal) / PS_CAMERA_ZOOM.x;
 			

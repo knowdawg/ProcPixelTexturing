@@ -12,10 +12,7 @@ layout(set = 0, binding = 2, rgba32f) uniform writeonly image2D outputBuffer;
 
 float sampleDistanceField(ivec2 uv){
     vec2 sam = imageLoad(lightSDF, uv).rg;
-    if(sam.g < 0.5){
-        return sam.r;
-    }
-    return 0.0;
+    return sam.r;
 }
 
 void main(){
