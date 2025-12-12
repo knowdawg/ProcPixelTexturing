@@ -1,14 +1,21 @@
 extends Node2D
 class_name TextureChunk
 
+"""
+Texture Chunk is given a coordinate upon creation. When it becomes dirty (usualy via TerrainDestruction), it get the new texture data from the TerrainRendering's world data image
+and preforms it's responsibilities. Its responsibilities include:
+	-Update the world visual image based on tile data
+	-Update collision
+	-Update the light map based on tile data
+"""
+
 var chunkSize : int #Start with 64
 var outlineBufferSize : int #6
 var totalChunkSize : int
 
 var dirty : bool = true
-var chunkImage : Image
+var chunkImage : Image #The current section of the world texture that it updates the world texture with
 var chunkCoord : Vector2i
-var layer : TerrainRendering.LAYER_TYPE
 
 var visualizeChunk : bool = false
 var active : bool = false
@@ -17,11 +24,10 @@ var bitmap : BitMap
 var polygons : Array[PackedVector2Array]
 var collPolys : Array[CollisionPolygon2D] = []
 
-func setup(chunk_size : int, outline_buffer_size : int, chunk_coord : Vector2i, layerType : TerrainRendering.LAYER_TYPE):
+func setup(chunk_size : int, outline_buffer_size : int, chunk_coord : Vector2i):
 	chunkSize = chunk_size
 	outlineBufferSize = outline_buffer_size
 	chunkCoord = chunk_coord
-	layer = layerType
 	
 	totalChunkSize = chunkSize + (outlineBufferSize * 2)
 	
@@ -33,8 +39,8 @@ func makeDirty():
 	dirty = true
 
 func updateBuffer():
-	chunkImage = TerrainRendering.getChunkImage(chunkCoord, layer)
-	TerrainRendering.executeTextureChunkShader(chunkCoord, chunkImage, layer)
+	chunkImage = TerrainRendering.getChunkImage(chunkCoord)
+	TerrainRendering.executeTextureChunkShader(chunkCoord, chunkImage)
 	
 	if layer == TerrainRendering.LAYER_TYPE.FOREGROUND:
 		bitmap.create_from_image_alpha(chunkImage, 0.5)
@@ -58,7 +64,7 @@ func updateChunk():
 
 
 func _draw() -> void:
-	if visualizeChunk and layer:
+	if visualizeChunk:
 		var c : Color = Color.LIME_GREEN
 		if (chunkCoord.x + chunkCoord.y) % 2 == 0:
 			c = Color.DARK_GREEN

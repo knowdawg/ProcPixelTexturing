@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="GenMaterial" load_steps=6 format=3 uid="uid://bf8wsjfm01hjr"]
 
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_dp0ln"]
-[ext_resource type="Texture2D" uid="uid://crpm03ywi5rd0" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Brick/BrickForegroundNormal.png" id="1_puckh"]
-[ext_resource type="Texture2D" uid="uid://b6hp6jigwtarx" path="res://addons/pixel_sandbox/SampleTextureData/Textures/Brick/BrickForegroundTexture.png" id="3_dtfia"]
+[ext_resource type="Texture2D" uid="uid://crpm03ywi5rd0" path="res://Textures/MaterialMakerTextures/Brick/BrickForegroundNormal.png" id="1_puckh"]
+[ext_resource type="Texture2D" uid="uid://b6hp6jigwtarx" path="res://Textures/MaterialMakerTextures/Brick/BrickForegroundTexture.png" id="3_dtfia"]
 
 [sub_resource type="Gradient" id="Gradient_niydy"]
 colors = PackedColorArray(0.53333336, 0.29411766, 0.16862746, 1, 0.9098039, 0.75686276, 0.4392157, 1)

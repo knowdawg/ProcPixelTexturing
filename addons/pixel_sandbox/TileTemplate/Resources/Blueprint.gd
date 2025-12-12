@@ -1,6 +1,10 @@
 extends Resource
 class_name Blueprint
 
+#BLUEPRINTS CURRENTLY DONT WORK WITH THE NEW STURCTURE OF TERRAIN RENDERING
+#TO GET THEM TO WORK, LOOK AT THE TerrainRendering.calculateEnviermentalTexture FUNCTION
+#BOTH FOREGROUND AND BACKGROUND IMAGES ARE 1 NOW SO THEY NEED TO BE COMBINED IN THE BLUEPRINTS AS WELL
+
 
 @export var imageForground : Image
 @export var imageBackground : Image
@@ -32,5 +36,5 @@ func generateThumbnatil():
 	rect.size = imageForground.get_size().max(imageBackground.get_size())
 	rect.position = position
 	
-	thumbnailRIDForeground = TerrainRendering.calculateEnviermentalTexture(rect, imageForground, 0)
-	thumbnailRIDBackground = TerrainRendering.calculateEnviermentalTexture(rect, imageBackground, 0)
+	#thumbnailRIDForeground = TerrainRendering.calculateEnviermentalTexture(rect, imageForground, 0)
+	#thumbnailRIDBackground = TerrainRendering.calculateEnviermentalTexture(rect, imageBackground, 0)

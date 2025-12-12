@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=4 uid="uid://c726gqd04n3yb"]
+[gd_scene load_steps=21 format=4 uid="uid://c726gqd04n3yb"]
 
 [ext_resource type="Script" uid="uid://c4eeak2ynu8a3" path="res://TextureChunking/Scripts/world_2d.gd" id="1_aboe0"]
 [ext_resource type="Script" uid="uid://b1381eapkmqjg" path="res://Test/FPSLabel.gd" id="1_dvw3m"]
@@ -10,10 +10,8 @@
 [ext_resource type="PackedScene" uid="uid://bywyhourisvim" path="res://addons/pixel_sandbox/Scenes/Sun/sun.tscn" id="7_k60dn"]
 [ext_resource type="PackedScene" uid="uid://bs3ob7drvovjj" path="res://addons/pixel_sandbox/Scenes/SDFGenerator/sdf_generator.tscn" id="8_hcy24"]
 [ext_resource type="Script" uid="uid://bviw0a8f2omnc" path="res://TextureChunking/Scripts/ScalingCamera.gd" id="8_xil5r"]
-[ext_resource type="PackedScene" uid="uid://b22snyd5lo4mp" path="res://addons/pixel_sandbox/Scenes/GlobalIllumination/global_illumination.tscn" id="9_u2jdx"]
 [ext_resource type="Script" uid="uid://dcqeltww30kok" path="res://addons/pixel_sandbox/Scenes/RadianceCascades/radiance_cascades.gd" id="10_txt8w"]
 [ext_resource type="Script" uid="uid://6j0j7o7cce52" path="res://point_light_2d.gd" id="11_yxens"]
-[ext_resource type="PackedScene" uid="uid://dnfswhfd50ime" path="res://addons/pixel_sandbox/TileTemplate/tile_template_ui.tscn" id="16_txt8w"]
 [ext_resource type="Script" uid="uid://u6j2w1st0jpy" path="res://TextureChunking/Scripts/gui.gd" id="20_16l4g"]
 [ext_resource type="PackedScene" uid="uid://dh6xi3guhnl61" path="res://WorldSelectionUI/world_selection_ui.tscn" id="23_lpvph"]
 
@@ -114,13 +112,6 @@ height = 1.0
 
 [node name="RadianceCascades" type="Node" parent="World2D/SDFGenerator"]
 script = ExtResource("10_txt8w")
-cascadeCount = null
-initialCascadeRayCount = null
-initailCascadeRayLength = null
-initialCascadeResolution = null
-
-[node name="GlobalIllumination" parent="World2D" node_paths=PackedStringArray("sdfGen") instance=ExtResource("9_u2jdx")]
-sdfGen = NodePath("../SDFGenerator")
 
 [node name="MouseLight" type="PointLight2D" parent="World2D"]
 texture = SubResource("GradientTexture2D_bnr5j")
@@ -134,8 +125,6 @@ anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 script = ExtResource("20_16l4g")
-
-[node name="TileTemplateUI" parent="GUI" instance=ExtResource("16_txt8w")]
 
 [node name="FPSLabalLayer" type="CanvasLayer" parent="GUI"]
 

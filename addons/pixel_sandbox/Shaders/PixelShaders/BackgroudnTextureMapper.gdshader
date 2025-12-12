@@ -121,14 +121,14 @@ void fragment() {
 	vec4 self = texture(TEXTURE, qUV);
 	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
 	
-	float disToEdge = (self.a - 0.5) * 2.0;
-	disToEdge = clamp(disToEdge, 0.0, 1.0);
-	disToEdge += 0.1;
+	//float disToEdge = (self.a - 0.5) * 2.0;
+	//disToEdge = clamp(disToEdge, 0.0, 1.0);
+	//disToEdge += 0.1;
 	vec2 dir = angleToVec2(self.b);
 	
-	if(disToEdge < 1.0){
-		qUV += (dir * clamp(1.0 - disToEdge, 0.0, 1.0)) * warp * textureScalling;
-	}
+	//if(disToEdge < 1.0){
+		//qUV += (dir * clamp(1.0 - disToEdge, 0.0, 1.0)) * warp * textureScalling;
+	//}
 	
 	vec4 c = vec4(1.0);
 	c = getColor(type, qUV, self, NORMAL_MAP);
@@ -145,9 +145,9 @@ void fragment() {
 	vec3 nVal = directionToNormal(dir);
 	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
 	
-	disToEdge += 0.2;
-	disToEdge = clamp(disToEdge, 0.0, 1.0);
-	NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge);
+	//disToEdge += 0.2;
+	//disToEdge = clamp(disToEdge, 0.0, 1.0);
+	//NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge);
 }
 
 

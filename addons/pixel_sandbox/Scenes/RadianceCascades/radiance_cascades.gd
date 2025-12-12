@@ -25,26 +25,27 @@ func _ready() -> void:
 	setup()
 
 func _process(_delta: float) -> void:
-	updateGlobalIllumination()
+	return
+	#updateGlobalIllumination()
 
-func updateGlobalIllumination():
-	for i in range(len(cascadeImageRIDs)):
-		#Find an elegant way to get a light image and thus a light sdf as well
-		var lightSDF : RDUniform = TerrainRendering.getUniformImage(bitmap1RID, 0)
-		var lightImage : RDUniform = TerrainRendering.getUniformImage(bitmap2RID, 1)
-		var outputIm : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[i], 2)
-		
-		var paramsData := PackedFloat32Array([])
-		var params := TerrainRendering.getRIDStorageBufferFloat(paramsData, rd)
-		var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 3)
-		
-		
-		var uniformSet : RID = rd.uniform_set_create([lightSDF, lightImage, outputIm, paramUniform], cascadeShader, 0)
-		var computeList : int = rd.compute_list_begin()
-		
-		TerrainRendering.executeComputeShader(workGroups, rd, computeList, cascadePipeline, uniformSet)
-		
-		rd.free_rid(params)
+#func updateGlobalIllumination():
+	#for i in range(len(cascadeImageRIDs)):
+		##Find an elegant way to get a light image and thus a light sdf as well
+		#var lightSDF : RDUniform = TerrainRendering.getUniformImage(bitmap1RID, 0)
+		#var lightImage : RDUniform = TerrainRendering.getUniformImage(bitmap2RID, 1)
+		#var outputIm : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[i], 2)
+		#
+		#var paramsData := PackedFloat32Array([])
+		#var params := TerrainRendering.getRIDStorageBufferFloat(paramsData, rd)
+		#var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 3)
+		#
+		#
+		#var uniformSet : RID = rd.uniform_set_create([lightSDF, lightImage, outputIm, paramUniform], cascadeShader, 0)
+		#var computeList : int = rd.compute_list_begin()
+		#
+		#TerrainRendering.executeComputeShader(workGroups, rd, computeList, cascadePipeline, uniformSet)
+		#
+		#rd.free_rid(params)
 
 func setup():
 	var imSize := initialCascadeResolution * initialCascadeRayCount

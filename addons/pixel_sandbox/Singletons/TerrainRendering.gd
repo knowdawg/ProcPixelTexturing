@@ -2,10 +2,6 @@ extends Node
 
 enum LAYER_TYPE {FOREGROUND, BACKGROUND}
 
-#Imaportant RID
-var textureForegroundRID : RID
-var textureBackgroundRID : RID
-
 var foregroundSDF : RID
 var backgroundSDF : RID
 
@@ -24,12 +20,26 @@ var mapSize : Vector2i = PixelSandboxSettings.mapSize
 var loadedRect : Rect2
 
 #World Objects
-var imageForeground : Image
-var imageBackground : Image
-var chunksForeground : Array
-var chunksBackground : Array
-var activeChunksForeground : Array[TextureChunk]
-var activeChunksBackground : Array[TextureChunk]
+
+var worldDataImage : Image
+"""
+worldDataImage:
+	r: foregroundTileID
+	g: backgroundTileID
+	b: extra, probably for foregroundTileDamage in the future
+	a: extra, probably for backgroundTileDamage in the future
+"""
+
+var worldVisualImageForegroundRID : RID
+var worldVisualImageBackgroundRID : RID
+"""
+worldVisualImage:
+	the actualy image that the user sees on the screen. This is the output of the generateTextureChunk shader
+"""
+
+
+var chunks : Array
+var activeChunks : Array[TextureChunk]
 var spriteForeground : Sprite2D
 var spriteBackground : Sprite2D
 var chunk = preload("uid://dafgjgn78ehp2")
@@ -41,17 +51,22 @@ var textureSize := Vector2i(256, 256)
 var foregroundTextureData : TextureData = load(PixelSandboxSettings.textureDataForeground)
 var backgroundTextureData : TextureData = load(PixelSandboxSettings.textureDataBackground)
 
+var textureUniformSet : RID
+var bufferUniformSet : RID
 
+var renDev : RenderingDevice
+var textureChunkShaderFile
+var textureChunkShader
+var persPipeline : RID
 
 #Constants
 var IMAGE_FORMAT : int = Image.FORMAT_RGBAF
 
 func dirtyAll():
-	var numOfChunks : Vector2i = Vector2i(chunksForeground.size(), chunksForeground[0].size())
+	var numOfChunks : Vector2i = Vector2i(chunks.size(), chunks[0].size())
 	for x in numOfChunks.x:
 		for y in numOfChunks.y:
-			chunksForeground[x][y].makeDirty()
-			chunksBackground[x][y].makeDirty()
+			chunks[x][y].makeDirty()
 
 #returns an image of the specified size filled with the specified material
 func generateSampleImage(tile : int, size : Vector2i) -> Image:
@@ -60,26 +75,95 @@ func generateSampleImage(tile : int, size : Vector2i) -> Image:
 	return im
 
 func contructTextureArrays():
+	
+	###---------TEXTURES---------###
+	var uniforms : Array[RDUniform] = []
+	
 	#Foreground
 	var tex2dArray := foregroundTextureData.getTextureArray(uniqueTiles)
 	var normal2dArray := foregroundTextureData.getNormalArray(uniqueTiles)
 	var gradient2dArray := foregroundTextureData.getGradientArray(uniqueTiles)
 	var borderColors := foregroundTextureData.getBorderTexture(uniqueTiles)
-	RenderingServer.global_shader_parameter_set("PS_FOREGROUND_TEXTURES", tex2dArray)
-	RenderingServer.global_shader_parameter_set("PS_FOREGROUND_NORMALS", normal2dArray)
-	RenderingServer.global_shader_parameter_set("PS_FOREGROUND_GRADIENTS", gradient2dArray)
-	RenderingServer.global_shader_parameter_set("PS_FOREGROUND_BORDER_COLORS", borderColors)
+	
+	uniforms.append({
+		"binding": 0,
+		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
+		"id": tex2dArray.get_rid()
+	})
+	uniforms.append({
+		"binding": 1,
+		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
+		"id": normal2dArray.get_rid()
+	})
+	uniforms.append({
+		"binding": 2,
+		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
+		"id": gradient2dArray.get_rid()
+	})
+	uniforms.append({
+		"binding": 3,
+		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
+		"id": borderColors.get_rid()
+	})
 	
 	#Background
 	tex2dArray = backgroundTextureData.getTextureArray(uniqueTiles)
 	normal2dArray = backgroundTextureData.getNormalArray(uniqueTiles)
 	gradient2dArray = backgroundTextureData.getGradientArray(uniqueTiles)
 	borderColors = backgroundTextureData.getBorderTexture(uniqueTiles)
-	RenderingServer.global_shader_parameter_set("PS_BACKGROUND_TEXTURES", tex2dArray)
-	RenderingServer.global_shader_parameter_set("PS_BACKGROUND_NORMALS", normal2dArray)
-	RenderingServer.global_shader_parameter_set("PS_BACKGROUND_GRADIENTS", gradient2dArray)
-	RenderingServer.global_shader_parameter_set("PS_BACKGROUND_BORDER_COLORS", borderColors)
 	
+	uniforms.append({
+		"binding": 4,
+		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
+		"id": tex2dArray.get_rid()
+	})
+	uniforms.append({
+		"binding": 5,
+		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
+		"id": normal2dArray.get_rid()
+	})
+	uniforms.append({
+		"binding": 6,
+		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
+		"id": gradient2dArray.get_rid()
+	})
+	uniforms.append({
+		"binding": 7,
+		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
+		"id": borderColors.get_rid()
+	})
+	
+	textureUniformSet = renDev.uniform_set_create(uniforms, textureChunkShader, 0)
+	
+	###---------ARRAYS---------###
+	var bufferUniforms : Array[RDUniform] = []
+	
+	var foregroundBorderParams : PackedVector2Array = foregroundTextureData.getBorderParamArray(uniqueTiles)
+	var backgroundBorderParams : PackedVector2Array = backgroundTextureData.getBorderParamArray(uniqueTiles)
+	var solidArray : PackedInt32Array = foregroundTextureData.getSolidArray(uniqueTiles)
+	
+	var borderParamsBufferForeground : RID = renDev.storage_buffer_create(foregroundBorderParams.size() * 8, foregroundBorderParams.to_byte_array())
+	var borderParamsBufferBackground : RID = renDev.storage_buffer_create(backgroundBorderParams.size() * 8, backgroundBorderParams.to_byte_array())
+	var solidBuffer : RID = renDev.storage_buffer_create(solidArray.size() * 4, solidArray.to_byte_array())
+	
+	bufferUniforms.append({
+		"binding": 0,
+		"type": RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER,
+		"id": borderParamsBufferForeground
+	})
+	bufferUniforms.append({
+		"binding": 1,
+		"type": RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER,
+		"id": borderParamsBufferBackground
+	})
+	bufferUniforms.append({
+		"binding": 2,
+		"type": RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER,
+		"id": solidBuffer
+	})
+	
+	bufferUniformSet = renDev.uniform_set_create(bufferUniforms, textureChunkShader, 1)
+
 
 func isPositionLoaded(pos : Vector2) -> bool:
 	if !loadedRect:
@@ -94,13 +178,13 @@ func _ready() -> void:
 	
 	RenderingServer.global_shader_parameter_set("PS_RENDER_QUADRANT_SIZE", Vector2(renderSectionSize, renderSectionSize))
 	RenderingServer.global_shader_parameter_set("PS_UNIQUE_TILES", uniqueTiles)
-	contructTextureArrays()
 	
 	#Setup pipeline for calculate Enviermental Textures
 	renDev = RenderingServer.get_rendering_device()
 	textureChunkShaderFile = load("uid://dvrxg8j3h7sl")
 	textureChunkShader = renDev.shader_create_from_spirv(textureChunkShaderFile.get_spirv())
 	persPipeline = renDev.compute_pipeline_create(textureChunkShader)
+	contructTextureArrays()
 	
 	
 	setupEnviromentObjects()
@@ -110,57 +194,39 @@ func _process(_delta: float) -> void:
 	updateLoadedRect()
 	updateTileTextureScrollAndSpritePosition()
 	
-	updateChunks(LAYER_TYPE.FOREGROUND)
-	updateChunks(LAYER_TYPE.BACKGROUND)
+	updateChunks()
 	
 	#if Input.is_action_just_pressed("ReloadTexture"):
 		#contructTextureArrays()
 
 func setupEnviromentObjects() -> void:
-	imageForeground = Image.create_empty(mapSize.x, mapSize.y, false, IMAGE_FORMAT)
-	imageForeground.fill(Color(0.0, 0.0, 0.0, 0.0))
-	imageForeground.decompress()
-	imageBackground = Image.create_empty(mapSize.x, mapSize.y, false, IMAGE_FORMAT)
-	imageBackground.fill(Color(0.0, 0.0, 0.0, 0.0))
-	imageBackground.decompress()
+	worldDataImage = Image.create_empty(mapSize.x, mapSize.y, false, IMAGE_FORMAT)
+	worldDataImage.fill(Color(0.0, 0.0, 0.0, 0.0))
+	worldDataImage.decompress()
 	
 	
 	var image = Image.create_empty(renderSectionSize, renderSectionSize, false, IMAGE_FORMAT);
 	image.fill(Color.BLACK)
-	textureForegroundRID = TerrainRendering.getRIDImage(image, renDev)
+	worldVisualImageForegroundRID = TerrainRendering.getRIDImage(image, renDev)
 	
 	var image2 = Image.create_empty(renderSectionSize, renderSectionSize, false, IMAGE_FORMAT);
 	image2.fill(Color.BLACK)
-	textureBackgroundRID = TerrainRendering.getRIDImage(image2, renDev)
+	worldVisualImageBackgroundRID = TerrainRendering.getRIDImage(image2, renDev)
 	
 
 func setupChunks() -> void:
 	var numOfChunks : Vector2 = ceil(TerrainRendering.mapSize / float(TerrainRendering.chunkSize))
 	for x in numOfChunks.x:
-		chunksForeground.append([])
-		chunksBackground.append([])
+		chunks.append([])
 		for y in numOfChunks.y:
 			var cFor : TextureChunk = chunk.instantiate()
-			var cBack : TextureChunk = chunk.instantiate()
-			chunksForeground[x].append(cFor)
-			chunksBackground[x].append(cBack)
+			chunks[x].append(cFor)
 			add_child(cFor)
-			add_child(cBack)
-			cFor.setup(chunkSize, outlineBufferSize, Vector2(x,y), LAYER_TYPE.FOREGROUND)
-			cBack.setup(chunkSize, outlineBufferSize, Vector2(x,y), LAYER_TYPE.BACKGROUND)
+			cFor.setup(chunkSize, outlineBufferSize, Vector2(x,y))
 
-func updateChunks(layer : LAYER_TYPE) -> void:
+func updateChunks() -> void:
 	if !is_instance_valid(get_viewport().get_camera_2d()):
 		return
-		
-	var activeChunks : Array[TextureChunk]
-	var chunks : Array
-	if layer == LAYER_TYPE.FOREGROUND:
-		activeChunks = activeChunksForeground
-		chunks = chunksForeground
-	elif layer == LAYER_TYPE.BACKGROUND:
-		activeChunks = activeChunksBackground
-		chunks = chunksBackground
 	
 	var cameraPos := get_viewport().get_camera_2d().get_screen_center_position()
 	var prevActiveChunks : Array[TextureChunk] = activeChunks.duplicate()
@@ -193,60 +259,46 @@ func updateChunks(layer : LAYER_TYPE) -> void:
 		c.updateChunk()
 
 
-func getChunkImage(coord : Vector2i, layer : LAYER_TYPE) -> Image:
+func getChunkImage(coord : Vector2i) -> Image:
 	var offset = (coord * TerrainRendering.chunkSize) - Vector2i(TerrainRendering.outlineBufferSize, TerrainRendering.outlineBufferSize)
 	var chunkTotalSize = TerrainRendering.chunkSize + ((TerrainRendering.outlineBufferSize) * 2)
-	var chunkImage = Image.create_empty(chunkTotalSize, chunkTotalSize, false, Image.FORMAT_RGBAF)
+	var chunkImage = Image.create_empty(chunkTotalSize, chunkTotalSize, false, Image.FORMAT_RGBA8)
 	chunkImage.decompress()
 	
-	if layer == LAYER_TYPE.FOREGROUND:
-		chunkImage.blit_rect(imageForeground, Rect2i(offset, Vector2i(chunkTotalSize, chunkTotalSize)), Vector2i.ZERO)
-	if layer == LAYER_TYPE.BACKGROUND:
-		chunkImage.blit_rect(imageBackground, Rect2i(offset, Vector2i(chunkTotalSize, chunkTotalSize)), Vector2i.ZERO)
+	chunkImage.blit_rect(worldDataImage, Rect2i(offset, Vector2i(chunkTotalSize, chunkTotalSize)), Vector2i.ZERO)
 	
 	return chunkImage
 
-func getPixel(pos : Vector2i, layer : LAYER_TYPE) -> int:
-	var mapImage : Image
-	if layer == LAYER_TYPE.FOREGROUND:
-		mapImage = imageForeground
-	if layer == LAYER_TYPE.BACKGROUND:
-		mapImage = imageBackground
+func getPixel(pos : Vector2i) -> Color:
 	
-	if pos.x < 0 or pos.x > mapImage.get_size().x - 1:
-		return -1
-	if pos.y < 0 or pos.y > mapImage.get_size().y - 1:
-		return -1
+	if pos.x < 0 or pos.x > worldDataImage.get_size().x - 1:
+		return Color(0.0, 0.0, 0.0, 0.0)
+	if pos.y < 0 or pos.y > worldDataImage.get_size().y - 1:
+		return Color(0.0, 0.0, 0.0, 0.0)
 	
-	var val : float = mapImage.get_pixelv(pos).r
+	var val : Color = worldDataImage.get_pixelv(pos)
 	
-	return int(val * TerrainRendering.uniqueTiles) - 1
+	return val
 
 func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE):
-	var chunks : Array
-	var mapImage : Image
-	if layer == LAYER_TYPE.FOREGROUND:
-		chunks = chunksForeground
-		mapImage = imageForeground
-	if layer == LAYER_TYPE.BACKGROUND:
-		chunks = chunksBackground
-		mapImage = imageBackground
-	
-	var tilePos : Vector2i = pos#local_to_map(pos)
 	
 	#update Pixel on the image
-	if tilePos.x < 0 or tilePos.x > mapImage.get_size().x - 1:
+	if pos.x < 0 or pos.x > worldDataImage.get_size().x - 1:
 		return
-	if tilePos.y < 0 or tilePos.y > mapImage.get_size().y - 1:
+	if pos.y < 0 or pos.y > worldDataImage.get_size().y - 1:
 		return
-	if tileIndex == -1:
-		mapImage.set_pixel(tilePos.x, tilePos.y, Color(0.0, 0.0, 0.0, 0.0))
-	else:
-		mapImage.set_pixelv(Vector2i(tilePos.x, tilePos.y), Color((tileIndex + 1.0) * (1.0 / float(TerrainRendering.uniqueTiles)), 0.0, 0.0, 1.0))
+	
+	var indexFloat : float = clamp((float(tileIndex) / 255.0), 0.0, 1.0)
+	var prevCol : Color = getPixel(pos)
+	
+	if layer == LAYER_TYPE.FOREGROUND:
+		worldDataImage.set_pixel(pos.x, pos.y, Color(indexFloat, prevCol.g, 0.0, 0.0))
+	elif layer == LAYER_TYPE.BACKGROUND:
+		worldDataImage.set_pixel(pos.x, pos.y, Color(prevCol.r, indexFloat, 0.0, 0.0))
 	
 	
 	#Dirty the chunk with the tile
-	var chunkPos : Vector2 = (Vector2(tilePos)) / float(TerrainRendering.chunkSize)
+	var chunkPos : Vector2 = (Vector2(pos)) / float(TerrainRendering.chunkSize)
 	var chunkCoord : Vector2i = floor(chunkPos)
 	if isChunkInBounds(chunkCoord):
 		chunks[chunkCoord.x][chunkCoord.y].makeDirty()
@@ -280,7 +332,7 @@ func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE):
 		chunks[chunkCoord.x + 1][chunkCoord.y + 1].makeDirty()
 
 func isChunkInBounds(chunkCoord):
-	if chunkCoord.x >= 0 and chunkCoord.x < chunksForeground.size() and chunkCoord.y >= 0 and chunkCoord.y < chunksForeground[0].size():
+	if chunkCoord.x >= 0 and chunkCoord.x < chunks.size() and chunkCoord.y >= 0 and chunkCoord.y < chunks[0].size():
 		return true
 	return false
 
@@ -325,7 +377,7 @@ func updateLoadedRect() -> void:
 		else:
 			newLoadedRect.position.y = topLeftChunkCoord.y * chunkSize
 		if topLeftChunkCoord.x >= 0 and topLeftChunkCoord.y >= 0:
-			newLoadedRect.position = chunksForeground[topLeftChunkCoord.x][topLeftChunkCoord.y].global_position
+			newLoadedRect.position = chunks[topLeftChunkCoord.x][topLeftChunkCoord.y].global_position
 		loadedRect = newLoadedRect
 	
 
@@ -333,41 +385,35 @@ func worldToChunk(pos : Vector2) -> Vector2i:
 	var chunkCoord := Vector2i(pos) / chunkSize
 	return chunkCoord
 
-func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image, layer : LAYER_TYPE):
-	var textureRID : RID
-	if layer == LAYER_TYPE.FOREGROUND:
-		textureRID = textureForegroundRID
-	if layer == LAYER_TYPE.BACKGROUND:
-		textureRID = textureBackgroundRID
-	
+
+#Recives a section of the worldDataImage and updates the visual output based on that info
+func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	#Chunk Data Setup
 	var chunkData := PackedInt32Array([chunkCoord.x, chunkCoord.y, TerrainRendering.chunkSize, TerrainRendering.outlineBufferSize])
 	var chunkDataRID : RID = TerrainRendering.getRIDStorageBufferInt(chunkData, renDev)
-	var chunkDataUniform := TerrainRendering.getUniformStorageBufferInt(chunkDataRID, 0)
+	var chunkDataUniform : RDUniform = TerrainRendering.getUniformStorageBufferInt(chunkDataRID, 0)
 	
 	#TileImage Setup
 	var tileImageRID : RID = TerrainRendering.getRIDImage(tileImage, renDev)
 	var tileImageUniform : RDUniform = TerrainRendering.getUniformImage(tileImageRID, 1)
 	
 	#Output Buffer Setup
-	var outputUniform := TerrainRendering.getUniformImage(textureRID, 2)
+	var outputForeground : RDUniform = TerrainRendering.getUniformImage(worldVisualImageForegroundRID, 2)
+	var outputBackground : RDUniform = TerrainRendering.getUniformImage(worldVisualImageBackgroundRID, 3)
 	
-	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniform], textureChunkShader, 0)
+	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputForeground, outputBackground], textureChunkShader, 2)
 	var computeList = renDev.compute_list_begin()
 	
-	var w = sqrt(float(TerrainRendering.chunkSize * TerrainRendering.chunkSize) / float(8 * 8))
+	var w : int = int(ceil(float(TerrainRendering.chunkSize) / 8.0))
 	var workgroups := Vector3i(int(w), int(w), 1)
 	TerrainRendering.executeComputeShader(workgroups, renDev, computeList, persPipeline, uniformSet)
 	
 	renDev.free_rid(chunkDataRID)
 	renDev.free_rid(tileImageRID)
 
-var renDev : RenderingDevice
-var textureChunkShaderFile
-var textureChunkShader
-var persPipeline : RID
-func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, outlineSize : int) -> RID:
-	#var rectPos := calculateRect.position
+
+#A version of executeTextureChunkShader for blueprints that writes to a seperate output buffer instead of the main visual immage
+func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, outlineSize : int) -> Array[RID]:
 	var rectSize := calculateRect.size
 	var maxDimention : int = max(rectSize.x, rectSize.y)
 	var centerOffset := -(rectSize - Vector2i(maxDimention, maxDimention))
@@ -382,23 +428,27 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 	var tileImageUniform : RDUniform = getUniformImage(tileImageRID, 1)
 	
 	#Output Buffer Setup
-	var outputImage : Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBAF)
-	outputImage.fill(Color.BLACK)
-	var outputImageRID : RID = getRIDImage(outputImage, renDev)
-	var outputUniform := getUniformImage(outputImageRID, 2)
+	var outputImageForeground : Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBAF)
+	outputImageForeground.fill(Color.BLACK)
+	var outputImageForegroundRID : RID = getRIDImage(outputImageForeground, renDev)
+	var outputUniformForeground := getUniformImage(outputImageForegroundRID, 2)
 	
-	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniform], textureChunkShader, 0)
+	var outputImageBackground: Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBAF)
+	outputImageBackground.fill(Color.BLACK)
+	var outputImageBackgroundRID : RID = getRIDImage(outputImageBackground, renDev)
+	var outputUniformBackground := getUniformImage(outputImageBackgroundRID, 3)
+	
+	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniformForeground, outputUniformBackground], textureChunkShader, 2)
 	var computeList = renDev.compute_list_begin()
 	
-	var w = sqrt(float(maxDimention * maxDimention) / float(8 * 8))
-	w += 1
+	var w : int = int(ceil(float(TerrainRendering.chunkSize) / 8.0))
 	var workgroups := Vector3i(int(w), int(w), 1)
 	executeComputeShader(workgroups, renDev, computeList, persPipeline, uniformSet)
 	
 	renDev.free_rid(chunkDataRID)
 	renDev.free_rid(tileImageRID)
 	
-	return outputImageRID
+	return [outputImageForegroundRID, outputImageBackgroundRID]
 
 
 

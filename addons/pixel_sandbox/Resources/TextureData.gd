@@ -57,6 +57,20 @@ func getBorderTexture(numOfTextures : int) -> ImageTexture:
 	
 	return bcTex
 
+func getBorderParamArray(numOfTextures : int) -> PackedVector2Array:
+	var borderParams : Array[Vector2] = []
+	for i in range(numOfTextures):
+		borderParams.append(getBorderParams(i))
+	
+	return PackedVector2Array(borderParams)
+
+func getSolidArray(numOfTextures : int) -> PackedInt32Array:
+	var solidArray : Array[bool] = []
+	for i in range(numOfTextures):
+		solidArray.append(isIndexSolid(i))
+	
+	return PackedInt32Array(solidArray)
+
 func getTexture(index : int) -> Texture2D:
 	if index < materials.size():
 		return materials[index].texture
@@ -79,3 +93,13 @@ func getBorder(index : int) -> Color:
 	if index < materials.size():
 		return materials[index].border
 	return Color.DEEP_PINK
+
+func getBorderParams(index : int) -> Vector2:
+	if index < materials.size():
+		return Vector2(materials[index].borderSize, materials[index].borderWeight)
+	return Vector2(4.0, 0.2)
+
+func isIndexSolid(index : int) -> bool:
+	if index < materials.size():
+		return materials[index].isSolid
+	return true

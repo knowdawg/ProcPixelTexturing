@@ -5,17 +5,33 @@
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 
-layout(set = 0, binding = 0, std430) readonly buffer ChunkData {
+//Set 0: Constant Textures
+layout(set = 0, binding = 0) uniform sampler2DArray tex2dArrayForeground;
+layout(set = 0, binding = 1) uniform sampler2DArray normal2dArrayForeground;
+layout(set = 0, binding = 2) uniform sampler2DArray gradient2dArrayForeground;
+layout(set = 0, binding = 3) uniform sampler2DArray borderColorsForeground;
+
+layout(set = 0, binding = 4) uniform sampler2DArray tex2dArrayBackground;
+layout(set = 0, binding = 5) uniform sampler2DArray normal2dArrayBackground;
+layout(set = 0, binding = 6) uniform sampler2DArray gradient2dArrayBackground;
+layout(set = 0, binding = 7) uniform sampler2DArray borderColorsBackground;
+
+//Set 1: Constant Storage Buffers
+layout(std430, set = 1, binding = 0) buffer BorderParamsForeground { vec2 borderParamsForeground[]; };
+layout(std430, set = 1, binding = 1) buffer BorderParamsBackground { vec2 borderParamsBackground[]; };
+layout(std430, set = 1, binding = 2) buffer SolidBuffer { uint solids[]; };
+
+//Set 2: Variable Uniforms
+layout(set = 2, binding = 0, std430) readonly buffer ChunkData {
     int chunkCoordX;
     int chunkCoordY;
     int chunkSize;
     int outlineBufferSize;
 }
 chunkData;
-
-layout(set = 0, binding = 1, rgba32f) uniform readonly image2D TileImage;
-
-layout(set = 0, binding = 2, rgba32f) uniform writeonly image2D OutputBuffer;
+layout(set = 2, binding = 1, rgba32f) uniform readonly image2D TileImage;
+layout(set = 2, binding = 2, rgba32f) uniform writeonly image2D OutputBufferForeground;
+layout(set = 2, binding = 3, rgba32f) uniform writeonly image2D OutputBufferBackground;
 
 
 int getPixelType(ivec2 uv, float tileTexVal){
@@ -92,7 +108,14 @@ void main() {
 	COLOR.r = tileTexVal;
 	COLOR.g = float(pixelType) / 3.0;
 	COLOR.b = angleToEdge;
-	COLOR.a = (disToEdge * 0.5) + 0.5;
+	//COLOR.a = (disToEdge * 0.5) + 0.5;
+
+
+	//Use the alpha channel for light emision on a tile
+	COLOR.a = 0.0; //replace with the tiles emission
+	if(tileTexVal == 0.0){ //if no tile, then you are background
+		COLOR.a = 1.0;
+	}
 
     ivec2 chunkOffsetUV = ivec2(chunkData.chunkCoordX, chunkData.chunkCoordY) * chunkData.chunkSize;
     chunkOffsetUV += UV;
