@@ -15,7 +15,7 @@ func _ready() -> void:
 	for x in tilemapSize.x:
 		for y in tilemapSize.y:
 			var coord := Vector2i(x, y) + offset
-			var index = get_cell_source_id(coord)
+			var index = get_cell_source_id(coord) + 1
 			if index == -1:
 				TerrainRendering.setPixel(coord, -1, layer)
 			else:

@@ -20,6 +20,7 @@ func getTextureArray(numOfTextures : int) -> Texture2DArray:
 	
 	tex2dArray.create_from_images(imageArray)
 	
+	
 	return tex2dArray
 
 func getNormalArray(numOfTextures : int) -> Texture2DArray:
@@ -48,14 +49,14 @@ func getGradientArray(numOfTextures : int) -> Texture2DArray:
 	
 	return tex2dArray
 
-func getBorderTexture(numOfTextures : int) -> ImageTexture:
+func getBorderTexture(numOfTextures : int) -> Image:
 	var borderColors : Image = Image.create_empty(numOfTextures, 1, false, Image.FORMAT_RGBA8)
 	for i in range(numOfTextures):
 		borderColors.set_pixel(i, 0, getBorder(i))
 	
-	var bcTex : ImageTexture = ImageTexture.create_from_image(borderColors)
+	#var bcTex : ImageTexture = ImageTexture.create_from_image(borderColors)
 	
-	return bcTex
+	return borderColors
 
 func getBorderParamArray(numOfTextures : int) -> PackedVector2Array:
 	var borderParams : Array[Vector2] = []
@@ -70,6 +71,16 @@ func getSolidArray(numOfTextures : int) -> PackedInt32Array:
 		solidArray.append(isIndexSolid(i))
 	
 	return PackedInt32Array(solidArray)
+
+func getLightEmissionTexture(numOfTextures : int) -> Image:
+	var emissionColors : Image = Image.create_empty(numOfTextures, 1, false, Image.FORMAT_RGBA8)
+	for i in range(numOfTextures):
+		emissionColors.set_pixel(i, 0, getLightEmission(i))
+	
+	return emissionColors
+
+
+
 
 func getTexture(index : int) -> Texture2D:
 	if index < materials.size():
@@ -103,3 +114,8 @@ func isIndexSolid(index : int) -> bool:
 	if index < materials.size():
 		return materials[index].isSolid
 	return true
+
+func getLightEmission(index : int) -> Color:
+	if index < materials.size():
+		return materials[index].lightEmission
+	return Color(0.0, 0.0, 0.0, 0.0)

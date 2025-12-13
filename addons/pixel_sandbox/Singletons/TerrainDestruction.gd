@@ -23,7 +23,7 @@ func addTileImage(worldPosition : Vector2, image : Image, tilemapType : int, ski
 				if skipBlank:
 					continue
 				pixel.r = 0.0
-			var tile : int = int(floor(pixel.r * TerrainRendering.uniqueTiles)) - 1
+			var tile : int = int(floor(pixel.r * TerrainRendering.uniqueTiles))
 			addTile(curPos, tile, tilemapType)
 
 func addTileBitmap(worldPosition : Vector2, tileIndex : int, bitmap : BitMap, tilemapType : int):
@@ -52,9 +52,9 @@ func addTileRadius(worldPosition : Vector2, tileIndex : int, radius : int, tilem
 func addTile(worldPosition : Vector2, tileIndex : int, tilemapType : int, forceDesruction : bool = false) -> int:
 	var prevTile : int
 	if tilemapType == FOREGROUND:
-		prevTile = TerrainRendering.getPixel(worldPosition, TerrainRendering.LAYER_TYPE.FOREGROUND)
+		prevTile = int((TerrainRendering.getPixel(worldPosition).r * 255.0) + 0.5)
 		TerrainRendering.setPixel(worldPosition, tileIndex, TerrainRendering.LAYER_TYPE.FOREGROUND)
 	if tilemapType == BACKGROUND:
-		prevTile = TerrainRendering.getPixel(worldPosition, TerrainRendering.LAYER_TYPE.BACKGROUND)
+		prevTile = int((TerrainRendering.getPixel(worldPosition).g * 255.0) + 0.5)
 		TerrainRendering.setPixel(worldPosition, tileIndex, TerrainRendering.LAYER_TYPE.BACKGROUND)
 	return prevTile

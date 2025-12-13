@@ -21,66 +21,66 @@ uniform float warp : hint_range(-1.0, 1.0) = -0.03;
 varying vec2 screenSize;
 varying vec4 screen;
 
-vec4 getColor(int type, vec2 uv, vec4 self, float disToEdge, inout vec3 normal){
-	vec4 c = vec4(1.0);
-	vec2 offsetUV = uv * (PS_RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
-	float tileIndex = self.r * float(PS_UNIQUE_TILES);
-	tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
-	
-	vec3 arrayUV = vec3(offsetUV, tileIndex);
-	
-	vec4 border = texture(PS_FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(PS_UNIQUE_TILES)), 0.0));
-	vec4 tVal = texture(PS_FOREGROUND_TEXTURES, arrayUV);
-	vec4 nVal = texture(PS_FOREGROUND_NORMALS, arrayUV);
-	
-	switch(type){
-		case 0:
-			c.a = 0.0;
-			break;
-		case 1:
-			c = vec4(0.0, 0.0, 0.0, 1.0);
-			break;
-		case 2:
-			c = border;
-			normal = nVal.rgb;
-			break;
-		case 3:
-			normal = nVal.rgb;
-			tVal.r = (tVal.r * 0.75) + (1.0 - step((0.5 + tVal.r) * (5.0 / PS_RENDER_QUADRANT_SIZE.x), disToEdge)) * 0.25;
-			c = texture(PS_FOREGROUND_GRADIENTS, vec3(vec2(tVal.r), tileIndex));
-			break;
-		default:
-			c.a = 0.0;
-			break;
-	}
-	
-	
-	return c;
-}
+//vec4 getColor(int type, vec2 uv, vec4 self, float disToEdge, inout vec3 normal){
+	//vec4 c = vec4(1.0);
+	//vec2 offsetUV = uv * (PS_RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
+	//float tileIndex = self.r * float(PS_UNIQUE_TILES);
+	//tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
+	//
+	//vec3 arrayUV = vec3(offsetUV, tileIndex);
+	//
+	//vec4 border = texture(PS_FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(PS_UNIQUE_TILES)), 0.0));
+	//vec4 tVal = texture(PS_FOREGROUND_TEXTURES, arrayUV);
+	//vec4 nVal = texture(PS_FOREGROUND_NORMALS, arrayUV);
+	//
+	//switch(type){
+		//case 0:
+			//c.a = 0.0;
+			//break;
+		//case 1:
+			//c = vec4(0.0, 0.0, 0.0, 1.0);
+			//break;
+		//case 2:
+			//c = border;
+			//normal = nVal.rgb;
+			//break;
+		//case 3:
+			//normal = nVal.rgb;
+			//tVal.r = (tVal.r * 0.75) + (1.0 - step((0.5 + tVal.r) * (5.0 / PS_RENDER_QUADRANT_SIZE.x), disToEdge)) * 0.25;
+			//c = texture(PS_FOREGROUND_GRADIENTS, vec3(vec2(tVal.r), tileIndex));
+			//break;
+		//default:
+			//c.a = 0.0;
+			//break;
+	//}
+	//
+	//
+	//return c;
+//}
 
-vec2 angleToVec2(float angle){
-	float angRad = angle;
-	if(angle < 0.5){
-		angRad *= 2.0; //back to 0-1
-		angRad -= 0.5; //back to -0.5-0.5
-		angRad *= PI; //Final: -PI/2 to PI/2
-	}else{
-		angRad -= 0.5; //back to 0-0.5
-		angRad *= 2.0; //back to 0-1
-		angRad *= PI; //back to 0 to PI
-		angRad += PI / 2.0; //PI/2 to 3PI/2
-	}
-	
-	//angle * TAU;
-	return(vec2(cos(angRad), sin(angRad)));
-}
+//vec2 angleToVec2(float angle){
+	//float angRad = angle;
+	//if(angle < 0.5){
+		//angRad *= 2.0; //back to 0-1
+		//angRad -= 0.5; //back to -0.5-0.5
+		//angRad *= PI; //Final: -PI/2 to PI/2
+	//}else{
+		//angRad -= 0.5; //back to 0-0.5
+		//angRad *= 2.0; //back to 0-1
+		//angRad *= PI; //back to 0 to PI
+		//angRad += PI / 2.0; //PI/2 to 3PI/2
+	//}
+	//
+	////angle * TAU;
+	//return(vec2(cos(angRad), sin(angRad)));
+//}
 
-vec3 directionToNormal(vec2 direction) {
-	vec2 inverted_direction = ((direction * vec2(1.0, -1.0)) + 1.0) * 0.5;
-	float z = sqrt(1.0 - clamp(dot(inverted_direction, inverted_direction), 0.0, 1.0));
-	
-	return normalize(vec3(inverted_direction, z));
-}
+//vec3 directionToNormal(vec2 direction) {
+	//vec2 inverted_direction = ((direction * vec2(1.0, -1.0)) + 1.0) * 0.5;
+	//float z = sqrt(1.0 - clamp(dot(inverted_direction, inverted_direction), 0.0, 1.0));
+	//
+	//return normalize(vec3(inverted_direction, z));
+//}
 
 void fragment() {
 	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
@@ -89,136 +89,86 @@ void fragment() {
 	qUV = floor(qUV * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE;
 	
 	vec4 self = texture(TEXTURE, qUV);
-	int type = int(round((self.g) * 3.0)); //might have some floating point inacuracies here...
 	
-	float disToEdge = texture(PS_FOREGROUND_SDF, floor(UV * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE).r;
-	
-	
-	vec2 dir = angleToVec2(self.b);
-	
-	//if(disToEdge < 0.01){
-		//qUV += smoothstep(0.99, 1.0, 1.0 - disToEdge) * warp * textureScalling * dir * -0.5;
-	//}
-	//float warpAmount = smoothstep(0.95, 1.0, 1.0 - disToEdge) * warp * textureScalling;
-	//qUV += warpAmount * warp * textureScalling;
-	
-	
-	vec4 c = vec4(1.0);
-	c = getColor(type, qUV, self, disToEdge, NORMAL_MAP);
-	
-	if(type == 1){
-		c = vec4(0.0, 0.0, 0.0, 1.0);
-	}
-	
-	screenSize = SCREEN_PIXEL_SIZE;
-	screen = c * modulate;
-	
-	COLOR = c * modulate;
-	
-	vec3 nVal = directionToNormal(dir);
-	nVal = clamp(nVal, vec3(0.0), vec3(1.0));
-	
-	//disToEdge = smoothstep(0.0, 0.01, disToEdge);
-	//disToEdge = step(0.005, disToEdge);
-	//disToEdge = clamp(disToEdge + 0.5, 0.0, 1.0);
-	//
-	//NORMAL_MAP.xy = mix(nVal.xy, NORMAL_MAP.xy, disToEdge); //modify normal to face outwards slightly. Curently creates a "teething" effect for slopes
-	//
-	
-	//NORMAL_MAP = nVal;
-	//COLOR.rg = NORMAL_MAP.xy;
-	//COLOR.b = 1.0;
-	
-	//COLOR = vec4(texture(PS_FOREGROUND_SDF, UV).r, 0.0, 0.0, 1.0);
-	
+	COLOR = self;
+}
+
+
+//void light() {
 	//vec2 screenCenter = vec2(0.5, 0.5);
 	//vec2 unzoomedUV = screenCenter + (SCREEN_UV - screenCenter) / PS_CAMERA_ZOOM;
-	//vec2 lightMapTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION; //Get rid of world pos?
-	//lightMapTexturePos /= PS_RENDER_QUADRANT_SIZE;
-	//lightMapTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-	//lightMapTexturePos = fract(lightMapTexturePos);
+	//vec2 unzoomedLightPos = screenCenter + ((LIGHT_POSITION.xy * screenSize) - screenCenter) / PS_CAMERA_ZOOM;
 	//
-	//float lightVal = texture(PS_GLOBAL_ILLUMINATION, lightMapTexturePos).r;
+	////Setup the variables for SDF Raymarching
+	//vec2 lightPosNormalized = unzoomedLightPos.xy;
+	//vec2 angleVector = normalize(lightPosNormalized - unzoomedUV);
+	//float sdfVal = 0.0;
+	//float intensity = 1.0;
+	//float distanceNeededToTravel = length(lightPosNormalized - unzoomedUV);
+	//float disTraveled = 0.0;
+//
+	//float finished = 0.0;
 	//
-	//COLOR = vec4(vec3(lightVal), 1.0);
-}
-
-
-void light() {
-	vec2 screenCenter = vec2(0.5, 0.5);
-	vec2 unzoomedUV = screenCenter + (SCREEN_UV - screenCenter) / PS_CAMERA_ZOOM;
-	vec2 unzoomedLightPos = screenCenter + ((LIGHT_POSITION.xy * screenSize) - screenCenter) / PS_CAMERA_ZOOM;
-	
-	//Setup the variables for SDF Raymarching
-	vec2 lightPosNormalized = unzoomedLightPos.xy;
-	vec2 angleVector = normalize(lightPosNormalized - unzoomedUV);
-	float sdfVal = 0.0;
-	float intensity = 1.0;
-	float distanceNeededToTravel = length(lightPosNormalized - unzoomedUV);
-	float disTraveled = 0.0;
-
-	float finished = 0.0;
-	
-	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
-
-	if(LIGHT_IS_DIRECTIONAL){
-		vec2 lightMapTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION; //Get rid of world pos?
-		lightMapTexturePos /= PS_RENDER_QUADRANT_SIZE;
-		lightMapTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-		lightMapTexturePos = fract(lightMapTexturePos);
-		
-		float lightVal = texture(PS_GLOBAL_ILLUMINATION, lightMapTexturePos).r;
-		
-		//Highlights
-		vec2 sdfTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION;
-		sdfTexturePos /= PS_RENDER_QUADRANT_SIZE;
-		sdfTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-		sdfTexturePos = fract(sdfTexturePos);
-		vec2 sdfVal = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
-		sdfVal.r *= ((sdfVal.g - 0.5) * -2.0);
-		float subtract = min(sdfVal.r * textureScalling, 0.0) * 10.0;// * 10.0 + 1.0;
-
-		//lightVal = clamp(lightVal * subtract, 0.0, 1.0);
-		lightVal = lightVal + subtract;
-		
-		intensity = lightVal;
-		
-	}else{
-		for(int i = 0; i < 80; i++){
-			if(distanceNeededToTravel > 0.6){
-				break;
-			}
-			if(disTraveled > distanceNeededToTravel){
-				finished = 1.0;
-				break;
-			}
-			if(intensity <= 0.0){
-				break;
-			}
-			vec2 curPos = unzoomedUV + (angleVector * disTraveled);
-			vec2 sdfTexturePos = (curPos / screenSize) + PS_WORLD_POSITION;
-			sdfTexturePos /= PS_RENDER_QUADRANT_SIZE;
-			sdfTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
-			sdfTexturePos = fract(sdfTexturePos);
-			vec2 sdfData = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
-			sdfVal = sdfData.r;
-			//if(sdfData.g > 0.5){
-				//sdfVal *= -1.0;
+	//float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
+//
+	//if(LIGHT_IS_DIRECTIONAL){
+		//vec2 lightMapTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION; //Get rid of world pos?
+		//lightMapTexturePos /= PS_RENDER_QUADRANT_SIZE;
+		//lightMapTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		//lightMapTexturePos = fract(lightMapTexturePos);
+		//
+		//float lightVal = texture(PS_GLOBAL_ILLUMINATION, lightMapTexturePos).r;
+		//
+		////Highlights
+		//vec2 sdfTexturePos = (unzoomedUV / screenSize) + PS_WORLD_POSITION;
+		//sdfTexturePos /= PS_RENDER_QUADRANT_SIZE;
+		//sdfTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+		//sdfTexturePos = fract(sdfTexturePos);
+		//vec2 sdfVal = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
+		//sdfVal.r *= ((sdfVal.g - 0.5) * -2.0);
+		//float subtract = min(sdfVal.r * textureScalling, 0.0) * 10.0;// * 10.0 + 1.0;
+//
+		////lightVal = clamp(lightVal * subtract, 0.0, 1.0);
+		//lightVal = lightVal + subtract;
+		//
+		//intensity = lightVal;
+		//
+	//}else{
+		//for(int i = 0; i < 80; i++){
+			//if(distanceNeededToTravel > 0.6){
+				//break;
 			//}
-			intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
-			disTraveled += abs(sdfVal) / PS_CAMERA_ZOOM.x;
-			
-			float moveAmount = length((1.0 / PS_RENDER_QUADRANT_SIZE) * angleVector);
-			disTraveled += moveAmount;
-			intensity += falloff * moveAmount * clamp(floor(sdfVal), -1.0, 0.0);
-		}
-		intensity *= finished;
-		intensity = clamp(intensity, 0.0, 1.0);
-	}
-	
-	intensity = clamp(intensity, 0.0, 100.0);
-	
-	float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));
-	cNdotL = (cNdotL / 2.0) + 0.5;//clamp(cNdotL + 0.5, 0.0, 1.0);
-	LIGHT = vec4(LIGHT_COLOR.rgb * screen.rgb * intensity * LIGHT_ENERGY * cNdotL, LIGHT_COLOR.a);
-}
+			//if(disTraveled > distanceNeededToTravel){
+				//finished = 1.0;
+				//break;
+			//}
+			//if(intensity <= 0.0){
+				//break;
+			//}
+			//vec2 curPos = unzoomedUV + (angleVector * disTraveled);
+			//vec2 sdfTexturePos = (curPos / screenSize) + PS_WORLD_POSITION;
+			//sdfTexturePos /= PS_RENDER_QUADRANT_SIZE;
+			//sdfTexturePos -= PS_TILE_TEXTURE_SCROLL + vec2(0.5, 0.5);
+			//sdfTexturePos = fract(sdfTexturePos);
+			//vec2 sdfData = texture(PS_FOREGROUND_SDF, sdfTexturePos).rg;
+			//sdfVal = sdfData.r;
+			////if(sdfData.g > 0.5){
+				////sdfVal *= -1.0;
+			////}
+			//intensity += falloff * min(sdfVal, 0.0); //If sdfVal in negative, it is subtracted. If it is positive, nothing happens because of the min function
+			//disTraveled += abs(sdfVal) / PS_CAMERA_ZOOM.x;
+			//
+			//float moveAmount = length((1.0 / PS_RENDER_QUADRANT_SIZE) * angleVector);
+			//disTraveled += moveAmount;
+			//intensity += falloff * moveAmount * clamp(floor(sdfVal), -1.0, 0.0);
+		//}
+		//intensity *= finished;
+		//intensity = clamp(intensity, 0.0, 1.0);
+	//}
+	//
+	//intensity = clamp(intensity, 0.0, 100.0);
+	//
+	//float cNdotL = max(0.0, dot(NORMAL, LIGHT_DIRECTION));
+	//cNdotL = (cNdotL / 2.0) + 0.5;//clamp(cNdotL + 0.5, 0.0, 1.0);
+	//LIGHT = vec4(LIGHT_COLOR.rgb * screen.rgb * intensity * LIGHT_ENERGY * cNdotL, LIGHT_COLOR.a);
+//}

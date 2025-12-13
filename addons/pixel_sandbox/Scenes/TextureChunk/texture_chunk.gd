@@ -42,20 +42,19 @@ func updateBuffer():
 	chunkImage = TerrainRendering.getChunkImage(chunkCoord)
 	TerrainRendering.executeTextureChunkShader(chunkCoord, chunkImage)
 	
-	if layer == TerrainRendering.LAYER_TYPE.FOREGROUND:
-		bitmap.create_from_image_alpha(chunkImage, 0.5)
-		var rect := Rect2i(Vector2i(outlineBufferSize, outlineBufferSize), Vector2i(chunkSize, chunkSize))
-		polygons = bitmap.opaque_to_polygons(rect, 1.0)
-		
-		for cp in collPolys:
-			cp.queue_free()
-		collPolys.clear()
-		
-		for p in polygons:
-			var colPoly := CollisionPolygon2D.new()
-			colPoly.polygon = p
-			collPolys.append(colPoly)
-			$StaticBody2D.add_child(colPoly)
+	bitmap.create_from_image_alpha(chunkImage, 0.5)
+	var rect := Rect2i(Vector2i(outlineBufferSize, outlineBufferSize), Vector2i(chunkSize, chunkSize))
+	polygons = bitmap.opaque_to_polygons(rect, 1.0)
+	
+	for cp in collPolys:
+		cp.queue_free()
+	collPolys.clear()
+	
+	for p in polygons:
+		var colPoly := CollisionPolygon2D.new()
+		colPoly.polygon = p
+		collPolys.append(colPoly)
+		$StaticBody2D.add_child(colPoly)
 
 func updateChunk():
 	if dirty:

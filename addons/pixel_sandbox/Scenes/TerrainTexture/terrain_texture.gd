@@ -13,14 +13,14 @@ func _ready() -> void:
 	
 	if layer == TerrainRendering.LAYER_TYPE.FOREGROUND:
 		var tex2DRD : Texture2DRD = Texture2DRD.new()
-		tex2DRD.set_texture_rd_rid(TerrainRendering.textureForegroundRID)
+		tex2DRD.set_texture_rd_rid(TerrainRendering.worldVisualImageForegroundRID)
 		texture = tex2DRD
 		TerrainRendering.spriteForeground = self
 		m.shader = load(foregroundShader)
 	
 	if layer == TerrainRendering.LAYER_TYPE.BACKGROUND:
 		var tex2DRD : Texture2DRD = Texture2DRD.new()
-		tex2DRD.set_texture_rd_rid(TerrainRendering.textureBackgroundRID)
+		tex2DRD.set_texture_rd_rid(TerrainRendering.worldVisualImageBackgroundRID)
 		texture = tex2DRD
 		TerrainRendering.spriteBackground = self
 		m.shader = load(backgroundShader)

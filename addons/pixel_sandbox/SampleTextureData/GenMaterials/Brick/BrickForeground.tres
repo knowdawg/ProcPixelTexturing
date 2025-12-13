@@ -15,5 +15,5 @@ script = ExtResource("1_dp0ln")
 texture = ExtResource("3_dtfia")
 normal = ExtResource("1_puckh")
 gradient = SubResource("GradientTexture1D_0l6b7")
-border = Color(0.9098039, 0.75686276, 0.4392157, 1)
+border = Color(0.9098039, 0.2, 0.4392157, 1)
 metadata/_custom_type_script = "uid://di707vap5isgj"

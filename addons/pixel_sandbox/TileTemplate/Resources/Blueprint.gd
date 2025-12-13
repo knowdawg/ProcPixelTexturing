@@ -36,5 +36,7 @@ func generateThumbnatil():
 	rect.size = imageForground.get_size().max(imageBackground.get_size())
 	rect.position = position
 	
-	#thumbnailRIDForeground = TerrainRendering.calculateEnviermentalTexture(rect, imageForground, 0)
-	#thumbnailRIDBackground = TerrainRendering.calculateEnviermentalTexture(rect, imageBackground, 0)
+	var rids : Array[RID] = TerrainRendering.calculateEnviermentalTexture(rect, imageForground, 0)
+	
+	thumbnailRIDForeground = rids[0]
+	thumbnailRIDBackground = rids[1]

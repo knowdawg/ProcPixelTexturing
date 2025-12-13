@@ -2,6 +2,8 @@ extends Node
 
 enum LAYER_TYPE {FOREGROUND, BACKGROUND}
 
+var sdfGen : SDFGenerator
+
 var foregroundSDF : RID
 var backgroundSDF : RID
 
@@ -37,6 +39,13 @@ worldVisualImage:
 	the actualy image that the user sees on the screen. This is the output of the generateTextureChunk shader
 """
 
+var lightMapRID : RID
+"""
+Light Map:
+	This is a image that stores all blocks's emission color.
+	For blocks that want to block light and cast shadows, thier emission color should be (0.0, 0.0, 0.0, 1.0)
+	For blocks that want dont want to block light, thier emission color should be (0.0, 0.0, 0.0, 0.0)
+"""
 
 var chunks : Array
 var activeChunks : Array[TextureChunk]
@@ -45,14 +54,16 @@ var spriteBackground : Sprite2D
 var chunk = preload("uid://dafgjgn78ehp2")
 
 #Texture Details
-var uniqueTiles : int = 64
+var uniqueTiles : int = 256 #Keep at 256 as each image channel are in 8 bits
 var textureSize := Vector2i(256, 256)
 
 var foregroundTextureData : TextureData = load(PixelSandboxSettings.textureDataForeground)
 var backgroundTextureData : TextureData = load(PixelSandboxSettings.textureDataBackground)
 
+var textureUniforms : Array[RDUniform]
+var bufferUniforms : Array[RDUniform]
 var textureUniformSet : RID
-var bufferUniformSet : RID
+var buffferUniformSet : RID
 
 var renDev : RenderingDevice
 var textureChunkShaderFile
@@ -71,72 +82,116 @@ func dirtyAll():
 #returns an image of the specified size filled with the specified material
 func generateSampleImage(tile : int, size : Vector2i) -> Image:
 	var im : Image = Image.create_empty(size.x, size.y, false, IMAGE_FORMAT)
-	im.fill(Color(float(tile) / float(uniqueTiles), 0.0, 0.0, 1.0))
+	im.fill(Color(float(tile) / float(uniqueTiles - 1), 0.0, 0.0, 1.0))
 	return im
 
 func contructTextureArrays():
 	
 	###---------TEXTURES---------###
-	var uniforms : Array[RDUniform] = []
+	#Create a default sampler
+	var samplerState := RDSamplerState.new()
+	samplerState.mag_filter = RenderingDevice.SAMPLER_FILTER_NEAREST
+	samplerState.min_filter = RenderingDevice.SAMPLER_FILTER_NEAREST
+	samplerState.repeat_u = RenderingDevice.SAMPLER_REPEAT_MODE_REPEAT
+	samplerState.repeat_v = RenderingDevice.SAMPLER_REPEAT_MODE_REPEAT
+	samplerState.repeat_w = RenderingDevice.SAMPLER_REPEAT_MODE_REPEAT
+	samplerState.compare_op = RenderingDevice.COMPARE_OP_NEVER
+	var defaultSampler := renDev.sampler_create(samplerState)
 	
 	#Foreground
-	var tex2dArray := foregroundTextureData.getTextureArray(uniqueTiles)
-	var normal2dArray := foregroundTextureData.getNormalArray(uniqueTiles)
-	var gradient2dArray := foregroundTextureData.getGradientArray(uniqueTiles)
+	var tex2dArray : Texture2DArray = foregroundTextureData.getTextureArray(uniqueTiles)
+	var normal2dArray : Texture2DArray = foregroundTextureData.getNormalArray(uniqueTiles)
+	var gradient2dArray : Texture2DArray = foregroundTextureData.getGradientArray(uniqueTiles)
 	var borderColors := foregroundTextureData.getBorderTexture(uniqueTiles)
+	var emissionColors := foregroundTextureData.getLightEmissionTexture(uniqueTiles)
 	
-	uniforms.append({
-		"binding": 0,
-		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
-		"id": tex2dArray.get_rid()
-	})
-	uniforms.append({
-		"binding": 1,
-		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
-		"id": normal2dArray.get_rid()
-	})
-	uniforms.append({
-		"binding": 2,
-		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
-		"id": gradient2dArray.get_rid()
-	})
-	uniforms.append({
-		"binding": 3,
-		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
-		"id": borderColors.get_rid()
-	})
+	var samplerUniformType = RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
+	
+	var u : RDUniform
+	
+	
+	u = RDUniform.new()
+	u.binding = 0
+	u.uniform_type = RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage2DArray(tex2dArray, renDev))
+	textureUniforms.append(u)
+	
+	u = RDUniform.new()
+	u.binding = 1
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage2DArray(normal2dArray, renDev))
+	textureUniforms.append(u)
+	
+	u = RDUniform.new()
+	u.binding = 2
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage2DArray(gradient2dArray, renDev))
+	textureUniforms.append(u)
+	
+	u = RDUniform.new()
+	u.binding = 3
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage(borderColors, renDev))
+	textureUniforms.append(u)
+	
+	u = RDUniform.new()
+	u.binding = 4
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage(emissionColors, renDev))
+	textureUniforms.append(u)
+	
 	
 	#Background
 	tex2dArray = backgroundTextureData.getTextureArray(uniqueTiles)
 	normal2dArray = backgroundTextureData.getNormalArray(uniqueTiles)
 	gradient2dArray = backgroundTextureData.getGradientArray(uniqueTiles)
 	borderColors = backgroundTextureData.getBorderTexture(uniqueTiles)
+	emissionColors = backgroundTextureData.getLightEmissionTexture(uniqueTiles)
 	
-	uniforms.append({
-		"binding": 4,
-		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
-		"id": tex2dArray.get_rid()
-	})
-	uniforms.append({
-		"binding": 5,
-		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
-		"id": normal2dArray.get_rid()
-	})
-	uniforms.append({
-		"binding": 6,
-		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
-		"id": gradient2dArray.get_rid()
-	})
-	uniforms.append({
-		"binding": 7,
-		"type": RenderingDevice.UNIFORM_TYPE_SAMPLER,
-		"id": borderColors.get_rid()
-	})
+	u = RDUniform.new()
+	u.binding = 5
+	u.uniform_type = RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage2DArray(tex2dArray, renDev))
+	textureUniforms.append(u)
 	
-	textureUniformSet = renDev.uniform_set_create(uniforms, textureChunkShader, 0)
+	u = RDUniform.new()
+	u.binding = 6
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage2DArray(normal2dArray, renDev))
+	textureUniforms.append(u)
+	
+	u = RDUniform.new()
+	u.binding = 7
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage2DArray(gradient2dArray, renDev))
+	textureUniforms.append(u)
+	
+	u = RDUniform.new()
+	u.binding = 8
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage(borderColors, renDev))
+	textureUniforms.append(u)
+	
+	u = RDUniform.new()
+	u.binding = 9
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage(emissionColors, renDev))
+	textureUniforms.append(u)
+	
+	textureUniformSet = renDev.uniform_set_create(textureUniforms, textureChunkShader, 0)
+	
 	
 	###---------ARRAYS---------###
-	var bufferUniforms : Array[RDUniform] = []
 	
 	var foregroundBorderParams : PackedVector2Array = foregroundTextureData.getBorderParamArray(uniqueTiles)
 	var backgroundBorderParams : PackedVector2Array = backgroundTextureData.getBorderParamArray(uniqueTiles)
@@ -146,23 +201,18 @@ func contructTextureArrays():
 	var borderParamsBufferBackground : RID = renDev.storage_buffer_create(backgroundBorderParams.size() * 8, backgroundBorderParams.to_byte_array())
 	var solidBuffer : RID = renDev.storage_buffer_create(solidArray.size() * 4, solidArray.to_byte_array())
 	
-	bufferUniforms.append({
-		"binding": 0,
-		"type": RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER,
-		"id": borderParamsBufferForeground
-	})
-	bufferUniforms.append({
-		"binding": 1,
-		"type": RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER,
-		"id": borderParamsBufferBackground
-	})
-	bufferUniforms.append({
-		"binding": 2,
-		"type": RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER,
-		"id": solidBuffer
-	})
+	for i in range(3):
+		u = RDUniform.new()
+		u.binding = i
+		u.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+		u.add_id([
+			borderParamsBufferForeground,
+			borderParamsBufferBackground,
+			solidBuffer
+			][i])
+		bufferUniforms.append(u)
 	
-	bufferUniformSet = renDev.uniform_set_create(bufferUniforms, textureChunkShader, 1)
+	buffferUniformSet = renDev.uniform_set_create(bufferUniforms, textureChunkShader, 1)
 
 
 func isPositionLoaded(pos : Vector2) -> bool:
@@ -184,34 +234,38 @@ func _ready() -> void:
 	textureChunkShaderFile = load("uid://dvrxg8j3h7sl")
 	textureChunkShader = renDev.shader_create_from_spirv(textureChunkShaderFile.get_spirv())
 	persPipeline = renDev.compute_pipeline_create(textureChunkShader)
-	contructTextureArrays()
-	
-	
 	setupEnviromentObjects()
+	
+	contructTextureArrays()
 	setupChunks()
 
 func _process(_delta: float) -> void:
 	updateLoadedRect()
 	updateTileTextureScrollAndSpritePosition()
+	if is_instance_valid(sdfGen):
+		#Update foreground SDF here
+		pass
 	
 	updateChunks()
 	
-	#if Input.is_action_just_pressed("ReloadTexture"):
-		#contructTextureArrays()
 
 func setupEnviromentObjects() -> void:
-	worldDataImage = Image.create_empty(mapSize.x, mapSize.y, false, IMAGE_FORMAT)
+	worldDataImage = Image.create_empty(mapSize.x, mapSize.y, false, Image.FORMAT_RGBA8)
 	worldDataImage.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldDataImage.decompress()
 	
 	
-	var image = Image.create_empty(renderSectionSize, renderSectionSize, false, IMAGE_FORMAT);
-	image.fill(Color.BLACK)
+	var image = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldVisualImageForegroundRID = TerrainRendering.getRIDImage(image, renDev)
 	
-	var image2 = Image.create_empty(renderSectionSize, renderSectionSize, false, IMAGE_FORMAT);
-	image2.fill(Color.BLACK)
+	var image2 = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldVisualImageBackgroundRID = TerrainRendering.getRIDImage(image2, renDev)
+	
+	var lightmapImage = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
+	image.fill(Color(0.0, 0.0, 0.0, 0.0))
+	lightMapRID = TerrainRendering.getRIDImage(image, renDev)
 	
 
 func setupChunks() -> void:
@@ -288,7 +342,7 @@ func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE):
 	if pos.y < 0 or pos.y > worldDataImage.get_size().y - 1:
 		return
 	
-	var indexFloat : float = clamp((float(tileIndex) / 255.0), 0.0, 1.0)
+	var indexFloat : float = clamp((float(tileIndex) / float(uniqueTiles - 1)), 0.0, 1.0)
 	var prevCol : Color = getPixel(pos)
 	
 	if layer == LAYER_TYPE.FOREGROUND:
@@ -400,13 +454,17 @@ func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	#Output Buffer Setup
 	var outputForeground : RDUniform = TerrainRendering.getUniformImage(worldVisualImageForegroundRID, 2)
 	var outputBackground : RDUniform = TerrainRendering.getUniformImage(worldVisualImageBackgroundRID, 3)
+	var lightMap : RDUniform = TerrainRendering.getUniformImage(lightMapRID, 4)
 	
-	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputForeground, outputBackground], textureChunkShader, 2)
+	var uniformSet : RID = renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputForeground, outputBackground, lightMap], textureChunkShader, 2)
+	
 	var computeList = renDev.compute_list_begin()
 	
 	var w : int = int(ceil(float(TerrainRendering.chunkSize) / 8.0))
 	var workgroups := Vector3i(int(w), int(w), 1)
-	TerrainRendering.executeComputeShader(workgroups, renDev, computeList, persPipeline, uniformSet)
+	
+	
+	TerrainRendering.executeComputeShader(workgroups, renDev, computeList, persPipeline, [textureUniformSet, buffferUniformSet, uniformSet])
 	
 	renDev.free_rid(chunkDataRID)
 	renDev.free_rid(tileImageRID)
@@ -428,22 +486,27 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 	var tileImageUniform : RDUniform = getUniformImage(tileImageRID, 1)
 	
 	#Output Buffer Setup
-	var outputImageForeground : Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBAF)
+	var outputImageForeground : Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBA8)
 	outputImageForeground.fill(Color.BLACK)
 	var outputImageForegroundRID : RID = getRIDImage(outputImageForeground, renDev)
 	var outputUniformForeground := getUniformImage(outputImageForegroundRID, 2)
 	
-	var outputImageBackground: Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBAF)
+	var outputImageBackground: Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBA8)
 	outputImageBackground.fill(Color.BLACK)
 	var outputImageBackgroundRID : RID = getRIDImage(outputImageBackground, renDev)
 	var outputUniformBackground := getUniformImage(outputImageBackgroundRID, 3)
 	
-	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniformForeground, outputUniformBackground], textureChunkShader, 2)
+	var dummyLightmap: Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBAF)
+	dummyLightmap.fill(Color.BLACK)
+	var dummyLightmapRID : RID = getRIDImage(dummyLightmap, renDev)
+	var dummyLightmapUniform := getUniformImage(dummyLightmapRID, 4)
+	
+	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniformForeground, outputUniformBackground, dummyLightmapUniform], textureChunkShader, 2)
 	var computeList = renDev.compute_list_begin()
 	
 	var w : int = int(ceil(float(TerrainRendering.chunkSize) / 8.0))
 	var workgroups := Vector3i(int(w), int(w), 1)
-	executeComputeShader(workgroups, renDev, computeList, persPipeline, uniformSet)
+	executeComputeShader(workgroups, renDev, computeList, persPipeline, [textureUniformSet, buffferUniformSet, uniformSet])
 	
 	renDev.free_rid(chunkDataRID)
 	renDev.free_rid(tileImageRID)
@@ -458,9 +521,10 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 
 #Compute Shader Boilerplate functions
 
-func executeComputeShader(workGroup : Vector3i, rd : RenderingDevice, computeList : int, pipeline : RID, uniformSet : RID):
+func executeComputeShader(workGroup : Vector3i, rd : RenderingDevice, computeList : int, pipeline : RID, uniformSetArray : Array[RID]):
 	rd.compute_list_bind_compute_pipeline(computeList, pipeline)
-	rd.compute_list_bind_uniform_set(computeList, uniformSet, 0)
+	for i in range(len(uniformSetArray)):
+		rd.compute_list_bind_uniform_set(computeList, uniformSetArray[i], i)
 	rd.compute_list_dispatch(computeList, workGroup.x, workGroup.y, workGroup.z) #Work Groups
 	rd.compute_list_end()
 
@@ -497,7 +561,24 @@ func getRIDImage(image : Image, rd : RenderingDevice) -> RID: #Read only
 	var textureFormat := RDTextureFormat.new()
 	textureFormat.width = imageSize.x
 	textureFormat.height = imageSize.y
-	textureFormat.format = RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT
+	
+	# Match the format to the image's actual format
+	match image.get_format():
+		Image.FORMAT_RGBA8:
+			textureFormat.format = RenderingDevice.DATA_FORMAT_R8G8B8A8_UNORM
+		Image.FORMAT_RGBAF:
+			textureFormat.format = RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT
+		Image.FORMAT_RF:
+			textureFormat.format = RenderingDevice.DATA_FORMAT_R32_SFLOAT
+		Image.FORMAT_RGF:
+			textureFormat.format = RenderingDevice.DATA_FORMAT_R32G32_SFLOAT
+		Image.FORMAT_RGBF:
+			textureFormat.format = RenderingDevice.DATA_FORMAT_R32G32B32_SFLOAT
+		_:
+			# Default to RGBA8
+			print("WARNING: Unknown image format ", image.get_format(), ", defaulting to RGBA8")
+			textureFormat.format = RenderingDevice.DATA_FORMAT_R8G8B8A8_UNORM
+	
 	textureFormat.usage_bits = (
 		RenderingDevice.TEXTURE_USAGE_STORAGE_BIT +
 		RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT + 
@@ -505,4 +586,35 @@ func getRIDImage(image : Image, rd : RenderingDevice) -> RID: #Read only
 		RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
 	)
 	var rid := rd.texture_create(textureFormat, textureView, [image.get_data()])
+	return rid
+#RenderingDevice.DATA_FORMAT_A8B8G8R8_UINT_PACK32
+
+func getRIDImage2DArray(imageArray : Texture2DArray, rd : RenderingDevice) -> RID:
+	var textureView := RDTextureView.new()
+	var textureFormat := RDTextureFormat.new()
+	textureFormat.width = imageArray.get_width()
+	textureFormat.height = imageArray.get_height()
+	textureFormat.array_layers = imageArray.get_layers()
+	
+	textureFormat.texture_type = RenderingDevice.TEXTURE_TYPE_2D_ARRAY
+	textureFormat.format = RenderingDevice.DATA_FORMAT_R8G8B8A8_UNORM
+	
+	textureFormat.usage_bits = (
+		RenderingDevice.TEXTURE_USAGE_STORAGE_BIT +
+		RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT + 
+		RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT + 
+		RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
+	)
+	
+	var imageDataArray : Array[PackedByteArray] = []
+	for i in range(imageArray.get_layers()):
+		var curIm : Image = imageArray.get_layer_data(i)
+		imageDataArray.append(curIm.get_data())
+	
+	#print("Data Size: ", imageDataArray.size())
+	#print("Format Array Layers: ", textureFormat.array_layers)
+	#print("Are Equal: ", imageDataArray.size() == textureFormat.array_layers)
+	
+	var rid := rd.texture_create(textureFormat, textureView, imageDataArray)
+	
 	return rid

@@ -10,8 +10,6 @@ layout(set = 0, binding = 1, rgba32f) uniform writeonly image2D outputBuffer;
 layout(set = 0, binding = 2, std430) readonly buffer OffsetData {
     int bitmapOffsetX;
     int bitmapOffsetY;
-
-    int sined;
 };
 
 layout(set = 0, binding = 3, std430) readonly buffer Threshold {
@@ -32,10 +30,11 @@ float sampleBitmap(ivec2 uv){
         return 1.0;
     }
 
-    float val = ceil(imageLoad(bitmap, bitmapUV).r - threshold);
-    val = clamp(val, 0.0, 1.0);
-
-    return val;
+    float val = imageLoad(bitmap, bitmapUV).a;
+    if(val > threshold){
+        return 1.0;
+    }
+    return 0.0;
 }
 
 bool isBorder(ivec2 uv){
@@ -57,20 +56,15 @@ bool isBorder(ivec2 uv){
 void main(){
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
     ivec2 size = imageSize(bitmap);
-    if(uv.x >= size.x || uv.y >= size.y){
+    if(uv.x < 0 || uv.y < 0 || uv.x > size.x - 1 || uv.y > size.y - 1){
         return;
     }
     vec2 UV = vec2(uv) / vec2(size);
 
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
-    if(sined == 1){
-        if(isBorder(uv)){
-            color.rg = UV;
-        }
-    }else{
-        if(sampleBitmap(uv) > 0.5){
-            color.rg = UV;
-        }
+
+    if(isBorder(uv)){
+        color.rg = UV;
     }
 
     imageStore(outputBuffer, uv, color);

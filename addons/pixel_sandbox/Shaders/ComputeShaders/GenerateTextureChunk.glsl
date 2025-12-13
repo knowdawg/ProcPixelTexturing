@@ -9,17 +9,19 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(set = 0, binding = 0) uniform sampler2DArray tex2dArrayForeground;
 layout(set = 0, binding = 1) uniform sampler2DArray normal2dArrayForeground;
 layout(set = 0, binding = 2) uniform sampler2DArray gradient2dArrayForeground;
-layout(set = 0, binding = 3) uniform sampler2DArray borderColorsForeground;
+layout(set = 0, binding = 3) uniform sampler2D borderColorsForeground;
+layout(set = 0, binding = 4) uniform sampler2D emissionColorsForeground;
 
-layout(set = 0, binding = 4) uniform sampler2DArray tex2dArrayBackground;
-layout(set = 0, binding = 5) uniform sampler2DArray normal2dArrayBackground;
-layout(set = 0, binding = 6) uniform sampler2DArray gradient2dArrayBackground;
-layout(set = 0, binding = 7) uniform sampler2DArray borderColorsBackground;
+layout(set = 0, binding = 5) uniform sampler2DArray tex2dArrayBackground;
+layout(set = 0, binding = 6) uniform sampler2DArray normal2dArrayBackground;
+layout(set = 0, binding = 7) uniform sampler2DArray gradient2dArrayBackground;
+layout(set = 0, binding = 8) uniform sampler2D borderColorsBackground;
+layout(set = 0, binding = 9) uniform sampler2D emissionColorsBackground;
 
 //Set 1: Constant Storage Buffers
-layout(std430, set = 1, binding = 0) buffer BorderParamsForeground { vec2 borderParamsForeground[]; };
-layout(std430, set = 1, binding = 1) buffer BorderParamsBackground { vec2 borderParamsBackground[]; };
-layout(std430, set = 1, binding = 2) buffer SolidBuffer { uint solids[]; };
+layout(set = 1, binding = 0, std430) readonly buffer BorderParamsForeground { vec2 borderParamsForeground[]; };
+layout(set = 1, binding = 1, std430) readonly buffer BorderParamsBackground { vec2 borderParamsBackground[]; };
+layout(set = 1, binding = 2, std430) readonly buffer SolidBuffer { uint solids[]; }; //Only for foreground. Background will assume the same solidity as thier foreground counterpart
 
 //Set 2: Variable Uniforms
 layout(set = 2, binding = 0, std430) readonly buffer ChunkData {
@@ -29,30 +31,108 @@ layout(set = 2, binding = 0, std430) readonly buffer ChunkData {
     int outlineBufferSize;
 }
 chunkData;
-layout(set = 2, binding = 1, rgba32f) uniform readonly image2D TileImage;
-layout(set = 2, binding = 2, rgba32f) uniform writeonly image2D OutputBufferForeground;
-layout(set = 2, binding = 3, rgba32f) uniform writeonly image2D OutputBufferBackground;
+layout(set = 2, binding = 1, rgba8) uniform readonly image2D TileImage;
+layout(set = 2, binding = 2, rgba8) uniform writeonly image2D OutputBufferForeground;
+layout(set = 2, binding = 3, rgba8) uniform writeonly image2D OutputBufferBackground;
+layout(set = 2, binding = 4, rgba32f) uniform writeonly image2D LightMap;
 
 
-int getPixelType(ivec2 uv, float tileTexVal){
-	float center = tileTexVal;
+int getTileIndex(float floatIndex){
+	return int((floatIndex * 255.0) + 0.5);
+}
 
-	float left = imageLoad(TileImage, uv + ivec2(-1, 0)).r;
-	float right = imageLoad(TileImage, uv + ivec2(1, 0)).r;
-	float up = imageLoad(TileImage, uv + ivec2(0, -1)).r;
-	float down = imageLoad(TileImage, uv + ivec2(0, 1)).r;
+vec4 getColor(int type, ivec2 uv, float self, in sampler2DArray textures, in sampler2DArray gradients, in sampler2D borders){
+	vec4 c = vec4(1.0);
+
+	//UV stuff
+	vec2 normalizedUV = fract(vec2(uv) / 256.0); //from 0-1
+	int tileIndex = getTileIndex(self);
+	vec3 arrayUV = vec3(normalizedUV, tileIndex);
 	
-	bool hasNonPopulatedNieghbor = left * right * up * down == 0.0;
-	bool hasPopulatedNieghbor = left + right + up + down > 0.0;
-	bool isCenterPopulated = center != 0.0;
+	//sampling
+	vec4 tVal = texture(textures, arrayUV);
+	//vec4 nVal = texture(normal2dArrayForeground, arrayUV);
 	
-	if(!hasNonPopulatedNieghbor && isCenterPopulated){return 3;} //Center
-	if(hasNonPopulatedNieghbor && isCenterPopulated){return 2;} //Border
-	if(hasPopulatedNieghbor && !isCenterPopulated){return 1;} //Outline
-	if(!isCenterPopulated){return 0;} //Nothing
+	switch(type){
+		case 0:
+			c.a = 0.0;
+			break;
+		case 1:
+			c = vec4(0.0, 0.0, 0.0, 1.0);
+			break;
+		case 2:
+			vec4 border = texture(borders, vec2(self, 0.0));
+			c = border;
+			break;
+		case 3:
+			//tVal.r = (tVal.r * 0.75) + (1.0 - step((0.5 + tVal.r) * (5.0 / PS_RENDER_QUADRANT_SIZE.x), disToEdge)) * 0.25;
+			c = texture(gradients, vec3(vec2(tVal.r), tileIndex));
+			break;
+		default:
+			c.a = 0.0;
+			break;
+	}
 	
 	
-	return 0;
+	return c;
+}
+
+//returns a ivec2 where the x value is the pixel type for the forground and y value is the pixel type for the background
+//0 means that you a blank space / empty. No color will be writen to the output
+//1 means you are an outline. Black will be written to the output
+//2 means you are a border. The coresponding border color will be writen to the output
+//3 means you are a center. The coresponding texture value for your uv will be written to the output
+ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
+	ivec2 pixelType = ivec2(0, 0);
+	vec2 center = tileTexVal;
+	//get the tile index of both the foreground and background
+	vec2 left = imageLoad(TileImage, uv + ivec2(-1, 0)).rg;
+	vec2 right = imageLoad(TileImage, uv + ivec2(1, 0)).rg;
+	vec2 up = imageLoad(TileImage, uv + ivec2(0, -1)).rg;
+	vec2 down = imageLoad(TileImage, uv + ivec2(0, 1)).rg;
+
+	//Foreground
+	bool centerSolid = solids[getTileIndex(center.r)] == 1;
+	bool leftSolid = solids[getTileIndex(left.r)] == 1;
+	bool rightSolid = solids[getTileIndex(right.r)] == 1;
+	bool upSolid = solids[getTileIndex(up.r)] == 1;
+	bool downSolid = solids[getTileIndex(down.r)] == 1;
+
+	bool hasSolidNieghbor = leftSolid || rightSolid || upSolid || downSolid;
+	bool hasMissingNieghbor = !(leftSolid && rightSolid && upSolid && downSolid);
+
+	if(!centerSolid && hasSolidNieghbor){
+		pixelType.x = 1;
+	}else if(!centerSolid){
+		pixelType.x = 0;
+	}else if(centerSolid && hasMissingNieghbor){
+		pixelType.x = 2;
+	}else if(centerSolid && !hasMissingNieghbor){
+		pixelType.x = 3;
+	}
+
+	//Background
+	centerSolid = solids[getTileIndex(center.g)] == 1;
+	leftSolid = solids[getTileIndex(left.g)] == 1;
+	rightSolid = solids[getTileIndex(right.g)] == 1;
+	upSolid = solids[getTileIndex(up.g)] == 1;
+	downSolid = solids[getTileIndex(down.g)] == 1;
+
+	hasSolidNieghbor = leftSolid || rightSolid || upSolid || downSolid;
+	hasMissingNieghbor = !(leftSolid && rightSolid && upSolid && downSolid);
+
+	if(!centerSolid && hasSolidNieghbor){
+		pixelType.y = 1;
+	}else if(!centerSolid){
+		pixelType.y = 0;
+	}else if(centerSolid && hasMissingNieghbor){
+		pixelType.y = 2;
+	}else if(centerSolid && !hasMissingNieghbor){
+		pixelType.y = 3;
+	}
+	
+	
+	return pixelType;
 }
 
 
@@ -82,44 +162,30 @@ vec2 getNearestEdgeAngle(ivec2 uv, int radiusSize, inout float dis) {
 
 void main() {
     ivec2 UV = ivec2(gl_GlobalInvocationID.xy);
-    ivec2 size = imageSize(OutputBuffer);
+    ivec2 size = imageSize(OutputBufferForeground);
 
 	if(UV.x < 0 || UV.y < 0 || UV.x > size.x - 1 || UV.y > size.y - 1){ //If you leave the screen, you failed
 		return;
 	}
 
     float TAU = 6.28318;
-    ivec2 outputSize = imageSize(OutputBuffer);
+	//Alternate UV
     ivec2 TILE_IMAGE_UV = UV + ivec2(chunkData.outlineBufferSize);
-	float tileTexVal = imageLoad(TileImage, TILE_IMAGE_UV).r;
+    ivec2 chunkOffsetUV = (ivec2(chunkData.chunkCoordX, chunkData.chunkCoordY) * chunkData.chunkSize) + UV;
+
+	vec4 tileData = imageLoad(TileImage, TILE_IMAGE_UV);
 	
-	int pixelType = getPixelType(TILE_IMAGE_UV, tileTexVal);
+	ivec2 pixelType = getPixelType(TILE_IMAGE_UV, tileData.rg);
 	
-	float disToEdge;
-	vec2 vecToEdge = getNearestEdgeAngle(TILE_IMAGE_UV, 5, disToEdge);
-	float angleToEdge = atan(vecToEdge.y / vecToEdge.x) / TAU;
-	angleToEdge += 0.5; //now in 0-1 range
-	angleToEdge *= 0.5;//range: 0-0.5
-	if(vecToEdge.x < 0.0){
-		angleToEdge += 0.5;//range: 0.5-1
-	}
-	
-	vec4 COLOR = vec4(0.0);
-	COLOR.r = tileTexVal;
-	COLOR.g = float(pixelType) / 3.0;
-	COLOR.b = angleToEdge;
-	//COLOR.a = (disToEdge * 0.5) + 0.5;
+	vec4 foregroundColor = getColor(pixelType.x, chunkOffsetUV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground);
+	vec4 backgroundColor = getColor(pixelType.y, chunkOffsetUV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground);
 
 
-	//Use the alpha channel for light emision on a tile
-	COLOR.a = 0.0; //replace with the tiles emission
-	if(tileTexVal == 0.0){ //if no tile, then you are background
-		COLOR.a = 1.0;
-	}
 
-    ivec2 chunkOffsetUV = ivec2(chunkData.chunkCoordX, chunkData.chunkCoordY) * chunkData.chunkSize;
-    chunkOffsetUV += UV;
 
-    chunkOffsetUV = chunkOffsetUV % outputSize;
-    imageStore(OutputBuffer, chunkOffsetUV, COLOR);
+
+
+    chunkOffsetUV = chunkOffsetUV % size;
+    imageStore(OutputBufferForeground, chunkOffsetUV, foregroundColor);
+	imageStore(OutputBufferBackground, chunkOffsetUV, backgroundColor);
 }
