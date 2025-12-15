@@ -42,6 +42,7 @@ func setupRenderingDevice():
 #Returns finalImage
 func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offsetByCameraPos : bool = true) -> RID: #Bitmaps check the red channel
 	var passes : int = ceil(log(TerrainRendering.renderSectionSize) / log(2.0))
+	
 	var imOrderArray : Array[RID] = [pingpongIm, finalImage]
 	if (passes - 1) % 2 == 0:
 		imOrderArray = [finalImage, pingpongIm]
@@ -69,6 +70,10 @@ func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offse
 	
 	TerrainRendering.executeComputeShader(workGroups, rd, computeList, pipelineSeed, [uniformSet])
 	
+	#rd.free_rid(woRID)
+	#rd.free_rid(thresholdRID)
+	#return finalImage
+	
 	for i in passes:
 		var curOffset : int = int(TerrainRendering.renderSectionSize / (pow(2.0, i + 1)))
 		#Standard Pass
@@ -91,6 +96,10 @@ func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offse
 		TerrainRendering.executeComputeShader(workGroups, rd, computeList, pipelinePass, [uniformSet])
 		
 		rd.free_rid(dataRID)
+	
+	#rd.free_rid(woRID)
+	#rd.free_rid(thresholdRID)
+	#return finalImage
 	
 	#Final Distance Pass
 	bitmap = TerrainRendering.getUniformImage(bitmapRID, 0)
@@ -128,3 +137,4 @@ func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offse
 func _ready():
 	setupRenderingDevice()
 	
+	TerrainRendering.sdfGen = self

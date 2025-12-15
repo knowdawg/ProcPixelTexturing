@@ -180,12 +180,17 @@ void main() {
 	vec4 foregroundColor = getColor(pixelType.x, chunkOffsetUV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground);
 	vec4 backgroundColor = getColor(pixelType.y, chunkOffsetUV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground);
 
+	vec4 emissionColor = vec4(0.0);
+	emissionColor += texture(emissionColorsForeground, vec2(tileData.r, 0.0)); // foreground light
+	emissionColor += texture(emissionColorsBackground, vec2(tileData.g, 0.0)) * (1.0 - emissionColor.a); //background light
+	if(solids[getTileIndex(tileData.r)] == 0 && solids[getTileIndex(tileData.g)] == 0){
+		emissionColor += vec4(1.0) * (1.0 - emissionColor.a); //sunlight
+	}
+	emissionColor = clamp(emissionColor, vec4(0.0), vec4(1.0));
 
-
-
-
-
+	//wrap the texture on itself
     chunkOffsetUV = chunkOffsetUV % size;
+	imageStore(LightMap, chunkOffsetUV, emissionColor);
     imageStore(OutputBufferForeground, chunkOffsetUV, foregroundColor);
 	imageStore(OutputBufferBackground, chunkOffsetUV, backgroundColor);
 }

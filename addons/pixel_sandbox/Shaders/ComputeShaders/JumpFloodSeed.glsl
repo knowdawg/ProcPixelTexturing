@@ -30,11 +30,9 @@ float sampleBitmap(ivec2 uv){
         return 1.0;
     }
 
-    float val = imageLoad(bitmap, bitmapUV).a;
-    if(val > threshold){
-        return 1.0;
-    }
-    return 0.0;
+    float val = ceil(imageLoad(bitmap, bitmapUV).a - threshold);
+    val = clamp(val, 0.0, 1.0);
+    return val;
 }
 
 bool isBorder(ivec2 uv){

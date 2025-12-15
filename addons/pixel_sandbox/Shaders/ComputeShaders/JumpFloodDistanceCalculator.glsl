@@ -12,8 +12,6 @@ layout(set = 0, binding = 2, rgba32f) uniform writeonly image2D outputBuffer;
 layout(set = 0, binding = 3, std430) readonly buffer OffsetData {
     int bitmapOffsetX;
     int bitmapOffsetY;
-
-    int sined;
 };
 
 layout(set = 0, binding = 4, std430) readonly buffer Threshold {
@@ -23,9 +21,10 @@ layout(set = 0, binding = 4, std430) readonly buffer Threshold {
 void main(){
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy); //big
     ivec2 size = imageSize(inputBuffer);
-    if(uv.x >= size.x || uv.y >= size.y){
+    if(uv.x < 0 || uv.y < 0 || uv.x > size.x - 1 || uv.y > size.y - 1){
         return;
     }
+
 
 
     vec2 UV = vec2(uv) / size; //small
@@ -47,10 +46,10 @@ void main(){
 
 	
 	vec4 color = vec4(SDFVal, 0.0, 0.0, 1.0);
-    float bitmapVal = ceil(imageLoad(bitmap, bitmapUV).r - threshold);
+    float bitmapVal = ceil(imageLoad(bitmap, bitmapUV).a - threshold);
     bitmapVal = clamp(bitmapVal, 0.0, 1.0);
 
-    if(bitmapVal > 0.5 && sined == 1){
+    if(bitmapVal > 0.5){
         color.r *= -1.0;
     }
     imageStore(outputBuffer, uv, color);

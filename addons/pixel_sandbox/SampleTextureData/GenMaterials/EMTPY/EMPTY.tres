@@ -33,5 +33,6 @@ texture = SubResource("GradientTexture2D_2xll7")
 normal = SubResource("GradientTexture2D_6q2uy")
 gradient = SubResource("GradientTexture1D_qo73y")
 border = Color(0, 0, 0, 0)
+lightEmission = Color(0, 0, 0, 0)
 isSolid = false
 metadata/_custom_type_script = "uid://di707vap5isgj"

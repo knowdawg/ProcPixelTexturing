@@ -84,8 +84,11 @@ varying vec4 screen;
 
 void fragment() {
 	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
+	
+	//offset back the VU
 	vec2 qUV = UV + PS_TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
 	qUV = fract(qUV);
+	
 	qUV = floor(qUV * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE;
 	
 	vec4 self = texture(TEXTURE, qUV);

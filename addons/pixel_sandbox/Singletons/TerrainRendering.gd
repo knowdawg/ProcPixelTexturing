@@ -3,9 +3,11 @@ extends Node
 enum LAYER_TYPE {FOREGROUND, BACKGROUND}
 
 var sdfGen : SDFGenerator
+var radCasc : RadianceCascades
 
 var foregroundSDF : RID
 var backgroundSDF : RID
+var lightmapSDF : RID
 
 var worldPosition : Vector2
 var tileTextureOffset : Vector2
@@ -238,16 +240,28 @@ func _ready() -> void:
 	
 	contructTextureArrays()
 	setupChunks()
+	
+	#setup foreground SDF
+	var image := Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
+	image.fill(Color.BLACK)
+	foregroundSDF = TerrainRendering.getRIDImage(image, renDev)
+	
+	image = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
+	image.fill(Color.BLACK)
+	lightmapSDF = TerrainRendering.getRIDImage(image, renDev)
 
 func _process(_delta: float) -> void:
+	if is_instance_valid(sdfGen):
+		sdfGen.createSDF(worldVisualImageForegroundRID, foregroundSDF, 0.0, true)
 	updateLoadedRect()
 	updateTileTextureScrollAndSpritePosition()
-	if is_instance_valid(sdfGen):
-		#Update foreground SDF here
-		pass
 	
 	updateChunks()
 	
+	if is_instance_valid(sdfGen):
+		sdfGen.createSDF(lightMapRID, lightmapSDF, 0.0, true)
+		if is_instance_valid(radCasc):
+			radCasc.updateGlobalIllumination()
 
 func setupEnviromentObjects() -> void:
 	worldDataImage = Image.create_empty(mapSize.x, mapSize.y, false, Image.FORMAT_RGBA8)
@@ -455,6 +469,7 @@ func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	var outputForeground : RDUniform = TerrainRendering.getUniformImage(worldVisualImageForegroundRID, 2)
 	var outputBackground : RDUniform = TerrainRendering.getUniformImage(worldVisualImageBackgroundRID, 3)
 	var lightMap : RDUniform = TerrainRendering.getUniformImage(lightMapRID, 4)
+	
 	
 	var uniformSet : RID = renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputForeground, outputBackground, lightMap], textureChunkShader, 2)
 	
