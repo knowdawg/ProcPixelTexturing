@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://b0k2vav6dsip1"
+path="res://.godot/imported/IntegrateCascade.glsl-9be50a71dc51d301ca75014047168ee1.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/IntegrateCascade.glsl"
+dest_files=["res://.godot/imported/IntegrateCascade.glsl-9be50a71dc51d301ca75014047168ee1.res"]
+
+[params]
+

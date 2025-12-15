@@ -19,8 +19,13 @@ var combineShaderFile = preload("uid://dnnbnbh3iidv7")
 var combineShader : RID
 var combinePipeline : RID
 
-var cascadeImages : Array[Image] = []
+var integrateShaderFile = preload("uid://b0k2vav6dsip1")
+var integrateShader : RID
+var integratePipeline : RID
+
 var cascadeImageRIDs : Array[RID] = []
+
+var finalOutputImageRID : RID
 
 var workGroups : Vector3i
 
@@ -29,7 +34,7 @@ func _ready() -> void:
 	TerrainRendering.radCasc = self
 	
 	var tex2DRD : Texture2DRD = Texture2DRD.new()
-	tex2DRD.set_texture_rd_rid(cascadeImageRIDs[0])
+	tex2DRD.set_texture_rd_rid(finalOutputImageRID)
 	debugSprite.texture = tex2DRD
 
 
@@ -68,6 +73,23 @@ func updateGlobalIllumination():
 		var computeList : int = rd.compute_list_begin()
 		
 		TerrainRendering.executeComputeShader(workGroups, rd, computeList, combinePipeline, [uniformSet])
+		
+		rd.free_rid(params)
+	
+	
+	var cascade0Uniform : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[0], 0)
+	var outputUniform : RDUniform = TerrainRendering.getUniformImage(finalOutputImageRID, 1)
+	
+	var paramsData := PackedInt32Array([initialCascadeRayCount])
+	var params := TerrainRendering.getRIDStorageBufferInt(paramsData, rd)
+	var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 2)
+	
+	var uniformSet : RID = rd.uniform_set_create([cascade0Uniform, outputUniform, paramUniform], integrateShader, 0)
+	var computeList : int = rd.compute_list_begin()
+	
+	TerrainRendering.executeComputeShader(workGroups, rd, computeList, integratePipeline, [uniformSet])
+	
+	rd.free_rid(params)
 
 
 func setup():
@@ -84,10 +106,16 @@ func setup():
 	combineShader = rd.shader_create_from_spirv(combineShaderFile.get_spirv())
 	combinePipeline = rd.compute_pipeline_create(combineShader)
 	
+	integrateShader = rd.shader_create_from_spirv(integrateShaderFile.get_spirv())
+	integratePipeline = rd.compute_pipeline_create(integrateShader)
+	
 	for i in range(cascadeCount):
 		var image := Image.create_empty(imSize.x, imSize.y, false, Image.FORMAT_RGBAF);
 		image.fill(Color.BLACK)
 		var rid : RID = TerrainRendering.getRIDImage(image, rd)
 		
-		cascadeImages.append(image)
 		cascadeImageRIDs.append(rid)
+	
+	var image := Image.create_empty(initialCascadeResolution.x, initialCascadeResolution.y, false, Image.FORMAT_RGBAF);
+	image.fill(Color.BLACK)
+	finalOutputImageRID = TerrainRendering.getRIDImage(image, rd)

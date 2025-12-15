@@ -49,10 +49,12 @@ Light Map:
 	For blocks that want dont want to block light, thier emission color should be (0.0, 0.0, 0.0, 0.0)
 """
 
-var chunks : Array
-var activeChunks : Array[TextureChunk]
 var spriteForeground : Sprite2D
 var spriteBackground : Sprite2D
+var spriteLighting : Sprite2D
+
+var chunks : Array
+var activeChunks : Array[TextureChunk]
 var chunk = preload("uid://dafgjgn78ehp2")
 
 #Texture Details
@@ -419,6 +421,8 @@ func updateTileTextureScrollAndSpritePosition() -> void:
 		spriteForeground.global_position = (scroll * float(renderSectionSize))
 	if is_instance_valid(spriteBackground):
 		spriteBackground.global_position = (scroll * float(renderSectionSize))
+	if is_instance_valid(spriteLighting):
+		spriteLighting.global_position = (scroll * float(renderSectionSize))
 	
 
 func updateLoadedRect() -> void:
