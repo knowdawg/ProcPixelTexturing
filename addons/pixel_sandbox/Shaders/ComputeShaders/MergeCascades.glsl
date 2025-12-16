@@ -89,7 +89,7 @@ void main(){
             //Merge the two intervals
             radiance += mergeIntervals(nearInterval, bilinearInterval) * weights[b];
         }
-        combinedRadiance += radiance / 4.0; //gunna be adding radiance 4 times and we want the average of each of the 4 rays we are combining from
+        combinedRadiance += radiance / 4.0; //gunna be adding radiance 4 times and we want the average of each of the 4 n+1 probes
     }
 
     imageStore(mergeToCascade, rayCoord, combinedRadiance);

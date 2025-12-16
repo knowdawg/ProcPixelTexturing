@@ -1,9 +1,6 @@
 #[compute]
 #version 450
 
-//Note, cascades should be in no way dependant on the render section size of the terrain. This method currently is and assumes that the size of a cascade is the size of the render section size
-//This is because is samples from the lightmap and light image based on gl_GlobalInvocationID which will only line up if everything is the same resoltion
-
 layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 layout(set = 0, binding = 0, rgba32f) uniform readonly image2D lightSDF;
@@ -18,9 +15,14 @@ layout(set = 0, binding = 3, std430) readonly buffer Params {
     int scrollOffsetY;
 };
 
+ivec2 scaleToLightMap(ivec2 uv){
+    vec2 ratio = vec2(imageSize(lightImage)) / vec2(imageSize(outputBuffer));
+    return ivec2(vec2(uv) * ratio);
+}
+
 vec4 sampleLightImage(ivec2 uv){
     ivec2 size = imageSize(lightImage);
-    ivec2 offsetUV = uv + ivec2(scrollOffsetX, scrollOffsetY) - (size / 2);
+    ivec2 offsetUV = uv + ivec2(scrollOffsetX, scrollOffsetY) - ivec2(size / 2);
     offsetUV = ivec2(
         (offsetUV.x % size.x + size.x) % size.x,
         (offsetUV.y % size.y + size.y) % size.y
@@ -42,18 +44,22 @@ vec2 ray_interval() {
 
 
 vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
-    vec2 size = vec2(imageSize(outputBuffer));
+    vec2 size = vec2(imageSize(lightSDF));
     vec4 hit = vec4(0.0, 0.0, 0.0, 0.0); //0 in alpha is hit nothing, 1 is hit something
 
-    float dis = interval.x;
+    vec2 scaledOrigin = vec2(scaleToLightMap(ivec2(origin)));
+    vec2 scaledInterval = vec2(scaleToLightMap(ivec2(interval)));
+
+    float dis = scaledInterval.x;
     for (int i = 0; i < 32; i++){
-        dis = clamp(dis, interval.x, interval.y);
-        vec2 p = origin + (dir * dis);
+        dis = clamp(dis, scaledInterval.x, scaledInterval.y);
+        vec2 p = scaledOrigin + (dir * dis);
 
         if(p.x < 0 || p.y < 0 || p.x >= size.x || p.y >= size.y) break;
 
+        
         vec4 sdfVal = imageLoad(lightSDF, ivec2(p));
-        if(sdfVal.r < 0.001 || dis == interval.y){
+        if(sdfVal.r < 0.001 || dis == scaledInterval.y){
             hit = sampleLightImage(ivec2(p));
             break;
         }
@@ -68,7 +74,7 @@ void main(){
     ivec2 rayCoord = ivec2(gl_GlobalInvocationID.xy);
     ivec2 size = imageSize(outputBuffer);
 
-    if(rayCoord.x < 0 || rayCoord.y < 0 || rayCoord.x > size.x || rayCoord.y > size.y) return; //Out of bounds
+    if(rayCoord.x < 0 || rayCoord.y < 0 || rayCoord.x >= size.x || rayCoord.y >= size.y) return; //Out of bounds
 
     int numOfRays = (c0ProbeSize * c0ProbeSize) << (2 * cascadeIndex); //Number of rays TOTAL in each probe. 4 times move pre cascade
     int probeSize = c0ProbeSize << cascadeIndex; //The WIDTH (and hieght) of each probe. 2 times the width per cascade

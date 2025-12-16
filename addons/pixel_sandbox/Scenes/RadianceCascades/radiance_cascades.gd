@@ -4,10 +4,10 @@ class_name RadianceCascades
 @export var debugSprite : Sprite2D;
 
 @export_group("Radiance Cascades Parameters")
-@export var cascadeCount : int = 6
-@export var initialCascadeRayCount : int = 4 #8, 16, 32, 64, 128
-@export var initailCascadeRayLength : int = 1
-@export var initialCascadeResolution : Vector2i = Vector2i(128, 128)
+@export var cascadeCount : int = 5
+@export var initialCascadeRayCount : int = 4
+@export var initailCascadeRayLength : int = 6
+@export var initialCascadeResolution : Vector2i = Vector2i(512, 512)
 
 var rd : RenderingDevice
 
@@ -87,16 +87,23 @@ func updateGlobalIllumination():
 	var uniformSet : RID = rd.uniform_set_create([cascade0Uniform, outputUniform, paramUniform], integrateShader, 0)
 	var computeList : int = rd.compute_list_begin()
 	
-	TerrainRendering.executeComputeShader(workGroups, rd, computeList, integratePipeline, [uniformSet])
+	var integrateWorkGroups := Vector3i(1.0, 1.0, 1.0)
+	integrateWorkGroups.x = int(float(initialCascadeResolution.x) / float(TerrainRendering.renderSectionSize) * 16.0)
+	integrateWorkGroups.y = integrateWorkGroups.x
+	#print("Integrated Work Groups: ", integrateWorkGroups)
+	
+	TerrainRendering.executeComputeShader(integrateWorkGroups, rd, computeList, integratePipeline, [uniformSet])
 	
 	rd.free_rid(params)
 
 
 func setup():
 	var imSize := initialCascadeResolution * initialCascadeRayCount
-	if imSize != Vector2i(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize):
-		printerr("Warning: Radiance Cascades Cascade Image size is not equal to TerrainRendering's render section size. This is not currently suported")
-	workGroups = Vector3i(16, 16, 1)
+	
+	workGroups = Vector3i(0, 0, 1)
+	workGroups.x = int(float(initialCascadeResolution.x * initialCascadeRayCount) / 32.0)
+	workGroups.y = int(float(initialCascadeResolution.y * initialCascadeRayCount) / 32.0)
+	#print("Work Groups: ", workGroups)
 	
 	rd = RenderingServer.get_rendering_device()
 	

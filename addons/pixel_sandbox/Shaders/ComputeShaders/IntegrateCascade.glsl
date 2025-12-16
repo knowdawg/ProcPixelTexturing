@@ -3,8 +3,8 @@
 
 layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
-layout(set = 0, binding = 0, rgba32f) uniform readonly image2D cascade; //cascade that we are merging from. cascade N + 1
-layout(set = 0, binding = 1, rgba32f) uniform writeonly image2D outputBuffer; //cascade that we are merging to. cascade N
+layout(set = 0, binding = 0, rgba32f) uniform readonly image2D cascade;
+layout(set = 0, binding = 1, rgba32f) uniform writeonly image2D outputBuffer;
 
 layout(set = 0, binding = 2, std430) readonly buffer Params {
     int probeSize;
