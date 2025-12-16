@@ -6,7 +6,7 @@ class_name RadianceCascades
 @export_group("Radiance Cascades Parameters")
 @export var cascadeCount : int = 5
 @export var initialCascadeRayCount : int = 4
-@export var initailCascadeRayLength : int = 6
+@export var initailCascadeRayLength : int = 2
 @export var initialCascadeResolution : Vector2i = Vector2i(512, 512)
 
 var rd : RenderingDevice

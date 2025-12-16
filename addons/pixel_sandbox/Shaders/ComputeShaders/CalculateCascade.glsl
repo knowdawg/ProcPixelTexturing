@@ -65,6 +65,7 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
         }
         dis += sdfVal.r * size.x;
     }
+    hit.a = 1.0 - hit.a;
     return hit;
 }
 

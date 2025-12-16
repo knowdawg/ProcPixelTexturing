@@ -108,7 +108,7 @@ layer = 1
 material = SubResource("ShaderMaterial_txt8w")
 
 [node name="SpriteLighting" type="Sprite2D" parent="World2D"]
-texture_filter = 1
+texture_filter = 2
 material = SubResource("ShaderMaterial_mu78b")
 position = Vector2(256, 256)
 scale = Vector2(2, 2)

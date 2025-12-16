@@ -12,12 +12,12 @@ layout(set = 0, binding = 2, std430) readonly buffer Params {
 
 //Merge 2 rays with respect to their visibility. Alpha equals 0.0 means it hit nothing. Alpha = 1.0 means it hit something
 vec4 mergeIntervals(vec4 near, vec4 far) {
-    float nearOcluder = 1.0 - near.a; //will be 0 is near hit something
-    float farOcluder = 1.0 - far.a; //will be 0 is far hit something
+    float nearOcluder = near.a; //will be 0 is near hit something
+    float farOcluder = far.a; //will be 0 is far hit something
     //Far's radiance can be ocluded by near's radiance if near hit
     vec3 radiance = near.rgb + (far.rgb * nearOcluder);
 
-    return vec4(radiance, 1.0 - (nearOcluder * farOcluder)); //if either hit something, return 1. if neither hit somethign return 0
+    return vec4(radiance, (nearOcluder * farOcluder)); //if either hit something, return 1. if neither hit somethign return 0
 }
 
 //Returns the bilinear wieghts for the 4 nearest n+1 probes.
