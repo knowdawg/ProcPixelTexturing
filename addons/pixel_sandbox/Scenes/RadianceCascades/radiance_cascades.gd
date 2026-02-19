@@ -1,12 +1,12 @@
 extends Node
 class_name RadianceCascades
 
-@export var debugSprite : Sprite2D;
+@export var lightingSprite : Sprite2D;
 
 @export_group("Radiance Cascades Parameters")
-@export var cascadeCount : int = 5
-@export var initialCascadeRayCount : int = 4
-@export var initailCascadeRayLength : int = 2
+@export var cascadeCount : int = 6
+@export var initialCascadeRayCount : int = 4 #set to 2 for low quality mode. Causes a little bit of ringing
+@export var initailCascadeRayLength : int = 1
 @export var initialCascadeResolution : Vector2i = Vector2i(512, 512)
 
 var rd : RenderingDevice
@@ -24,8 +24,16 @@ var integrateShader : RID
 var integratePipeline : RID
 
 var cascadeImageRIDs : Array[RID] = []
-
 var finalOutputImageRID : RID
+
+#uniforms
+var lightSDFUniform : RDUniform
+var lightImageUniform : RDUniform
+var finalOutputImageUniform : RDUniform
+
+var cascadeImageUniformsBinding0 : Array[RDUniform]
+var cascadeImageUniformsBinding1 : Array[RDUniform]
+var cascadeImageUniformsBinding2 : Array[RDUniform]
 
 var workGroups : Vector3i
 
@@ -33,17 +41,14 @@ func _ready() -> void:
 	setup()
 	TerrainRendering.radCasc = self
 	
-	var tex2DRD : Texture2DRD = Texture2DRD.new()
-	tex2DRD.set_texture_rd_rid(finalOutputImageRID)
-	debugSprite.texture = tex2DRD
-
+	'''Set the light sprite's texture equal to radiance cascade texture '''
+	if lightingSprite:
+		var tex2DRD : Texture2DRD = Texture2DRD.new()
+		tex2DRD.set_texture_rd_rid(finalOutputImageRID)
+		lightingSprite.texture = tex2DRD
 
 func updateGlobalIllumination():
 	for i in range(len(cascadeImageRIDs)):
-		var lightSDF : RDUniform = TerrainRendering.getUniformImage(TerrainRendering.lightmapSDF, 0)
-		var lightImage : RDUniform = TerrainRendering.getUniformImage(TerrainRendering.lightMapRID, 1)
-		var outputIm : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[i], 2)
-		
 		var offsetX : int = int(TerrainRendering.tileTextureOffset.x * float(TerrainRendering.renderSectionSize))
 		var offsetY : int = int(TerrainRendering.tileTextureOffset.y * float(TerrainRendering.renderSectionSize))
 		
@@ -52,48 +57,43 @@ func updateGlobalIllumination():
 		var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 3)
 		
 		
-		var uniformSet : RID = rd.uniform_set_create([lightSDF, lightImage, outputIm, paramUniform], cascadeShader, 0)
+		var uniformSet : RID = rd.uniform_set_create([lightSDFUniform, lightImageUniform, cascadeImageUniformsBinding2[i], paramUniform], cascadeShader, 0)
 		var computeList : int = rd.compute_list_begin()
 		
 		TerrainRendering.executeComputeShader(workGroups, rd, computeList, cascadePipeline, [uniformSet])
 		
+		rd.free_rid(uniformSet)
 		rd.free_rid(params)
 	
 	for i in range(len(cascadeImageRIDs) - 1, 0, -1):
-		var bigCascade : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[i], 0)
-		var mergeCascade : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[i - 1], 1)
-		
 		var mergeProbeSize : int = initialCascadeRayCount * pow(2, i - 1)
 		
 		var paramsData := PackedInt32Array([mergeProbeSize])
 		var params := TerrainRendering.getRIDStorageBufferInt(paramsData, rd)
 		var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 2)
 		
-		var uniformSet : RID = rd.uniform_set_create([bigCascade, mergeCascade, paramUniform], combineShader, 0)
+		var uniformSet : RID = rd.uniform_set_create([cascadeImageUniformsBinding0[i], cascadeImageUniformsBinding1[i-1], paramUniform], combineShader, 0)
 		var computeList : int = rd.compute_list_begin()
 		
 		TerrainRendering.executeComputeShader(workGroups, rd, computeList, combinePipeline, [uniformSet])
 		
+		rd.free_rid(uniformSet)
 		rd.free_rid(params)
-	
-	
-	var cascade0Uniform : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[0], 0)
-	var outputUniform : RDUniform = TerrainRendering.getUniformImage(finalOutputImageRID, 1)
 	
 	var paramsData := PackedInt32Array([initialCascadeRayCount])
 	var params := TerrainRendering.getRIDStorageBufferInt(paramsData, rd)
 	var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 2)
 	
-	var uniformSet : RID = rd.uniform_set_create([cascade0Uniform, outputUniform, paramUniform], integrateShader, 0)
+	var uniformSet : RID = rd.uniform_set_create([cascadeImageUniformsBinding0[0], finalOutputImageUniform, paramUniform], integrateShader, 0)
 	var computeList : int = rd.compute_list_begin()
 	
 	var integrateWorkGroups := Vector3i(1.0, 1.0, 1.0)
 	integrateWorkGroups.x = int(float(initialCascadeResolution.x) / float(TerrainRendering.renderSectionSize) * 16.0)
 	integrateWorkGroups.y = integrateWorkGroups.x
-	#print("Integrated Work Groups: ", integrateWorkGroups)
 	
 	TerrainRendering.executeComputeShader(integrateWorkGroups, rd, computeList, integratePipeline, [uniformSet])
 	
+	rd.free_rid(uniformSet)
 	rd.free_rid(params)
 
 
@@ -122,7 +122,16 @@ func setup():
 		var rid : RID = TerrainRendering.getRIDImage(image, rd)
 		
 		cascadeImageRIDs.append(rid)
+		
+		cascadeImageUniformsBinding0.append(TerrainRendering.getUniformImage(rid, 0))
+		cascadeImageUniformsBinding1.append(TerrainRendering.getUniformImage(rid, 1))
+		cascadeImageUniformsBinding2.append(TerrainRendering.getUniformImage(rid, 2))
 	
 	var image := Image.create_empty(initialCascadeResolution.x, initialCascadeResolution.y, false, Image.FORMAT_RGBAF);
 	image.fill(Color.BLACK)
 	finalOutputImageRID = TerrainRendering.getRIDImage(image, rd)
+	
+	#Create Uniforms
+	lightSDFUniform = TerrainRendering.getUniformImage(TerrainRendering.lightmapSDF, 0)
+	lightImageUniform = TerrainRendering.getUniformImage(TerrainRendering.lightMapRID, 1)
+	finalOutputImageUniform = TerrainRendering.getUniformImage(finalOutputImageRID, 1)

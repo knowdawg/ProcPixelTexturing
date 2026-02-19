@@ -70,9 +70,7 @@ func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offse
 	
 	TerrainRendering.executeComputeShader(workGroups, rd, computeList, pipelineSeed, [uniformSet])
 	
-	#rd.free_rid(woRID)
-	#rd.free_rid(thresholdRID)
-	#return finalImage
+	rd.free_rid(uniformSet)
 	
 	for i in passes:
 		var curOffset : int = int(TerrainRendering.renderSectionSize / (pow(2.0, i + 1)))
@@ -97,9 +95,6 @@ func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offse
 		
 		rd.free_rid(dataRID)
 	
-	#rd.free_rid(woRID)
-	#rd.free_rid(thresholdRID)
-	#return finalImage
 	
 	#Final Distance Pass
 	bitmap = TerrainRendering.getUniformImage(bitmapRID, 0)

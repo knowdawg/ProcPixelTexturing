@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=4 uid="uid://c726gqd04n3yb"]
+[gd_scene load_steps=26 format=4 uid="uid://c726gqd04n3yb"]
 
 [ext_resource type="Script" uid="uid://c4eeak2ynu8a3" path="res://TextureChunking/Scripts/world_2d.gd" id="1_aboe0"]
 [ext_resource type="Script" uid="uid://b1381eapkmqjg" path="res://Test/FPSLabel.gd" id="1_dvw3m"]
@@ -28,6 +28,9 @@ shader = ExtResource("6_u2jdx")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_mu78b"]
 shader = ExtResource("7_bnr5j")
+shader_parameter/intensity = 2.0
+shader_parameter/exposure = 3.0
+shader_parameter/luminance = 3.0
 
 [sub_resource type="Gradient" id="Gradient_txt8w"]
 interpolation_mode = 2
@@ -43,6 +46,11 @@ height = 128
 fill = 1
 fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.9, 0.9)
+
+[sub_resource type="Environment" id="Environment_bnr5j"]
+background_mode = 3
+tonemap_white = 5.5
+glow_blend_mode = 0
 
 [sub_resource type="Gradient" id="Gradient_ev223"]
 
@@ -83,7 +91,6 @@ position = Vector2(250, 250)
 script = ExtResource("6_bnr5j")
 
 [node name="Camera2D" type="Camera2D" parent="World2D/CameraHolder"]
-zoom = Vector2(6, 6)
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
 script = ExtResource("8_xil5r")
@@ -107,18 +114,24 @@ layer = 1
 [node name="ForegroundTerrainTexture" parent="World2D" instance=ExtResource("5_hcy24")]
 material = SubResource("ShaderMaterial_txt8w")
 
+[node name="ColorRect" type="ColorRect" parent="World2D"]
+visible = false
+offset_right = 521.0
+offset_bottom = 525.0
+mouse_filter = 2
+
 [node name="SpriteLighting" type="Sprite2D" parent="World2D"]
-texture_filter = 2
+texture_filter = 1
 material = SubResource("ShaderMaterial_mu78b")
 position = Vector2(256, 256)
-scale = Vector2(2, 2)
 script = ExtResource("7_txt8w")
 
 [node name="SDFGenerator" parent="World2D" instance=ExtResource("7_yxens")]
 
-[node name="RadianceCascades" type="Node" parent="World2D" node_paths=PackedStringArray("debugSprite")]
+[node name="RadianceCascades" type="Node" parent="World2D" node_paths=PackedStringArray("lightingSprite")]
 script = ExtResource("10_txt8w")
-debugSprite = NodePath("../SpriteLighting")
+lightingSprite = NodePath("../SpriteLighting")
+initialCascadeRayCount = 2
 
 [node name="Sun" parent="World2D" instance=ExtResource("7_k60dn")]
 visible = false
@@ -131,6 +144,9 @@ texture = SubResource("GradientTexture2D_bnr5j")
 texture_scale = 2.0
 height = 20.0
 script = ExtResource("11_yxens")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="World2D"]
+environment = SubResource("Environment_bnr5j")
 
 [node name="GUI" type="Control" parent="."]
 layout_mode = 3

@@ -1,0 +1,26 @@
+[gd_scene load_steps=6 format=3 uid="uid://doounl3jdrsyy"]
+
+[ext_resource type="Shader" uid="uid://bg3h20c81wc2e" path="res://Test/greyscale_colormap.gdshader" id="1_xrh5t"]
+[ext_resource type="Texture2D" uid="uid://bm2r54bsxwabh" path="res://Test/GreyscaleTest.jpg" id="2_aaegw"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_aaegw"]
+shader = ExtResource("1_xrh5t")
+shader_parameter/tex = ExtResource("2_aaegw")
+shader_parameter/blackPoint = 0.0
+shader_parameter/whitePoint = 1.0
+shader_parameter/tint = Color(1, 1, 1, 1)
+
+[sub_resource type="Gradient" id="Gradient_17qrl"]
+offsets = PackedFloat32Array(1)
+colors = PackedColorArray(1, 1, 1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_u2id8"]
+gradient = SubResource("Gradient_17qrl")
+width = 1024
+height = 680
+
+[node name="GreyscaleColormap" type="Node2D"]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_aaegw")
+texture = SubResource("GradientTexture2D_u2id8")

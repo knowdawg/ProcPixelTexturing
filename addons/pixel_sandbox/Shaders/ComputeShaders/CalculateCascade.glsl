@@ -58,12 +58,33 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
         if(p.x < 0 || p.y < 0 || p.x >= size.x || p.y >= size.y) break;
 
         
+        //SDF Raymarching, requires less itterations
         vec4 sdfVal = imageLoad(lightSDF, ivec2(p));
         if(sdfVal.r < 0.001 || dis == scaledInterval.y){
             hit = sampleLightImage(ivec2(p));
             break;
         }
         dis += sdfVal.r * size.x;
+
+        //Fixed Length Raymarching, requires more itterations
+        // vec4 myPos = sampleLightImage(ivec2(p));
+        // if(myPos.a > 0.5){ //Hit Something
+        //     hit = myPos;
+        //     break;
+        // }
+        // dis += 1.0; //Step 1 pixel
+
+        // Fixed Length Raymarching With Volumetrics (WIP)
+        // vec4 myPos = sampleLightImage(ivec2(p));
+        // if(myPos.a > 0.0){ //Hit Something
+        //     hit += myPos;
+        //     if(hit.a > 1.0){
+        //            break;
+        //        }
+        // }
+        // }
+        // dis += 1.0; //Step 1 pixel
+
     }
     hit.a = 1.0 - hit.a;
     return hit;

@@ -37,6 +37,8 @@ layout(set = 2, binding = 3, rgba8) uniform writeonly image2D OutputBufferBackgr
 layout(set = 2, binding = 4, rgba32f) uniform writeonly image2D LightMap;
 
 
+
+
 int getTileIndex(float floatIndex){
 	return int((floatIndex * 255.0) + 0.5);
 }
