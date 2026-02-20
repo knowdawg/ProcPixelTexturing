@@ -42,10 +42,13 @@ func _ready() -> void:
 	TerrainRendering.radCasc = self
 	
 	'''Set the light sprite's texture equal to radiance cascade texture '''
+	var tex2DRD : Texture2DRD = Texture2DRD.new()
+	tex2DRD.set_texture_rd_rid(finalOutputImageRID)
 	if lightingSprite:
-		var tex2DRD : Texture2DRD = Texture2DRD.new()
-		tex2DRD.set_texture_rd_rid(finalOutputImageRID)
 		lightingSprite.texture = tex2DRD
+		
+	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE", initialCascadeResolution.x * initialCascadeRayCount)
+	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION", tex2DRD)
 
 func updateGlobalIllumination():
 	for i in range(len(cascadeImageRIDs)):
@@ -88,7 +91,7 @@ func updateGlobalIllumination():
 	var computeList : int = rd.compute_list_begin()
 	
 	var integrateWorkGroups := Vector3i(1.0, 1.0, 1.0)
-	integrateWorkGroups.x = int(float(initialCascadeResolution.x) / float(TerrainRendering.renderSectionSize) * 16.0)
+	integrateWorkGroups.x = int(float(initialCascadeResolution.x) / float(TerrainRendering.renderSectionSize) * 16.0 * initialCascadeRayCount) # Remove * initialCascadeRayCount after
 	integrateWorkGroups.y = integrateWorkGroups.x
 	
 	TerrainRendering.executeComputeShader(integrateWorkGroups, rd, computeList, integratePipeline, [uniformSet])
@@ -127,7 +130,10 @@ func setup():
 		cascadeImageUniformsBinding1.append(TerrainRendering.getUniformImage(rid, 1))
 		cascadeImageUniformsBinding2.append(TerrainRendering.getUniformImage(rid, 2))
 	
-	var image := Image.create_empty(initialCascadeResolution.x, initialCascadeResolution.y, false, Image.FORMAT_RGBAF);
+	"""
+	CHANGE BACK HERE, REMOVE '* initialCascadeRayCount' FROM BOTH THE X AND Y
+	"""
+	var image := Image.create_empty(initialCascadeResolution.x * initialCascadeRayCount, initialCascadeResolution.y * initialCascadeRayCount, false, Image.FORMAT_RGBAF);
 	image.fill(Color.BLACK)
 	finalOutputImageRID = TerrainRendering.getRIDImage(image, rd)
 	

@@ -1,25 +1,25 @@
 shader_type canvas_item;
 
 global uniform vec2 PS_RENDER_QUADRANT_SIZE;
-global uniform  int PS_UNIQUE_TILES;
-global uniform vec2 PS_WORLD_POSITION;
-global uniform vec2 PS_CAMERA_ZOOM;
-global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_linear, repeat_enable;
-global uniform sampler2D PS_FOREGROUND_SDF : filter_linear, repeat_enable;
+//global uniform  int PS_UNIQUE_TILES;
+//global uniform vec2 PS_WORLD_POSITION;
+//global uniform vec2 PS_CAMERA_ZOOM;
+//global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_linear, repeat_enable;
+//global uniform sampler2D PS_FOREGROUND_SDF : filter_linear, repeat_enable;
 global uniform vec2 PS_TILE_TEXTURE_SCROLL;
 
-global uniform sampler2DArray PS_FOREGROUND_TEXTURES : filter_nearest, repeat_enable;
-global uniform sampler2DArray PS_FOREGROUND_NORMALS : filter_nearest, repeat_enable;
-global uniform sampler2DArray PS_FOREGROUND_GRADIENTS : filter_nearest;
-global uniform sampler2D PS_FOREGROUND_BORDER_COLORS : filter_nearest;
-
-group_uniforms lighting;
-uniform float falloff : hint_range(0.0, 100.0) = 15.0;
-uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
-uniform float warp : hint_range(-1.0, 1.0) = -0.03;
-
-varying vec2 screenSize;
-varying vec4 screen;
+//global uniform sampler2DArray PS_FOREGROUND_TEXTURES : filter_nearest, repeat_enable;
+//global uniform sampler2DArray PS_FOREGROUND_NORMALS : filter_nearest, repeat_enable;
+//global uniform sampler2DArray PS_FOREGROUND_GRADIENTS : filter_nearest;
+//global uniform sampler2D PS_FOREGROUND_BORDER_COLORS : filter_nearest;
+//
+//group_uniforms lighting;
+//uniform float falloff : hint_range(0.0, 100.0) = 15.0;
+//uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
+//uniform float warp : hint_range(-1.0, 1.0) = -0.03;
+//
+//varying vec2 screenSize;
+//varying vec4 screen;
 
 //vec4 getColor(int type, vec2 uv, vec4 self, float disToEdge, inout vec3 normal){
 	//vec4 c = vec4(1.0);

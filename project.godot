@@ -106,3 +106,10 @@ TileTemplateDecreaseSize={
 [rendering]
 
 2d/sdf/scale=0
+
+[shader_globals]
+
+PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE={
+"type": "int",
+"value": 0
+}

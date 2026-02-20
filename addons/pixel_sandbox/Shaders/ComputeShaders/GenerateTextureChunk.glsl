@@ -35,7 +35,8 @@ layout(set = 2, binding = 1, rgba8) uniform readonly image2D TileImage;
 layout(set = 2, binding = 2, rgba8) uniform writeonly image2D OutputBufferForeground;
 layout(set = 2, binding = 3, rgba8) uniform writeonly image2D OutputBufferBackground;
 layout(set = 2, binding = 4, rgba32f) uniform writeonly image2D LightMap;
-
+layout(set = 2, binding = 5, rgba8) uniform writeonly image2D OutputBufferForegroundNormal;
+layout(set = 2, binding = 6, rgba8) uniform writeonly image2D OutputBufferBackgroundNormal;
 
 
 
@@ -53,7 +54,6 @@ vec4 getColor(int type, ivec2 uv, float self, in sampler2DArray textures, in sam
 	
 	//sampling
 	vec4 tVal = texture(textures, arrayUV);
-	//vec4 nVal = texture(normal2dArrayForeground, arrayUV);
 	
 	switch(type){
 		case 0:
@@ -75,8 +75,18 @@ vec4 getColor(int type, ivec2 uv, float self, in sampler2DArray textures, in sam
 			break;
 	}
 	
-	
 	return c;
+}
+
+vec4 getNormal(ivec2 uv, float self, in sampler2DArray normalTextures){
+	//UV stuff
+	vec2 normalizedUV = fract(vec2(uv) / 256.0); //from 0-1
+	int tileIndex = getTileIndex(self);
+	vec3 arrayUV = vec3(normalizedUV, tileIndex);
+
+	vec4 n = texture(normalTextures, arrayUV);
+
+	return n;
 }
 
 //returns a ivec2 where the x value is the pixel type for the forground and y value is the pixel type for the background
@@ -181,6 +191,9 @@ void main() {
 	
 	vec4 foregroundColor = getColor(pixelType.x, chunkOffsetUV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground);
 	vec4 backgroundColor = getColor(pixelType.y, chunkOffsetUV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground);
+	vec4 foregroundNormal = getNormal(chunkOffsetUV, tileData.r, normal2dArrayForeground);
+	vec4 backgroundNormal = getNormal(chunkOffsetUV, tileData.g, normal2dArrayBackground);
+
 
 	vec4 emissionColor = vec4(0.0);
 	emissionColor += texture(emissionColorsForeground, vec2(tileData.r, 0.0)); // foreground light
@@ -193,6 +206,10 @@ void main() {
 	//wrap the texture on itself
     chunkOffsetUV = chunkOffsetUV % size;
 	imageStore(LightMap, chunkOffsetUV, emissionColor);
+
     imageStore(OutputBufferForeground, chunkOffsetUV, foregroundColor);
 	imageStore(OutputBufferBackground, chunkOffsetUV, backgroundColor);
+
+	imageStore(OutputBufferForegroundNormal, chunkOffsetUV, foregroundNormal);
+	imageStore(OutputBufferBackgroundNormal, chunkOffsetUV, backgroundNormal);
 }

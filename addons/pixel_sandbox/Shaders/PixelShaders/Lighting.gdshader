@@ -28,25 +28,9 @@ void fragment() {
 	c = boost_luminance(c);
 	vec4 s = texture(screen, SCREEN_UV);
 	
-	//c = pow(c, vec3(0.25));
-	//COLOR.rgb = smoothstep(0.1, 0.5, pow(c, vec3(0.5)) * 2.0);//pow(c * 4.0, vec3(0.5));
-	
 	COLOR.rgb = c * s.rgb;
+	COLOR.a = 1.0;
 	
-	//
-	//vec3 mulc = pow(c, vec3(0.5)) * 4.0;
-	//
-	//s.rgb += c;
-	//s.rgb *= clamp(vec3(0.0), vec3(1.0), mulc);
-	
-	//if(c == vec3(1.0, 1.0, 1.0)){ //key out the sky somehow
-		//s.a = 0.0;
-	//}
-	
-	
-	//COLOR = s;
-	
-	
-	//c *= 5.0;
-	//COLOR.rgb = linearTosRGB(c.rgb);
+	//COLOR.rgb = vec3(1.0);
+	//COLOR.a = texture(TEXTURE, UV).a;
 }

@@ -3,15 +3,15 @@ extends Node
 class_name RuntimeShaderGlobals
 
 static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParameterType] = {
-	"PS_BACKGROUND_BORDER_COLORS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
-	"PS_BACKGROUND_GRADIENTS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-	"PS_BACKGROUND_NORMALS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-	"PS_BACKGROUND_TEXTURES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
+	#"PS_BACKGROUND_BORDER_COLORS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
+	#"PS_BACKGROUND_GRADIENTS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
+	#"PS_BACKGROUND_NORMALS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
+	#"PS_BACKGROUND_TEXTURES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
 
-	"PS_FOREGROUND_BORDER_COLORS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
-	"PS_FOREGROUND_GRADIENTS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-	"PS_FOREGROUND_NORMALS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-	"PS_FOREGROUND_TEXTURES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
+	#"PS_FOREGROUND_BORDER_COLORS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
+	#"PS_FOREGROUND_GRADIENTS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
+	#"PS_FOREGROUND_NORMALS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
+	#"PS_FOREGROUND_TEXTURES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
 	
 	"PS_FOREGROUND_SDF" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 	"PS_GLOBAL_ILLUMINATION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
@@ -21,7 +21,7 @@ static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParame
 	"PS_WORLD_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
 	"PS_CAMERA_ZOOM" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
 	
-	"PS_SUN_DIRECTION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_FLOAT,
+	#"PS_SUN_DIRECTION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_FLOAT,
 	
 	"PS_UNIQUE_TILES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_INT,
 }

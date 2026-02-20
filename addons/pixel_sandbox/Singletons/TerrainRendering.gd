@@ -41,6 +41,13 @@ worldVisualImage:
 	the actualy image that the user sees on the screen. This is the output of the generateTextureChunk shader
 """
 
+var worldNormalImageForegroundRID : RID
+var worldNormalImageBackgroundRID : RID
+"""
+worldNormalImage:
+	the image that normals are writen to as an output of generateTextureChunk shader
+"""
+
 var lightMapRID : RID
 """
 Light Map:
@@ -264,24 +271,34 @@ func _process(_delta: float) -> void:
 		sdfGen.createSDF(lightMapRID, lightmapSDF, 0.0, true)
 		if is_instance_valid(radCasc):
 			radCasc.updateGlobalIllumination()
+			#radCasc.finalOutputImageRID
 
 func setupEnviromentObjects() -> void:
 	worldDataImage = Image.create_empty(mapSize.x, mapSize.y, false, Image.FORMAT_RGBA8)
 	worldDataImage.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldDataImage.decompress()
 	
+	#Create an image on the GPU for each of the world images
+	var worldImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	worldImageForeground.fill(Color(0.0, 0.0, 0.0, 0.0))
+	worldVisualImageForegroundRID = TerrainRendering.getRIDImage(worldImageForeground, renDev)
 	
-	var image = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
-	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	worldVisualImageForegroundRID = TerrainRendering.getRIDImage(image, renDev)
+	var worldImageBackground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	worldImageBackground.fill(Color(0.0, 0.0, 0.0, 0.0))
+	worldVisualImageBackgroundRID = TerrainRendering.getRIDImage(worldImageBackground, renDev)
 	
-	var image2 = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
-	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	worldVisualImageBackgroundRID = TerrainRendering.getRIDImage(image2, renDev)
+	var worldNormalImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	worldNormalImageForeground.fill(Color(0.0, 0.0, 0.0, 0.0))
+	worldNormalImageForegroundRID = TerrainRendering.getRIDImage(worldNormalImageForeground, renDev)
 	
+	var worldNormalImageBackground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	worldNormalImageBackground.fill(Color(0.0, 0.0, 0.0, 0.0))
+	worldNormalImageBackgroundRID = TerrainRendering.getRIDImage(worldNormalImageBackground, renDev)
+	
+	#Create an image on the GPU for the lightmap
 	var lightmapImage = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
-	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	lightMapRID = TerrainRendering.getRIDImage(image, renDev)
+	lightmapImage.fill(Color(0.0, 0.0, 0.0, 0.0))
+	lightMapRID = TerrainRendering.getRIDImage(lightmapImage, renDev)
 	
 
 func setupChunks() -> void:
@@ -473,9 +490,11 @@ func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	var outputForeground : RDUniform = TerrainRendering.getUniformImage(worldVisualImageForegroundRID, 2)
 	var outputBackground : RDUniform = TerrainRendering.getUniformImage(worldVisualImageBackgroundRID, 3)
 	var lightMap : RDUniform = TerrainRendering.getUniformImage(lightMapRID, 4)
+	var outputNormalForeground : RDUniform = TerrainRendering.getUniformImage(worldNormalImageForegroundRID, 5)
+	var outputNormalBackground : RDUniform = TerrainRendering.getUniformImage(worldNormalImageBackgroundRID, 6)
 	
 	
-	var uniformSet : RID = renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputForeground, outputBackground, lightMap], textureChunkShader, 2)
+	var uniformSet : RID = renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputForeground, outputBackground, lightMap, outputNormalForeground, outputNormalBackground], textureChunkShader, 2)
 	
 	var computeList = renDev.compute_list_begin()
 	
@@ -515,12 +534,16 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 	var outputImageBackgroundRID : RID = getRIDImage(outputImageBackground, renDev)
 	var outputUniformBackground := getUniformImage(outputImageBackgroundRID, 3)
 	
+	#Blueprints dont use lightmaps or normals... for now... and probabbly never. Writint a seperate shader for the blueprints would probably be a good idea
 	var dummyLightmap: Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBAF)
 	dummyLightmap.fill(Color.BLACK)
 	var dummyLightmapRID : RID = getRIDImage(dummyLightmap, renDev)
 	var dummyLightmapUniform := getUniformImage(dummyLightmapRID, 4)
 	
-	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniformForeground, outputUniformBackground, dummyLightmapUniform], textureChunkShader, 2)
+	var dummyNormal1 := getUniformImage(dummyLightmapRID, 5)
+	var dummyNormal2 := getUniformImage(dummyLightmapRID, 6)
+	
+	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniformForeground, outputUniformBackground, dummyLightmapUniform, dummyNormal1, dummyNormal2], textureChunkShader, 2)
 	var computeList = renDev.compute_list_begin()
 	
 	var w : int = int(ceil(float(TerrainRendering.chunkSize) / 8.0))

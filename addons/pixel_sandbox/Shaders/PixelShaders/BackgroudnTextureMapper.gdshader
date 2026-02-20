@@ -1,17 +1,18 @@
 shader_type canvas_item;
 
 global uniform vec2 PS_RENDER_QUADRANT_SIZE;
-global uniform  int PS_UNIQUE_TILES;
-global uniform vec2 PS_WORLD_POSITION;
-global uniform vec2 PS_CAMERA_ZOOM;
+//global uniform  int PS_UNIQUE_TILES;
+//global uniform vec2 PS_WORLD_POSITION;
+//global uniform vec2 PS_CAMERA_ZOOM;
 global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
-global uniform sampler2D PS_FOREGROUND_SDF : filter_nearest, repeat_enable;
+global uniform int PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE;
+//global uniform sampler2D PS_FOREGROUND_SDF : filter_nearest, repeat_enable;
 global uniform vec2 PS_TILE_TEXTURE_SCROLL;
 
-global uniform sampler2DArray PS_BACKGROUND_TEXTURES : filter_nearest, repeat_enable;
-global uniform sampler2DArray PS_BACKGROUND_NORMALS : filter_nearest, repeat_enable;
-global uniform sampler2DArray PS_BACKGROUND_GRADIENTS : filter_nearest;
-global uniform sampler2D PS_BACKGROUND_BORDER_COLORS : filter_nearest;
+//global uniform sampler2DArray PS_BACKGROUND_TEXTURES : filter_nearest, repeat_enable;
+//global uniform sampler2DArray PS_BACKGROUND_NORMALS : filter_nearest, repeat_enable;
+//global uniform sampler2DArray PS_BACKGROUND_GRADIENTS : filter_nearest;
+//global uniform sampler2D PS_BACKGROUND_BORDER_COLORS : filter_nearest;
 
 
 group_uniforms lighting;
@@ -121,7 +122,56 @@ void fragment() {
 	vec4 self = texture(TEXTURE, qUV);
 	self.rgb = darkenHSV(self.rgb, 0.5);
 	
-	COLOR = self;
+	vec3 norm = texture(NORMAL_TEXTURE, qUV).rgb;
+	norm = norm * 2.0 - 1.0;
+	
+	//Global Ilumination Lighting
+	vec4 GI = texture(PS_GLOBAL_ILLUMINATION, UV);
+	
+
+     //iteratate through each interval in the probe
+    vec4 radiance = vec4(0.0, 0.0, 0.0, 1.0);
+	int probeSize = PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE / 512;
+     for (int d = 0; d < probeSize; d++) {
+         for (int b = 0; b < probeSize; b++) {
+             vec2 texel = (floor(UV * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE) + (vec2(float(d), float(b)) / float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE));
+             vec3 radVal = texture(PS_GLOBAL_ILLUMINATION, texel).rgb;
+
+
+             //Light Direction Calculations
+             ivec2 localRayCoord = ivec2(d, b); //get the local rayCoord in my probe
+             int dirIndex = localRayCoord.x + (localRayCoord.y * probeSize); // get the index so I can be turned into an angle
+             float angle = 2.0 * PI * ((float(dirIndex) + 0.5) / float(probeSize * probeSize));
+			
+			vec3 lightDir = vec3(cos(angle), -sin(angle), 1.0);
+			
+			float cNdotL = max(0.0, dot(norm, lightDir));
+             radiance.rgb += radVal * cNdotL;
+			//radiance = vec4(1.0);
+         }
+     }
+	radiance.rgb /= float(probeSize) * float(probeSize);
+	
+	
+	//COLOR = radiance * 5.0;
+	COLOR = self * radiance * 10.0;
+	
+	//Normal Maps
+	//float lightAngle = GI.a * (2.0 * PI) - PI;
+	//vec3 lightDir = vec3(cos(lightAngle), -sin(lightAngle), 1.0);
+	//vec3 norm = texture(NORMAL_TEXTURE, qUV).rgb;
+	//norm = norm * 2.0 - 1.0;
+	//float cNdotL = max(0.0, dot(norm, lightDir));
+	
+	//vec4 lightVal = vec4(GI.rgb, 1.0); //multiply GI by cNdotL for normals
+	
+	//COLOR = self * lightVal;
+	//COLOR = lightVal;
+	
+	//COLOR.rgb = norm;
+	//COLOR.rgb = texture(PS_GLOBAL_ILLUMINATION, UV).rgb;
+	
+	
 }
 
 
