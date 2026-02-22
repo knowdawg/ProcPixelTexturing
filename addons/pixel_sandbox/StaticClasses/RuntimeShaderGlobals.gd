@@ -3,25 +3,15 @@ extends Node
 class_name RuntimeShaderGlobals
 
 static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParameterType] = {
-	#"PS_BACKGROUND_BORDER_COLORS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
-	#"PS_BACKGROUND_GRADIENTS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-	#"PS_BACKGROUND_NORMALS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-	#"PS_BACKGROUND_TEXTURES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-
-	#"PS_FOREGROUND_BORDER_COLORS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
-	#"PS_FOREGROUND_GRADIENTS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-	#"PS_FOREGROUND_NORMALS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-	#"PS_FOREGROUND_TEXTURES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
-	
 	"PS_FOREGROUND_SDF" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 	"PS_GLOBAL_ILLUMINATION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
+	"PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_INT,
 	
-	"PS_RENDER_QUADRANT_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
-	"PS_TILE_TEXTURE_SCROLL" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
-	"PS_WORLD_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
+	"PS_RENDER_QUADRANT_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #Size of all active chunks / lighting area ect ect
+	"PS_TILE_TEXTURE_SCROLL" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #The amount from vec2(0.0) - vec2(1.0) of how much of the texture has scrolled based on camera position
+	"PS_CAMERA_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #Center Camera Position in World Space
 	"PS_CAMERA_ZOOM" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
-	
-	#"PS_SUN_DIRECTION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_FLOAT,
+	"PS_TOP_LEFT_CHUNK_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_IVEC2, #Position in World Space of the top left most active chunk
 	
 	"PS_UNIQUE_TILES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_INT,
 }

@@ -434,6 +434,12 @@ func updateTileTextureScrollAndSpritePosition() -> void:
 	tileTextureOffset = scroll
 	RenderingServer.global_shader_parameter_set("PS_TILE_TEXTURE_SCROLL", scroll)
 	
+	var cPos : Vector2 = (centerChunk - (Vector2i(renderSectionSize / chunkSize, renderSectionSize / chunkSize) / 2)) * chunkSize
+	RenderingServer.global_shader_parameter_set("PS_TOP_LEFT_CHUNK_POSITION", cPos)
+	
+	#Set this property in the camera or else its a frame behind
+	#RenderingServer.global_shader_parameter_set("PS_CAMERA_POSITION", cameraPos)
+	
 	if is_instance_valid(spriteForeground):
 		spriteForeground.global_position = (scroll * float(renderSectionSize))
 	if is_instance_valid(spriteBackground):
@@ -556,11 +562,6 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 	return [outputImageForegroundRID, outputImageBackgroundRID]
 
 
-
-
-
-
-
 #Compute Shader Boilerplate functions
 
 func executeComputeShader(workGroup : Vector3i, rd : RenderingDevice, computeList : int, pipeline : RID, uniformSetArray : Array[RID]):
@@ -652,10 +653,6 @@ func getRIDImage2DArray(imageArray : Texture2DArray, rd : RenderingDevice) -> RI
 	for i in range(imageArray.get_layers()):
 		var curIm : Image = imageArray.get_layer_data(i)
 		imageDataArray.append(curIm.get_data())
-	
-	#print("Data Size: ", imageDataArray.size())
-	#print("Format Array Layers: ", textureFormat.array_layers)
-	#print("Are Equal: ", imageDataArray.size() == textureFormat.array_layers)
 	
 	var rid := rd.texture_create(textureFormat, textureView, imageDataArray)
 	

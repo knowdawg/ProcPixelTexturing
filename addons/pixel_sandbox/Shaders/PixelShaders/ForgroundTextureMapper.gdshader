@@ -1,86 +1,5 @@
 shader_type canvas_item;
-
-global uniform vec2 PS_RENDER_QUADRANT_SIZE;
-//global uniform  int PS_UNIQUE_TILES;
-//global uniform vec2 PS_WORLD_POSITION;
-//global uniform vec2 PS_CAMERA_ZOOM;
-//global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_linear, repeat_enable;
-//global uniform sampler2D PS_FOREGROUND_SDF : filter_linear, repeat_enable;
-global uniform vec2 PS_TILE_TEXTURE_SCROLL;
-
-//global uniform sampler2DArray PS_FOREGROUND_TEXTURES : filter_nearest, repeat_enable;
-//global uniform sampler2DArray PS_FOREGROUND_NORMALS : filter_nearest, repeat_enable;
-//global uniform sampler2DArray PS_FOREGROUND_GRADIENTS : filter_nearest;
-//global uniform sampler2D PS_FOREGROUND_BORDER_COLORS : filter_nearest;
-//
-//group_uniforms lighting;
-//uniform float falloff : hint_range(0.0, 100.0) = 15.0;
-//uniform vec4 modulate : source_color = vec4(1.0, 1.0, 1.0, 1.0);
-//uniform float warp : hint_range(-1.0, 1.0) = -0.03;
-//
-//varying vec2 screenSize;
-//varying vec4 screen;
-
-//vec4 getColor(int type, vec2 uv, vec4 self, float disToEdge, inout vec3 normal){
-	//vec4 c = vec4(1.0);
-	//vec2 offsetUV = uv * (PS_RENDER_QUADRANT_SIZE / vec2(256.0, 256.0));
-	//float tileIndex = self.r * float(PS_UNIQUE_TILES);
-	//tileIndex -= 1.0; //-1 because self.r at 0 is empty but the arrays start at 0
-	//
-	//vec3 arrayUV = vec3(offsetUV, tileIndex);
-	//
-	//vec4 border = texture(PS_FOREGROUND_BORDER_COLORS, vec2(self.r - (1.0 / float(PS_UNIQUE_TILES)), 0.0));
-	//vec4 tVal = texture(PS_FOREGROUND_TEXTURES, arrayUV);
-	//vec4 nVal = texture(PS_FOREGROUND_NORMALS, arrayUV);
-	//
-	//switch(type){
-		//case 0:
-			//c.a = 0.0;
-			//break;
-		//case 1:
-			//c = vec4(0.0, 0.0, 0.0, 1.0);
-			//break;
-		//case 2:
-			//c = border;
-			//normal = nVal.rgb;
-			//break;
-		//case 3:
-			//normal = nVal.rgb;
-			//tVal.r = (tVal.r * 0.75) + (1.0 - step((0.5 + tVal.r) * (5.0 / PS_RENDER_QUADRANT_SIZE.x), disToEdge)) * 0.25;
-			//c = texture(PS_FOREGROUND_GRADIENTS, vec3(vec2(tVal.r), tileIndex));
-			//break;
-		//default:
-			//c.a = 0.0;
-			//break;
-	//}
-	//
-	//
-	//return c;
-//}
-
-//vec2 angleToVec2(float angle){
-	//float angRad = angle;
-	//if(angle < 0.5){
-		//angRad *= 2.0; //back to 0-1
-		//angRad -= 0.5; //back to -0.5-0.5
-		//angRad *= PI; //Final: -PI/2 to PI/2
-	//}else{
-		//angRad -= 0.5; //back to 0-0.5
-		//angRad *= 2.0; //back to 0-1
-		//angRad *= PI; //back to 0 to PI
-		//angRad += PI / 2.0; //PI/2 to 3PI/2
-	//}
-	//
-	////angle * TAU;
-	//return(vec2(cos(angRad), sin(angRad)));
-//}
-
-//vec3 directionToNormal(vec2 direction) {
-	//vec2 inverted_direction = ((direction * vec2(1.0, -1.0)) + 1.0) * 0.5;
-	//float z = sqrt(1.0 - clamp(dot(inverted_direction, inverted_direction), 0.0, 1.0));
-	//
-	//return normalize(vec3(inverted_direction, z));
-//}
+#include "res://addons/pixel_sandbox/Shaders/ShaderIncludes/RadianceCascades.gdshaderinc" //Radiance Cascades
 
 void fragment() {
 	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
@@ -93,7 +12,10 @@ void fragment() {
 	
 	vec4 self = texture(TEXTURE, qUV);
 	
-	COLOR = self;
+	vec3 norm = texture(NORMAL_TEXTURE, qUV).rgb;
+	
+	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm);
+	COLOR = self * radiance * 10.0;
 }
 
 

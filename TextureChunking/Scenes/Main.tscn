@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=4 uid="uid://c726gqd04n3yb"]
+[gd_scene load_steps=30 format=4 uid="uid://c726gqd04n3yb"]
 
 [ext_resource type="Script" uid="uid://c4eeak2ynu8a3" path="res://TextureChunking/Scripts/world_2d.gd" id="1_aboe0"]
 [ext_resource type="Script" uid="uid://b1381eapkmqjg" path="res://Test/FPSLabel.gd" id="1_dvw3m"]
@@ -8,6 +8,7 @@
 [ext_resource type="Shader" uid="uid://dd6cxy2m7c1tb" path="res://addons/pixel_sandbox/Shaders/PixelShaders/ForgroundTextureMapper.gdshader" id="6_u2jdx"]
 [ext_resource type="Shader" uid="uid://b1nqd4jbsdstd" path="res://addons/pixel_sandbox/Shaders/PixelShaders/Lighting.gdshader" id="7_bnr5j"]
 [ext_resource type="PackedScene" uid="uid://bywyhourisvim" path="res://addons/pixel_sandbox/Scenes/Sun/sun.tscn" id="7_k60dn"]
+[ext_resource type="Shader" uid="uid://kxgar8garf0e" path="res://Test/StationaryGIShader.gdshader" id="7_mu78b"]
 [ext_resource type="Script" uid="uid://u0g7rcji1r76" path="res://addons/pixel_sandbox/Scenes/TerrainTexture/light_texture.gd" id="7_txt8w"]
 [ext_resource type="PackedScene" uid="uid://bs3ob7drvovjj" path="res://addons/pixel_sandbox/Scenes/SDFGenerator/sdf_generator.tscn" id="7_yxens"]
 [ext_resource type="Script" uid="uid://bviw0a8f2omnc" path="res://TextureChunking/Scripts/ScalingCamera.gd" id="8_xil5r"]
@@ -31,6 +32,9 @@ shader = ExtResource("6_u2jdx")
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_mu78b"]
 resource_local_to_scene = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dvw3m"]
+shader = ExtResource("7_mu78b")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_mu78b"]
 shader = ExtResource("7_bnr5j")
@@ -124,6 +128,7 @@ texture = SubResource("CanvasTexture_mu78b")
 
 [node name="ColorRect" type="ColorRect" parent="World2D"]
 visible = false
+material = SubResource("ShaderMaterial_dvw3m")
 offset_right = 521.0
 offset_bottom = 525.0
 mouse_filter = 2
