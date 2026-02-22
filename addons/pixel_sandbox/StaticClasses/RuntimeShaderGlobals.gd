@@ -9,9 +9,12 @@ static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParame
 	
 	"PS_RENDER_QUADRANT_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #Size of all active chunks / lighting area ect ect
 	"PS_TILE_TEXTURE_SCROLL" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #The amount from vec2(0.0) - vec2(1.0) of how much of the texture has scrolled based on camera position
+	"PS_TOP_LEFT_CHUNK_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_IVEC2, #Position in World Space of the top left most active chunk
+	
 	"PS_CAMERA_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #Center Camera Position in World Space
 	"PS_CAMERA_ZOOM" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
-	"PS_TOP_LEFT_CHUNK_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_IVEC2, #Position in World Space of the top left most active chunk
+	
+	"PS_SCREEN_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
 	
 	"PS_UNIQUE_TILES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_INT,
 }

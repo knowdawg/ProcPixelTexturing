@@ -1,6 +1,8 @@
 shader_type canvas_item;
 #include "res://addons/pixel_sandbox/Shaders/ShaderIncludes/RadianceCascades.gdshaderinc" //Radiance Cascades
 
+global uniform vec2 PS_TILE_TEXTURE_SCROLL;
+
 void fragment() {
 	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
 	

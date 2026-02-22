@@ -2,17 +2,17 @@
 global uniform vec2 PS_CAMERA_POSITION;
 global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform int PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE;
-global uniform vec2 PS_RENDER_QUADRANT_SIZE;
 global uniform ivec2 PS_TOP_LEFT_CHUNK_POSITION;
-global uniform vec2 PS_TILE_TEXTURE_SCROLL;
+global uniform vec2 PS_RENDER_QUADRANT_SIZE;
+global uniform vec2 PS_SCREEN_SIZE;
 
 vec4 getRadianceWithNormals(vec2 sUV, vec3 normal){
 	vec3 adjustedNormal = normal * 2.0 - 1.0;
 	
-	int GIProbeSize = PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE / 512;
-	vec2 screenSize = vec2(320.0, 180.0);
-	vec2 GITexSize = vec2(500.0, 500.0);
-	vec2 camPos = (PS_CAMERA_POSITION - GITexSize + screenSize + vec2(-70.0, 70.0)); //Figure out why this is the value
+	int GIProbeSize = PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE / int(PS_RENDER_QUADRANT_SIZE.x);
+	vec2 screenSize = PS_SCREEN_SIZE;
+	vec2 GITexSize = vec2(float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE / GIProbeSize), float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE / GIProbeSize));
+	vec2 camPos = (PS_CAMERA_POSITION - GITexSize + screenSize + vec2(-64.0, 76.0)); //Figure out why this is the value
 	
 	vec2 sampleWorldPosition = floor((sUV * screenSize) + camPos); //position of the given screen UV in world space
 	
@@ -23,7 +23,6 @@ vec4 getRadianceWithNormals(vec2 sUV, vec3 normal){
 	uv *= float(GIProbeSize);
 	
 	//----Global Ilumination Lighting----\\
-	
 	vec4 radiance = vec4(0.0, 0.0, 0.0, 1.0);
 	int probeSize = GIProbeSize;
 	//iteratate through each interval in the probe
@@ -64,7 +63,6 @@ vec4 getRadiance(vec2 sUV){
 	uv *= float(GIProbeSize);
 	
 	//----Global Ilumination Lighting----\\
-	
 	vec4 radiance = vec4(0.0, 0.0, 0.0, 1.0);
 	int probeSize = GIProbeSize;
 	//iteratate through each interval in the probe

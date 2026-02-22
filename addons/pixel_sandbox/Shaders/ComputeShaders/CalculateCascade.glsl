@@ -98,7 +98,7 @@ void main(){
 
     if(rayCoord.x < 0 || rayCoord.y < 0 || rayCoord.x >= size.x || rayCoord.y >= size.y) return; //Out of bounds
 
-    int numOfRays = (c0ProbeSize * c0ProbeSize) << (2 * cascadeIndex); //Number of rays TOTAL in each probe. 4 times move pre cascade
+    int numOfRays = (c0ProbeSize * c0ProbeSize) << (2 * cascadeIndex); //Number of rays TOTAL in each probe. 4 times more pre cascade
     int probeSize = c0ProbeSize << cascadeIndex; //The WIDTH (and hieght) of each probe. 2 times the width per cascade
     ivec2 probeCoord = ivec2(floor(vec2(rayCoord) / float(probeSize)));
     ivec2 probePos = (probeCoord * probeSize) + ivec2(probeSize >> 1);

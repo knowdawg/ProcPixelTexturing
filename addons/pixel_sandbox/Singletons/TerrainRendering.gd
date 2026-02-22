@@ -437,6 +437,8 @@ func updateTileTextureScrollAndSpritePosition() -> void:
 	var cPos : Vector2 = (centerChunk - (Vector2i(renderSectionSize / chunkSize, renderSectionSize / chunkSize) / 2)) * chunkSize
 	RenderingServer.global_shader_parameter_set("PS_TOP_LEFT_CHUNK_POSITION", cPos)
 	
+	RenderingServer.global_shader_parameter_set("PS_SCREEN_SIZE", get_viewport().get_visible_rect().size / get_viewport().get_camera_2d().zoom)
+	
 	#Set this property in the camera or else its a frame behind
 	#RenderingServer.global_shader_parameter_set("PS_CAMERA_POSITION", cameraPos)
 	
