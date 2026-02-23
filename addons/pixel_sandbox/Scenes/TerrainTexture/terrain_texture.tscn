@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://b5mwxvmfxtn33"]
+[gd_scene format=3 uid="uid://b5mwxvmfxtn33"]
 
 [ext_resource type="Shader" uid="uid://dd6cxy2m7c1tb" path="res://addons/pixel_sandbox/Shaders/PixelShaders/ForgroundTextureMapper.gdshader" id="1_4un5q"]
 [ext_resource type="Script" uid="uid://dkld325kkh5m2" path="res://addons/pixel_sandbox/Scenes/TerrainTexture/terrain_texture.gd" id="1_ulijc"]
@@ -10,7 +10,7 @@ shader = ExtResource("1_4un5q")
 [sub_resource type="CanvasTexture" id="CanvasTexture_4un5q"]
 resource_local_to_scene = true
 
-[node name="TerrainTexture" type="Sprite2D"]
+[node name="TerrainTexture" type="Sprite2D" unique_id=810301332]
 texture_filter = 1
 material = SubResource("ShaderMaterial_6gpix")
 texture = SubResource("CanvasTexture_4un5q")

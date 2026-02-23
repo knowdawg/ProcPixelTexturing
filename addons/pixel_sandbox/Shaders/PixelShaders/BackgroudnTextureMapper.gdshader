@@ -1,5 +1,6 @@
 shader_type canvas_item;
 #include "res://addons/pixel_sandbox/Shaders/ShaderIncludes/RadianceCascades.gdshaderinc" //Radiance Cascades
+#include "res://addons/pixel_sandbox/Shaders/ShaderIncludes/GeneralPostProcessing.gdshaderinc" //Exposure / Luminance
 
 global uniform vec2 PS_TILE_TEXTURE_SCROLL;
 
@@ -43,7 +44,9 @@ void fragment() {
 	vec3 norm = texture(NORMAL_TEXTURE, qUV).rgb;
 	
 	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm);
-	COLOR = self * radiance * 10.0;
+	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 2.0, 3.0, 3.0);
+	
+	COLOR = self * radiance;
 }
 
 

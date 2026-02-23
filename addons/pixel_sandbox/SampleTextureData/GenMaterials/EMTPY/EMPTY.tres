@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GenMaterial" load_steps=8 format=3 uid="uid://dayh330155l82"]
+[gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://dayh330155l82"]
 
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_wq784"]
 

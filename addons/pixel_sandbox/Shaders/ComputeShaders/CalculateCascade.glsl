@@ -45,7 +45,8 @@ vec2 ray_interval() {
 
 vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
     vec2 size = vec2(imageSize(lightSDF));
-    vec4 hit = vec4(0.0, 0.0, 0.0, 0.0); //0 in alpha is hit nothing, 1 is hit something
+    vec4 radiance = vec4(0.0, 0.0, 0.0, 0.0); //0 in alpha is hit nothing, 1 is hit something
+    float transmittance = 1.0;
 
     vec2 scaledOrigin = vec2(scaleToLightMap(ivec2(origin)));
     vec2 scaledInterval = vec2(scaleToLightMap(ivec2(interval)));
@@ -59,35 +60,29 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
 
         
         //SDF Raymarching, requires less itterations
-        vec4 sdfVal = imageLoad(lightSDF, ivec2(p));
-        if(sdfVal.r < 0.001 || dis == scaledInterval.y){
-            hit = sampleLightImage(ivec2(p));
-            break;
-        }
-        dis += sdfVal.r * size.x;
-
-        //Fixed Length Raymarching, requires more itterations
-        // vec4 myPos = sampleLightImage(ivec2(p));
-        // if(myPos.a > 0.5){ //Hit Something
-        //     hit = myPos;
+        // vec4 sdfVal = imageLoad(lightSDF, ivec2(p));
+        // if(sdfVal.r < 0.001 || dis == scaledInterval.y){
+        //     radiance = sampleLightImage(ivec2(p));
         //     break;
         // }
-        // dis += 1.0; //Step 1 pixel
+        // dis += sdfVal.r * size.x;
 
-        // Fixed Length Raymarching With Volumetrics (WIP)
-        // vec4 myPos = sampleLightImage(ivec2(p));
-        // if(myPos.a > 0.0){ //Hit Something
-        //     hit += myPos;
-        //     if(hit.a > 1.0){
-        //            break;
-        //        }
-        // }
-        // }
-        // dis += 1.0; //Step 1 pixel
-
+        //Fixed Length Raymarching With Volumetrics (WIP)
+        if(dis == scaledInterval.y){
+            break;
+        }
+        vec4 sdfVal = imageLoad(lightSDF, ivec2(p));
+        if(sdfVal.r < 0.001){
+            vec4 myPos = sampleLightImage(ivec2(p));
+            radiance.rgb += myPos.rgb * transmittance * myPos.a;
+            transmittance *= 1.0 - myPos.a;
+            dis += 1.0; //Step 1 pixel
+        }else{
+            dis += sdfVal.r * size.x;
+        }
     }
-    hit.a = 1.0 - hit.a;
-    return hit;
+    radiance.a = transmittance;//1.0 - radiance.a;
+    return radiance;
 }
 
 void main(){

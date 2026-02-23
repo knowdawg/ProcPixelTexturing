@@ -8,20 +8,24 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Kyora_Like_Texure_System"
 run/main_scene="uid://c726gqd04n3yb"
-config/features=PackedStringArray("4.5", "Forward Plus")
+config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 GameController="*res://Globals/GameController.gd"
-TerrainRendering="*res://addons/pixel_sandbox/Singletons/TerrainRendering.gd"
-TerrainDestruction="*res://addons/pixel_sandbox/Singletons/TerrainDestruction.gd"
-WorldManager="*res://addons/pixel_sandbox/Singletons/WorldManager.gd"
-BlueprintManager="*res://addons/pixel_sandbox/Singletons/BlueprintManager.gd"
+TerrainRendering="*uid://dx0v5byhwpvn6"
+TerrainDestruction="*uid://baqhyi6u6j4ps"
+WorldManager="*uid://1s8ixjqt2rbf"
+BlueprintManager="*uid://cmnidhfk4ncgn"
 
 [debug]
 
