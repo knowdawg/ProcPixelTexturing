@@ -46,7 +46,6 @@ func addTileRadius(worldPosition : Vector2, tileIndex : int, radius : int, tilem
 				var prevTile : int = addTile(p, tileIndex, tilemapType, forceDesruction)
 				
 				prevTiles[prevTile] = prevTiles[prevTile] + 1
-	
 	return prevTiles
 
 func addTile(worldPosition : Vector2, tileIndex : int, tilemapType : int, forceDesruction : bool = false) -> int:

@@ -1,8 +1,6 @@
 extends Node
 class_name RadianceCascades
 
-@export var lightingSprite : Sprite2D;
-
 @export_group("Radiance Cascades Parameters")
 @export var cascadeCount : int = 6
 @export var initialCascadeRayCount : int = 4 #set to 2 for low quality mode. Causes a little bit of ringing
@@ -44,8 +42,6 @@ func _ready() -> void:
 	'''Set the light sprite's texture equal to radiance cascade texture '''
 	var tex2DRD : Texture2DRD = Texture2DRD.new()
 	tex2DRD.set_texture_rd_rid(finalOutputImageRID)
-	if lightingSprite:
-		lightingSprite.texture = tex2DRD
 		
 	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE", initialCascadeResolution.x * initialCascadeRayCount)
 	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION", tex2DRD)

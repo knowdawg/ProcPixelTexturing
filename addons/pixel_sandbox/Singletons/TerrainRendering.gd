@@ -61,7 +61,8 @@ var spriteBackground : Sprite2D
 var spriteLighting : Sprite2D
 
 var chunks : Array
-var activeChunks : Array[TextureChunk]
+var activeChunks : Dictionary[Vector2i, TextureChunk] #Contains All Chunks in the current Render Quadrant
+var dirtyChunkQueue : Dictionary[TextureChunk, bool] #When you would dirty chunks, instead add them to this queue. Each update loop, this will be itterated over. Prevents repeated dirty fucntion calls
 var chunk = preload("uid://dafgjgn78ehp2")
 
 #Texture Details
@@ -88,7 +89,8 @@ func dirtyAll():
 	var numOfChunks : Vector2i = Vector2i(chunks.size(), chunks[0].size())
 	for x in numOfChunks.x:
 		for y in numOfChunks.y:
-			chunks[x][y].makeDirty()
+			#chunks[x][y].makeDirty()
+			dirtyChunkQueue[chunks[x][y]] = true
 
 #returns an image of the specified size filled with the specified material
 func generateSampleImage(tile : int, size : Vector2i) -> Image:
@@ -312,13 +314,13 @@ func setupChunks() -> void:
 			cFor.setup(chunkSize, outlineBufferSize, Vector2(x,y))
 
 func updateChunks() -> void:
-	if !is_instance_valid(get_viewport().get_camera_2d()):
+	var cam : Camera2D = get_viewport().get_camera_2d()
+	if !is_instance_valid(cam):
 		return
 	
-	var cameraPos := get_viewport().get_camera_2d().get_screen_center_position()
-	var prevActiveChunks : Array[TextureChunk] = activeChunks.duplicate()
-	activeChunks.clear()
-
+	var cameraPos := cam.get_screen_center_position()
+	var prevActiveChunks : Dictionary[Vector2i, TextureChunk] = activeChunks
+	activeChunks = {}
 	
 	#Update what chunks are in screen range
 	var centerChunk := worldToChunk(cameraPos)
@@ -331,19 +333,28 @@ func updateChunks() -> void:
 			#Check out of bounds (for now might change later)
 			if cCoord.x >= 0 and cCoord.y >= 0:
 				if cCoord.x < worldChunkSize.x and cCoord.y < worldChunkSize.y:
-					activeChunks.append(chunks[cCoord.x][cCoord.y])
+					activeChunks[cCoord] = chunks[cCoord.x][cCoord.y]
+					#activeChunks.append(chunks[cCoord.x][cCoord.y])
 	
 	#Update The chunks
-	for c : TextureChunk in activeChunks:
-		if !prevActiveChunks.has(c):
+	for k : Vector2i in activeChunks.keys():
+		var c : TextureChunk = activeChunks[k]
+		if !prevActiveChunks.has(c.chunkCoord):
 			c.activate()
-			c.makeDirty()
-	for c : TextureChunk in prevActiveChunks:
-		if !activeChunks.has(c):
+			#c.makeDirty()
+			dirtyChunkQueue[c] = true
+	for k : Vector2i in prevActiveChunks.keys():
+		var c : TextureChunk = prevActiveChunks[k]
+		if !activeChunks.has(c.chunkCoord):
 			c.deActivate()
-	for c : TextureChunk in activeChunks:
+	for k : Vector2i in activeChunks.keys():
+		var c : TextureChunk = activeChunks[k]
 		c.active = true
 		c.updateChunk()
+	
+	for c : TextureChunk in dirtyChunkQueue:
+		c.makeDirty()
+	dirtyChunkQueue.clear()
 
 
 func getChunkImage(coord : Vector2i) -> Image:
@@ -368,7 +379,6 @@ func getPixel(pos : Vector2i) -> Color:
 	return val
 
 func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE):
-	
 	#update Pixel on the image
 	if pos.x < 0 or pos.x > worldDataImage.get_size().x - 1:
 		return
@@ -388,9 +398,10 @@ func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE):
 	var chunkPos : Vector2 = (Vector2(pos)) / float(TerrainRendering.chunkSize)
 	var chunkCoord : Vector2i = floor(chunkPos)
 	if isChunkInBounds(chunkCoord):
-		chunks[chunkCoord.x][chunkCoord.y].makeDirty()
+		dirtyChunkQueue[chunks[chunkCoord.x][chunkCoord.y]] = true
 	else:
 		return
+	
 	
 	#Dirty adjacent chunks if you are close enough to the border
 	var chunkToOutlineRatio = float(TerrainRendering.outlineBufferSize) / float(TerrainRendering.chunkSize)
@@ -402,21 +413,21 @@ func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE):
 	var updateDown : bool = (fract.y + chunkToOutlineRatio >= 1.0) and isChunkInBounds(chunkCoord + Vector2i(0, 1))
 	
 	if updateLeft:
-		chunks[chunkCoord.x - 1][chunkCoord.y].makeDirty()
+		dirtyChunkQueue[chunks[chunkCoord.x - 1][chunkCoord.y]] = true
 	if updateRight:
-		chunks[chunkCoord.x + 1][chunkCoord.y].makeDirty()
+		dirtyChunkQueue[chunks[chunkCoord.x + 1][chunkCoord.y]] = true
 	if updateUp:
-		chunks[chunkCoord.x][chunkCoord.y - 1].makeDirty()
+		dirtyChunkQueue[chunks[chunkCoord.x][chunkCoord.y - 1]] = true
 	if updateDown:
-		chunks[chunkCoord.x][chunkCoord.y + 1].makeDirty()
+		dirtyChunkQueue[chunks[chunkCoord.x][chunkCoord.y + 1]] = true
 	if updateLeft and updateUp:
-		chunks[chunkCoord.x - 1][chunkCoord.y - 1].makeDirty()
+		dirtyChunkQueue[chunks[chunkCoord.x - 1][chunkCoord.y - 1]] = true
 	if updateLeft and updateDown:
-		chunks[chunkCoord.x - 1][chunkCoord.y + 1].makeDirty()
+		dirtyChunkQueue[chunks[chunkCoord.x - 1][chunkCoord.y + 1]] = true
 	if updateRight and updateUp:
-		chunks[chunkCoord.x + 1][chunkCoord.y - 1].makeDirty()
+		dirtyChunkQueue[chunks[chunkCoord.x + 1][chunkCoord.y - 1]] = true
 	if updateRight and updateDown:
-		chunks[chunkCoord.x + 1][chunkCoord.y + 1].makeDirty()
+		dirtyChunkQueue[chunks[chunkCoord.x + 1][chunkCoord.y + 1]] = true
 
 func isChunkInBounds(chunkCoord):
 	if chunkCoord.x >= 0 and chunkCoord.x < chunks.size() and chunkCoord.y >= 0 and chunkCoord.y < chunks[0].size():

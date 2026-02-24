@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="GenMaterial" load_steps=5 format=3 uid="uid://bgbnasysuksr"]
+[gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://bgbnasysuksr"]
 
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_3v6xf"]
 [ext_resource type="Texture2D" uid="uid://pxdhx4lkqbcr" path="res://Textures/MaterialMakerTextures/Sandstone/SandstoneBackgroundGrad.tres" id="1_nyvre"]

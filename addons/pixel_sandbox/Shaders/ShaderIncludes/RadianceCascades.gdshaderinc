@@ -39,7 +39,7 @@ vec4 getRadianceWithNormals(vec2 sUV, vec3 normal){
 			ivec2 localRayCoord = ivec2(d, b); //get the local rayCoord in my probe
 			int dirIndex = localRayCoord.x + (localRayCoord.y * probeSize); // get the index so I can be turned into an angle
 			float angle = 2.0 * PI * ((float(dirIndex) + 0.5) / float(probeSize * probeSize));
-			vec3 lightDir = vec3(cos(angle), -sin(angle), 2.0);
+			vec3 lightDir = vec3(cos(angle), -sin(angle), 1.0);
 			
 			float cNdotL = max(0.0, dot(adjustedNormal, lightDir));
 			radiance.rgb += radVal * cNdotL;

@@ -52,7 +52,7 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
     vec2 scaledInterval = vec2(scaleToLightMap(ivec2(interval)));
 
     float dis = scaledInterval.x;
-    for (int i = 0; i < 32; i++){
+    for (int i = 0; i < 64; i++){
         dis = clamp(dis, scaledInterval.x, scaledInterval.y);
         vec2 p = scaledOrigin + (dir * dis);
 
@@ -69,6 +69,10 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
 
         //Fixed Length Raymarching With Volumetrics (WIP)
         if(dis == scaledInterval.y){
+            break;
+        }
+        if(transmittance < 0.01){
+            transmittance = 0.0;
             break;
         }
         vec4 sdfVal = imageLoad(lightSDF, ivec2(p));
