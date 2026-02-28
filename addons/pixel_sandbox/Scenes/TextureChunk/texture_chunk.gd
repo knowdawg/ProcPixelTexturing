@@ -9,41 +9,53 @@ and preforms it's responsibilities. Its responsibilities include:
 	-Update the light map based on tile data
 """
 
-var chunkSize : int #Start with 64
-var outlineBufferSize : int #6
-var totalChunkSize : int
+var chunkSize : int
 
 var dirty : bool = true
-var chunkImage : Image #The current section of the world texture that it updates the world texture with
 var chunkCoord : Vector2i
 
-var visualizeChunk : bool = false
+"""
+tileData is the data (in bytes) of the tiles for this chunk.
+tileData is converted into an rgba8 image before being passed into the shader. This means a few things:
+	-Seting / geting tiles is not as simple as an index. TileData is a 1d array thus some conversions neec to happen. See the worldToArray function
+	-Each pixel in the rgba8 texture is 1 byte. Thus, 4 bytes in the array need to be traversed to get to the next pixel
+	-tileData stores both foreground and background, the r channel is foreground and g channel is background
+"""
+var tileData : PackedByteArray
+
+@export var visualizeChunk : bool = false
 var active : bool = false
 
 var bitmap : BitMap
 var polygons : Array[PackedVector2Array]
 var collPolys : Array[CollisionPolygon2D] = []
 
-func setup(chunk_size : int, outline_buffer_size : int, chunk_coord : Vector2i):
+func setup(chunk_size : int, chunk_coord : Vector2i):
 	chunkSize = chunk_size
-	outlineBufferSize = outline_buffer_size
 	chunkCoord = chunk_coord
-	
-	totalChunkSize = chunkSize + (outlineBufferSize * 2)
 	
 	global_position = (chunkSize * chunkCoord)
 	
+	tileData.resize(chunkSize * chunkSize * 4) #times 4 for each collor channel
 	bitmap = BitMap.new()
+	
 
 func makeDirty():
 	dirty = true
 
 func updateBuffer():
-	chunkImage = TerrainRendering.getChunkImage(chunkCoord)
+	#Approach: create the image from data based on your chunk and the sourounding 8 chunks
+	var chunkImage : Image = Image.create_empty(chunkSize * 3, chunkSize * 3, false, Image.FORMAT_RGBA8)
+	for i in range(-1, 2): #get chunk -1 to 1, range is exclusive in the secound parameter
+		for j in range(-1, 2):
+			var d : PackedByteArray = TerrainRendering.getChunkTileData(chunkCoord + Vector2i(i, j))
+			var im : Image = Image.create_from_data(chunkSize, chunkSize, false, Image.FORMAT_RGBA8, d)
+			chunkImage.blit_rect(im, Rect2i(0, 0, chunkSize, chunkSize), Vector2i(i + 1, j + 1) * chunkSize)
+	
 	TerrainRendering.executeTextureChunkShader(chunkCoord, chunkImage)
 	
 	bitmap.create_from_image_alpha(chunkImage, 0.5)
-	var rect := Rect2i(Vector2i(outlineBufferSize, outlineBufferSize), Vector2i(chunkSize, chunkSize))
+	var rect := Rect2i(Vector2i(chunkSize, chunkSize), Vector2i(chunkSize, chunkSize))
 	polygons = bitmap.opaque_to_polygons(rect, 1.0)
 	
 	for cp in collPolys:
@@ -61,6 +73,43 @@ func updateChunk():
 		updateBuffer()
 		dirty = false
 
+func localToArray(localTilePos, layer : TerrainRendering.LAYER_TYPE) -> int:
+	var tileArrayIndex = localTilePos.x + (localTilePos.y * chunkSize)
+	tileArrayIndex *= 4 #times 4 because there is 4 channels
+	
+	match layer:
+		TerrainRendering.LAYER_TYPE.FOREGROUND:
+			tileArrayIndex += 0 #red
+		TerrainRendering.LAYER_TYPE.BACKGROUND:
+			tileArrayIndex += 1 #green
+		
+	return tileArrayIndex
+
+func worldToArray(tilePos : Vector2i, layer : TerrainRendering.LAYER_TYPE) -> int:
+	var expectedChunkCoord : Vector2i = tilePos / chunkSize
+	if expectedChunkCoord != chunkCoord:
+		printerr("Atempting to set tile with world position %d in chunk %d. It should be in chunk %d", tilePos, chunkCoord, expectedChunkCoord)
+		return -1
+	var localTilePos : Vector2i = tilePos % chunkSize
+	
+	return localToArray(localTilePos, layer)
+
+func setTile(tilePos : Vector2i, tileIndex : int, layer : TerrainRendering.LAYER_TYPE) -> int: #Returns the prev tile
+	var arrayIndex = worldToArray(tilePos, layer)
+	if arrayIndex == -1: #error in the world to array function
+		return 0
+	var prevTile : int = tileData[arrayIndex]
+	tileData[arrayIndex] = clamp(tileIndex, 0, 255)
+	TerrainRendering.addChunkGroupToDirtyChunkQueue(chunkCoord)
+	return prevTile
+
+func getTile(tilePos : Vector2i, layer : TerrainRendering.LAYER_TYPE) -> int:
+	var arrayIndex = worldToArray(tilePos, layer)
+	if arrayIndex == -1: #error in the world to array function
+		return 0
+	var tile : int = tileData[arrayIndex]
+	return tile
+
 
 func _draw() -> void:
 	if visualizeChunk:
@@ -68,16 +117,12 @@ func _draw() -> void:
 		if (chunkCoord.x + chunkCoord.y) % 2 == 0:
 			c = Color.DARK_GREEN
 		draw_rect(Rect2(Vector2(1.0, 1.0), Vector2(chunkSize - 1, chunkSize - 1)), c, false, 1.0, false)
-		
-
 
 func activate():
 	active = true
 	$StaticBody2D.process_mode = ProcessMode.PROCESS_MODE_INHERIT
-	#print("activated")
 
 
 func deActivate():
 	active = false
 	$StaticBody2D.process_mode = ProcessMode.PROCESS_MODE_DISABLED
-	#print("Deactivated")

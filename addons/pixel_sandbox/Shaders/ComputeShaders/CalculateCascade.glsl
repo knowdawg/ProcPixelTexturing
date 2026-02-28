@@ -67,7 +67,7 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
         // }
         // dis += sdfVal.r * size.x;
 
-        //Fixed Length Raymarching With Volumetrics (WIP)
+        //SDF Raymarching, Switching to Fixed Length Raymarching With Volumetrics when close enough to something with volume
         if(dis == scaledInterval.y){
             break;
         }

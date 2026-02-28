@@ -172,6 +172,7 @@ vec2 getNearestEdgeAngle(ivec2 uv, int radiusSize, inout float dis) {
 }
 
 
+//This only runs equal to the size of the chunk. That way, lots of terrain information can be passed into this shader and it will only calcuate the pixels for the desired chunk... as long as TILE_IMAGE_UV and chunkOffsetUV is calculated corectly
 void main() {
     ivec2 UV = ivec2(gl_GlobalInvocationID.xy);
     ivec2 size = imageSize(OutputBufferForeground);
@@ -182,7 +183,7 @@ void main() {
 
     float TAU = 6.28318;
 	//Alternate UV
-    ivec2 TILE_IMAGE_UV = UV + ivec2(chunkData.outlineBufferSize);
+    ivec2 TILE_IMAGE_UV = UV + ivec2(chunkData.chunkSize); //Start at the actual chunk
     ivec2 chunkOffsetUV = (ivec2(chunkData.chunkCoordX, chunkData.chunkCoordY) * chunkData.chunkSize) + UV;
 
 	vec4 tileData = imageLoad(TileImage, TILE_IMAGE_UV);

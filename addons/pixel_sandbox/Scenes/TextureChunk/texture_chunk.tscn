@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://dafgjgn78ehp2"]
+[gd_scene format=3 uid="uid://dafgjgn78ehp2"]
 
 [ext_resource type="Script" uid="uid://d3esgvd0lg8bs" path="res://addons/pixel_sandbox/Scenes/TextureChunk/texture_chunk.gd" id="1_3cfyt"]
 
-[node name="TextureChunk" type="Node2D"]
+[node name="TextureChunk" type="Node2D" unique_id=228118592]
 script = ExtResource("1_3cfyt")
 
-[node name="StaticBody2D" type="StaticBody2D" parent="."]
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1126076616]

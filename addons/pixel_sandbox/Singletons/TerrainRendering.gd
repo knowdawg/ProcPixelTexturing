@@ -18,21 +18,11 @@ var GI : RID
 
 #World Details
 var chunkSize : int = PixelSandboxSettings.chunkSize
-var outlineBufferSize : int = PixelSandboxSettings.outlineBufferSize
 var renderSectionSize : int = PixelSandboxSettings.renderSectionSize
 var mapSize : Vector2i = PixelSandboxSettings.mapSize
 var loadedRect : Rect2
 
 #World Objects
-
-var worldDataImage : Image
-"""
-worldDataImage:
-	r: foregroundTileID
-	g: backgroundTileID
-	b: extra, probably for foregroundTileDamage in the future
-	a: extra, probably for backgroundTileDamage in the future
-"""
 
 var worldVisualImageForegroundRID : RID
 var worldVisualImageBackgroundRID : RID
@@ -273,13 +263,8 @@ func _process(_delta: float) -> void:
 		sdfGen.createSDF(lightMapRID, lightmapSDF, 0.0, true)
 		if is_instance_valid(radCasc):
 			radCasc.updateGlobalIllumination()
-			#radCasc.finalOutputImageRID
 
 func setupEnviromentObjects() -> void:
-	worldDataImage = Image.create_empty(mapSize.x, mapSize.y, false, Image.FORMAT_RGBA8)
-	worldDataImage.fill(Color(0.0, 0.0, 0.0, 0.0))
-	worldDataImage.decompress()
-	
 	#Create an image on the GPU for each of the world images
 	var worldImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
 	worldImageForeground.fill(Color(0.0, 0.0, 0.0, 0.0))
@@ -311,7 +296,16 @@ func setupChunks() -> void:
 			var cFor : TextureChunk = chunk.instantiate()
 			chunks[x].append(cFor)
 			add_child(cFor)
-			cFor.setup(chunkSize, outlineBufferSize, Vector2(x,y))
+			cFor.setup(chunkSize, Vector2(x,y))
+
+#Dirties chunks in a 3x3 grid
+func addChunkGroupToDirtyChunkQueue(chunkCoord : Vector2i) -> void:
+	for i in range(-1, 2):
+		for j in range(-1, 2):
+			dirtyChunkQueue[chunks[chunkCoord.x + i][chunkCoord.y + j]] = true
+
+func addToDirtyChunkQueue(chunkCoord : Vector2i) -> void:
+	dirtyChunkQueue[chunks[chunkCoord.x][chunkCoord.y]] = true
 
 func updateChunks() -> void:
 	var cam : Camera2D = get_viewport().get_camera_2d()
@@ -341,93 +335,45 @@ func updateChunks() -> void:
 		var c : TextureChunk = activeChunks[k]
 		if !prevActiveChunks.has(c.chunkCoord):
 			c.activate()
-			#c.makeDirty()
 			dirtyChunkQueue[c] = true
 	for k : Vector2i in prevActiveChunks.keys():
 		var c : TextureChunk = prevActiveChunks[k]
 		if !activeChunks.has(c.chunkCoord):
 			c.deActivate()
-	for k : Vector2i in activeChunks.keys():
-		var c : TextureChunk = activeChunks[k]
-		c.active = true
-		c.updateChunk()
 	
 	for c : TextureChunk in dirtyChunkQueue:
 		c.makeDirty()
 	dirtyChunkQueue.clear()
+	
+	for k : Vector2i in activeChunks.keys():
+		var c : TextureChunk = activeChunks[k]
+		c.active = true
+		c.updateChunk()
 
+func getPixel(pos : Vector2i, layer : LAYER_TYPE) -> int:
+	if pos.x < 0 or pos.x > mapSize.x - 1:
+		return 0
+	if pos.y < 0 or pos.y > mapSize.y - 1:
+		return 0
+	
+	#convert to chunk space
+	var ownerChunkCoord : Vector2i = worldToChunk(pos)
+	var ownerChunk : TextureChunk = chunks[ownerChunkCoord.x][ownerChunkCoord.y]
+	#Call the method on the chunk
+	return ownerChunk.getTile(pos, layer)
 
-func getChunkImage(coord : Vector2i) -> Image:
-	var offset = (coord * TerrainRendering.chunkSize) - Vector2i(TerrainRendering.outlineBufferSize, TerrainRendering.outlineBufferSize)
-	var chunkTotalSize = TerrainRendering.chunkSize + ((TerrainRendering.outlineBufferSize) * 2)
-	var chunkImage = Image.create_empty(chunkTotalSize, chunkTotalSize, false, Image.FORMAT_RGBA8)
-	chunkImage.decompress()
-	
-	chunkImage.blit_rect(worldDataImage, Rect2i(offset, Vector2i(chunkTotalSize, chunkTotalSize)), Vector2i.ZERO)
-	
-	return chunkImage
-
-func getPixel(pos : Vector2i) -> Color:
-	
-	if pos.x < 0 or pos.x > worldDataImage.get_size().x - 1:
-		return Color(0.0, 0.0, 0.0, 0.0)
-	if pos.y < 0 or pos.y > worldDataImage.get_size().y - 1:
-		return Color(0.0, 0.0, 0.0, 0.0)
-	
-	var val : Color = worldDataImage.get_pixelv(pos)
-	
-	return val
-
-func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE):
+func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE) -> int: #Returns the prev tile value
 	#update Pixel on the image
-	if pos.x < 0 or pos.x > worldDataImage.get_size().x - 1:
-		return
-	if pos.y < 0 or pos.y > worldDataImage.get_size().y - 1:
-		return
+	if pos.x < 0 or pos.x > mapSize.x - 1:
+		return 0
+	if pos.y < 0 or pos.y > mapSize.y - 1:
+		return 0
 	
-	var indexFloat : float = clamp((float(tileIndex) / float(uniqueTiles - 1)), 0.0, 1.0)
-	var prevCol : Color = getPixel(pos)
-	
-	if layer == LAYER_TYPE.FOREGROUND:
-		worldDataImage.set_pixel(pos.x, pos.y, Color(indexFloat, prevCol.g, 0.0, 0.0))
-	elif layer == LAYER_TYPE.BACKGROUND:
-		worldDataImage.set_pixel(pos.x, pos.y, Color(prevCol.r, indexFloat, 0.0, 0.0))
-	
-	
-	#Dirty the chunk with the tile
-	var chunkPos : Vector2 = (Vector2(pos)) / float(TerrainRendering.chunkSize)
-	var chunkCoord : Vector2i = floor(chunkPos)
-	if isChunkInBounds(chunkCoord):
-		dirtyChunkQueue[chunks[chunkCoord.x][chunkCoord.y]] = true
-	else:
-		return
-	
-	
-	#Dirty adjacent chunks if you are close enough to the border
-	var chunkToOutlineRatio = float(TerrainRendering.outlineBufferSize) / float(TerrainRendering.chunkSize)
-	var fract : Vector2 = chunkPos - floor(chunkPos)
-	
-	var updateLeft : bool = (fract.x < chunkToOutlineRatio) and isChunkInBounds(chunkCoord + Vector2i(-1, 0))
-	var updateRight : bool = (fract.x + chunkToOutlineRatio >= 1.0) and isChunkInBounds(chunkCoord + Vector2i(1, 0))
-	var updateUp : bool = (fract.y < chunkToOutlineRatio) and isChunkInBounds(chunkCoord + Vector2i(0, -1))
-	var updateDown : bool = (fract.y + chunkToOutlineRatio >= 1.0) and isChunkInBounds(chunkCoord + Vector2i(0, 1))
-	
-	if updateLeft:
-		dirtyChunkQueue[chunks[chunkCoord.x - 1][chunkCoord.y]] = true
-	if updateRight:
-		dirtyChunkQueue[chunks[chunkCoord.x + 1][chunkCoord.y]] = true
-	if updateUp:
-		dirtyChunkQueue[chunks[chunkCoord.x][chunkCoord.y - 1]] = true
-	if updateDown:
-		dirtyChunkQueue[chunks[chunkCoord.x][chunkCoord.y + 1]] = true
-	if updateLeft and updateUp:
-		dirtyChunkQueue[chunks[chunkCoord.x - 1][chunkCoord.y - 1]] = true
-	if updateLeft and updateDown:
-		dirtyChunkQueue[chunks[chunkCoord.x - 1][chunkCoord.y + 1]] = true
-	if updateRight and updateUp:
-		dirtyChunkQueue[chunks[chunkCoord.x + 1][chunkCoord.y - 1]] = true
-	if updateRight and updateDown:
-		dirtyChunkQueue[chunks[chunkCoord.x + 1][chunkCoord.y + 1]] = true
+	#convert to chunk space
+	var ownerChunkCoord : Vector2i = worldToChunk(pos)
+	var ownerChunk : TextureChunk = chunks[ownerChunkCoord.x][ownerChunkCoord.y]
+	#Call the method on the chunk
+	return ownerChunk.setTile(pos, tileIndex, layer)
 
 func isChunkInBounds(chunkCoord):
 	if chunkCoord.x >= 0 and chunkCoord.x < chunks.size() and chunkCoord.y >= 0 and chunkCoord.y < chunks[0].size():
@@ -493,11 +439,15 @@ func worldToChunk(pos : Vector2) -> Vector2i:
 	var chunkCoord := Vector2i(pos) / chunkSize
 	return chunkCoord
 
+#Returns the tile data for a given chunkCoord, used by the texture chunks to create thier exstended texture
+func getChunkTileData(chunkCoord : Vector2i) -> PackedByteArray:
+	var c : TextureChunk = chunks[chunkCoord.x][chunkCoord.y]
+	return c.tileData
 
 #Recives a section of the worldDataImage and updates the visual output based on that info
 func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	#Chunk Data Setup
-	var chunkData := PackedInt32Array([chunkCoord.x, chunkCoord.y, TerrainRendering.chunkSize, TerrainRendering.outlineBufferSize])
+	var chunkData := PackedInt32Array([chunkCoord.x, chunkCoord.y, TerrainRendering.chunkSize, TerrainRendering.chunkSize])
 	var chunkDataRID : RID = TerrainRendering.getRIDStorageBufferInt(chunkData, renDev)
 	var chunkDataUniform : RDUniform = TerrainRendering.getUniformStorageBufferInt(chunkDataRID, 0)
 	

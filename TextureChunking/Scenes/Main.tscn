@@ -131,6 +131,7 @@ mouse_filter = 2
 [node name="RadianceCascades" type="Node" parent="World2D" unique_id=1674210530]
 script = ExtResource("10_txt8w")
 initialCascadeRayCount = 2
+initialCascadeResolution = Vector2i(256, 256)
 
 [node name="Sun" parent="World2D" unique_id=65406066 instance=ExtResource("7_k60dn")]
 visible = false

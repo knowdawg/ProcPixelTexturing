@@ -51,9 +51,7 @@ func addTileRadius(worldPosition : Vector2, tileIndex : int, radius : int, tilem
 func addTile(worldPosition : Vector2, tileIndex : int, tilemapType : int, forceDesruction : bool = false) -> int:
 	var prevTile : int
 	if tilemapType == FOREGROUND:
-		prevTile = int((TerrainRendering.getPixel(worldPosition).r * 255.0) + 0.5)
-		TerrainRendering.setPixel(worldPosition, tileIndex, TerrainRendering.LAYER_TYPE.FOREGROUND)
+		prevTile = TerrainRendering.setPixel(worldPosition, tileIndex, TerrainRendering.LAYER_TYPE.FOREGROUND)
 	if tilemapType == BACKGROUND:
-		prevTile = int((TerrainRendering.getPixel(worldPosition).g * 255.0) + 0.5)
-		TerrainRendering.setPixel(worldPosition, tileIndex, TerrainRendering.LAYER_TYPE.BACKGROUND)
+		prevTile = TerrainRendering.setPixel(worldPosition, tileIndex, TerrainRendering.LAYER_TYPE.BACKGROUND)
 	return prevTile
