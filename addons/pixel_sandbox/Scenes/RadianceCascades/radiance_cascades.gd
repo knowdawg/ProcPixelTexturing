@@ -40,11 +40,14 @@ func _ready() -> void:
 	TerrainRendering.radCasc = self
 	
 	'''Set the light sprite's texture equal to radiance cascade texture '''
-	var tex2DRD : Texture2DRD = Texture2DRD.new()
-	tex2DRD.set_texture_rd_rid(finalOutputImageRID)
+	var GI : Texture2DRD = Texture2DRD.new()
+	GI.set_texture_rd_rid(finalOutputImageRID)
+	var dirGI : Texture2DRD = Texture2DRD.new()
+	dirGI.set_texture_rd_rid(cascadeImageRIDs[0])
 		
-	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE", initialCascadeResolution.x * initialCascadeRayCount)
-	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION", tex2DRD)
+	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE", initialCascadeResolution.x)# * initialCascadeRayCount)
+	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION", GI)
+	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA", dirGI)
 	RenderingServer.global_shader_parameter_set("PS_INITIAL_CASCADE_PROBE_SIZE", initialCascadeRayCount)
 
 func updateGlobalIllumination():
