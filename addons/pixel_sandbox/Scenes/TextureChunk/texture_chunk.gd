@@ -30,6 +30,12 @@ var bitmap : BitMap
 var polygons : Array[PackedVector2Array]
 var collPolys : Array[CollisionPolygon2D] = []
 
+"""
+The Edit array stores all the edits from the previous terrain tick.
+When the chunk is updated, it iterates through each edit and applies it to tileData
+"""
+var edits : Array[TerrainEdit] = []
+
 func setup(chunk_size : int, chunk_coord : Vector2i):
 	chunkSize = chunk_size
 	chunkCoord = chunk_coord
@@ -69,11 +75,22 @@ func updateBuffer():
 		$StaticBody2D.add_child(colPoly)
 
 func updateChunk():
-	if dirty:
-		updateBuffer()
-		dirty = false
+	if edits.size() == 0:
+		return
+		#makeDirty()
+	#if !dirty:
+		#return
+	
+	TerrainRendering.addChunkGroupToDirtyChunkQueue(chunkCoord)
+	for e : TerrainEdit in edits:
+		applyTerrainEdit(e)
+	edits.clear()
+	#updateBuffer()
+	#dirty = false
+	
+	
 
-func localToArray(localTilePos, layer : TerrainRendering.LAYER_TYPE) -> int:
+func localToArray(localTilePos : Vector2i, layer : TerrainRendering.LAYER_TYPE) -> int:
 	var tileArrayIndex = localTilePos.x + (localTilePos.y * chunkSize)
 	tileArrayIndex *= 4 #times 4 because there is 4 channels
 	
@@ -88,20 +105,18 @@ func localToArray(localTilePos, layer : TerrainRendering.LAYER_TYPE) -> int:
 func worldToArray(tilePos : Vector2i, layer : TerrainRendering.LAYER_TYPE) -> int:
 	var expectedChunkCoord : Vector2i = tilePos / chunkSize
 	if expectedChunkCoord != chunkCoord:
-		printerr("Atempting to set tile with world position %d in chunk %d. It should be in chunk %d", tilePos, chunkCoord, expectedChunkCoord)
+		#printerr("Atempting to set tile with world position %d in chunk %d. It should be in chunk %d", tilePos, chunkCoord, expectedChunkCoord)
 		return -1
 	var localTilePos : Vector2i = tilePos % chunkSize
 	
 	return localToArray(localTilePos, layer)
 
-func setTile(tilePos : Vector2i, tileIndex : int, layer : TerrainRendering.LAYER_TYPE) -> int: #Returns the prev tile
-	var arrayIndex = worldToArray(tilePos, layer)
-	if arrayIndex == -1: #error in the world to array function
-		return 0
-	var prevTile : int = tileData[arrayIndex]
-	tileData[arrayIndex] = clamp(tileIndex, 0, 255)
-	TerrainRendering.addChunkGroupToDirtyChunkQueue(chunkCoord)
-	return prevTile
+func applyTerrainEdit(tEdit : TerrainEdit) -> int:
+	for i in range(tEdit.layers.size()):
+		var arrayIndex = localToArray(tEdit.localPositions[i], tEdit.layers[i])
+		tileData[arrayIndex] = clamp(tEdit.tileIndexs[i], 0, 255)
+		
+	return 0
 
 func getTile(tilePos : Vector2i, layer : TerrainRendering.LAYER_TYPE) -> int:
 	var arrayIndex = worldToArray(tilePos, layer)
@@ -109,7 +124,6 @@ func getTile(tilePos : Vector2i, layer : TerrainRendering.LAYER_TYPE) -> int:
 		return 0
 	var tile : int = tileData[arrayIndex]
 	return tile
-
 
 func _draw() -> void:
 	if visualizeChunk:
@@ -121,7 +135,6 @@ func _draw() -> void:
 func activate():
 	active = true
 	$StaticBody2D.process_mode = ProcessMode.PROCESS_MODE_INHERIT
-
 
 func deActivate():
 	active = false

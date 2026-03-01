@@ -12,7 +12,7 @@ var blueprintElementFile = preload("uid://cwr1gaxdbbpg")
 
 var visibleChildren : Array[Control] = []
 
-var brushSize : Vector2i = Vector2i(8, 8)
+var brushSize : Vector2i = Vector2i(32, 32)
 var sampleSize : Vector2i =  Vector2i(32, 32)
 
 func hideUI():

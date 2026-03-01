@@ -302,11 +302,19 @@ func setupChunks() -> void:
 func addChunkGroupToDirtyChunkQueue(chunkCoord : Vector2i) -> void:
 	for i in range(-1, 2):
 		for j in range(-1, 2):
-			dirtyChunkQueue[chunks[chunkCoord.x + i][chunkCoord.y + j]] = true
+			var clampedCoord : Vector2i = chunkCoord + Vector2i(i, j)
+			clampedCoord.clamp(Vector2i(0, 0), Vector2i(chunks.size() - 1, chunks[0].size() - 1))
+			dirtyChunkQueue[chunks[clampedCoord.x][clampedCoord.y]] = true
 
 func addToDirtyChunkQueue(chunkCoord : Vector2i) -> void:
 	dirtyChunkQueue[chunks[chunkCoord.x][chunkCoord.y]] = true
 
+"""
+CHUNK PIPELINE:
+	Calculate active chunks based on camera position, new tiles are flagged for rendering
+	Iterate over each active chunk and apply thier TerrainEdits. Each chunk with tEdits will flag self and adjacent chunks for rendering
+	Iterate over all chunks that are queued for rendering and render them
+"""
 func updateChunks() -> void:
 	var cam : Camera2D = get_viewport().get_camera_2d()
 	if !is_instance_valid(cam):
@@ -328,29 +336,33 @@ func updateChunks() -> void:
 			if cCoord.x >= 0 and cCoord.y >= 0:
 				if cCoord.x < worldChunkSize.x and cCoord.y < worldChunkSize.y:
 					activeChunks[cCoord] = chunks[cCoord.x][cCoord.y]
-					#activeChunks.append(chunks[cCoord.x][cCoord.y])
 	
-	#Update The chunks
+	#New chunks are flagged for rendering
 	for k : Vector2i in activeChunks.keys():
 		var c : TextureChunk = activeChunks[k]
 		if !prevActiveChunks.has(c.chunkCoord):
 			c.activate()
 			dirtyChunkQueue[c] = true
+	#De-activate chunks that are no longer in the render quadrant
 	for k : Vector2i in prevActiveChunks.keys():
 		var c : TextureChunk = prevActiveChunks[k]
 		if !activeChunks.has(c.chunkCoord):
 			c.deActivate()
 	
-	for c : TextureChunk in dirtyChunkQueue:
-		c.makeDirty()
-	dirtyChunkQueue.clear()
-	
+	#Set all chunks in the render quadrant to active and update them all. This is where they apply thier tEdits
 	for k : Vector2i in activeChunks.keys():
 		var c : TextureChunk = activeChunks[k]
 		c.active = true
 		c.updateChunk()
+	
+	#For each chunk marked for rendering, render them
+	for c : TextureChunk in dirtyChunkQueue:
+		if activeChunks.has(c.chunkCoord):
+			c.updateBuffer()
+	dirtyChunkQueue.clear()
+	
 
-func getPixel(pos : Vector2i, layer : LAYER_TYPE) -> int:
+func getTile(pos : Vector2i, layer : LAYER_TYPE) -> int:
 	if pos.x < 0 or pos.x > mapSize.x - 1:
 		return 0
 	if pos.y < 0 or pos.y > mapSize.y - 1:
@@ -362,18 +374,12 @@ func getPixel(pos : Vector2i, layer : LAYER_TYPE) -> int:
 	#Call the method on the chunk
 	return ownerChunk.getTile(pos, layer)
 
-func setPixel(pos : Vector2, tileIndex : int, layer : LAYER_TYPE) -> int: #Returns the prev tile value
-	#update Pixel on the image
-	if pos.x < 0 or pos.x > mapSize.x - 1:
-		return 0
-	if pos.y < 0 or pos.y > mapSize.y - 1:
-		return 0
+#Distributes the given terrain edit to the corect chunk
+func distributeTerrainEdit(tEdit : TerrainEdit) -> int:
+	var ownerChunk : TextureChunk = chunks[tEdit.destinationChunkCoord.x][tEdit.destinationChunkCoord.y]
+	ownerChunk.edits.append(tEdit)
 	
-	#convert to chunk space
-	var ownerChunkCoord : Vector2i = worldToChunk(pos)
-	var ownerChunk : TextureChunk = chunks[ownerChunkCoord.x][ownerChunkCoord.y]
-	#Call the method on the chunk
-	return ownerChunk.setTile(pos, tileIndex, layer)
+	return 0
 
 func isChunkInBounds(chunkCoord):
 	if chunkCoord.x >= 0 and chunkCoord.x < chunks.size() and chunkCoord.y >= 0 and chunkCoord.y < chunks[0].size():
@@ -441,7 +447,8 @@ func worldToChunk(pos : Vector2) -> Vector2i:
 
 #Returns the tile data for a given chunkCoord, used by the texture chunks to create thier exstended texture
 func getChunkTileData(chunkCoord : Vector2i) -> PackedByteArray:
-	var c : TextureChunk = chunks[chunkCoord.x][chunkCoord.y]
+	var clampedCoord : Vector2i = Vector2i(clampi(chunkCoord.x, 0, (mapSize.x / chunkSize) - 1), clampi(chunkCoord.y, 0, (mapSize.y / chunkSize) - 1))
+	var c : TextureChunk = chunks[clampedCoord.x][clampedCoord.y]
 	return c.tileData
 
 #Recives a section of the worldDataImage and updates the visual output based on that info
