@@ -44,7 +44,38 @@ int getTileIndex(float floatIndex){
 	return int((floatIndex * 255.0) + 0.5);
 }
 
-vec4 getColor(int type, ivec2 uv, float self, in sampler2DArray textures, in sampler2DArray gradients, in sampler2D borders){
+
+int getDistanceToNearestEdge(ivec2 uv, int radiusSize, bool foreground) {
+	// Search in expanding rings around center
+	for (int radius = 0; radius <= radiusSize; radius++) {
+		for (int x = -radius; x <= radius; x++) {
+			for (int y = -radius; y <= radius; y++) {
+				// Only check the outer ring at each radius
+				if (abs(x) == radius || abs(y) == radius) {
+					ivec2 offset = ivec2(x, y);
+					ivec2 sampleUV = uv + ivec2(offset);
+					float sampleValue;
+					if(foreground){
+						sampleValue = imageLoad(TileImage, sampleUV).r;
+					}else{
+						sampleValue = imageLoad(TileImage, sampleUV).g;
+					}
+					
+					if (sampleValue > 0.0) {
+						continue;
+					}
+					return radius;
+					// dis = length(vec2(offset)) / float(radiusSize);
+					// return normalize(vec2(offset));
+				}
+			}
+		}
+	}
+	return radiusSize + 1;
+}
+
+
+vec4 getColor(int type, ivec2 uv, float self, in sampler2DArray textures, in sampler2DArray gradients, in sampler2D borders, ivec2 tileUV, bool foreground){
 	vec4 c = vec4(1.0);
 
 	//UV stuff
@@ -67,8 +98,16 @@ vec4 getColor(int type, ivec2 uv, float self, in sampler2DArray textures, in sam
 			c = border;
 			break;
 		case 3:
-			//tVal.r = (tVal.r * 0.75) + (1.0 - step((0.5 + tVal.r) * (5.0 / PS_RENDER_QUADRANT_SIZE.x), disToEdge)) * 0.25;
+			vec2 borderParams = borderParamsForeground[tileIndex];
+			int disToEdge = getDistanceToNearestEdge(tileUV, int(borderParams.x), foreground);
+			if(disToEdge > int(borderParams.x)){
+				tVal.r *= 1.0 - borderParams.y;//(tVal.r * 0.3) + floor(0.6 + tVal.r) * (tVal.r * 0.7) * max(1.0 - float(disToEdge - 3) / float(3), 0.0);
+			}
+			//tVal.r = 0.0;
+
 			c = texture(gradients, vec3(vec2(tVal.r), tileIndex));
+
+
 			break;
 		default:
 			c.a = 0.0;
@@ -148,30 +187,6 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 }
 
 
-vec2 getNearestEdgeAngle(ivec2 uv, int radiusSize, inout float dis) {
-	// Search in expanding rings around center
-	for (int radius = 0; radius <= radiusSize; radius++) {
-		for (int x = -radius; x <= radius; x++) {
-			for (int y = -radius; y <= radius; y++) {
-				// Only check the outer ring at each radius
-				if (abs(x) == radius || abs(y) == radius) {
-					ivec2 offset = ivec2(x, y);
-					ivec2 sampleUV = uv + ivec2(offset);
-					float sampleValue = imageLoad(TileImage, sampleUV).r;
-					
-					if (sampleValue < 0.01) { //This will suport about 100 difrent tiles
-						dis = length(vec2(offset)) / float(radiusSize);
-						return normalize(vec2(offset));
-					}
-				}
-			}
-		}
-	}
-	dis = 1.0;
-	return vec2(0.0);
-}
-
-
 //This only runs equal to the size of the chunk. That way, lots of terrain information can be passed into this shader and it will only calcuate the pixels for the desired chunk... as long as TILE_IMAGE_UV and chunkOffsetUV is calculated corectly
 void main() {
     ivec2 UV = ivec2(gl_GlobalInvocationID.xy);
@@ -183,18 +198,17 @@ void main() {
 
     float TAU = 6.28318;
 	//Alternate UV
-    ivec2 TILE_IMAGE_UV = UV + ivec2(chunkData.chunkSize); //Start at the actual chunk
+    ivec2 TILE_IMAGE_UV = UV + ivec2(chunkData.outlineBufferSize); //Start at the actual chunk
     ivec2 chunkOffsetUV = (ivec2(chunkData.chunkCoordX, chunkData.chunkCoordY) * chunkData.chunkSize) + UV;
 
 	vec4 tileData = imageLoad(TileImage, TILE_IMAGE_UV);
 	
 	ivec2 pixelType = getPixelType(TILE_IMAGE_UV, tileData.rg);
 	
-	vec4 foregroundColor = getColor(pixelType.x, chunkOffsetUV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground);
-	vec4 backgroundColor = getColor(pixelType.y, chunkOffsetUV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground);
+	vec4 foregroundColor = getColor(pixelType.x, chunkOffsetUV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground, TILE_IMAGE_UV, true);
+	vec4 backgroundColor = getColor(pixelType.y, chunkOffsetUV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground, TILE_IMAGE_UV, false);
 	vec4 foregroundNormal = getNormal(chunkOffsetUV, tileData.r, normal2dArrayForeground);
 	vec4 backgroundNormal = getNormal(chunkOffsetUV, tileData.g, normal2dArrayBackground);
-
 
 	vec4 emissionColor = vec4(0.0);
 	emissionColor += texture(emissionColorsForeground, vec2(tileData.r, 0.0)); // foreground light

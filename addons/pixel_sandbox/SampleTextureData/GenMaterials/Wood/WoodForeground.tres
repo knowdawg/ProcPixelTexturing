@@ -10,5 +10,4 @@ script = ExtResource("1_toupx")
 texture = ExtResource("4_5iub4")
 normal = ExtResource("2_uases")
 gradient = ExtResource("1_ptgih")
-lightEmission = Color(0.24313726, 1, 0.22745098, 1)
 metadata/_custom_type_script = "uid://di707vap5isgj"
