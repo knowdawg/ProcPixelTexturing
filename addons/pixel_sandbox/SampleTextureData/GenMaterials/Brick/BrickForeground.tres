@@ -1,22 +1,21 @@
 [gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://bf8wsjfm01hjr"]
 
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_dp0ln"]
-[ext_resource type="Texture2D" uid="uid://crpm03ywi5rd0" path="res://Textures/MaterialMakerTextures/Brick/BrickForegroundNormal.png" id="1_puckh"]
-[ext_resource type="Texture2D" uid="uid://b6hp6jigwtarx" path="res://Textures/MaterialMakerTextures/Brick/BrickForegroundTexture.png" id="3_dtfia"]
+[ext_resource type="Texture2D" uid="uid://dlv781dfih406" path="res://Textures/MaterialMakerTextures/CrystalNormal.png" id="1_niydy"]
+[ext_resource type="Texture2D" uid="uid://y8pme6q5757q" path="res://Textures/MaterialMakerTextures/Crystal.png" id="3_0l6b7"]
 
-[sub_resource type="Gradient" id="Gradient_niydy"]
-offsets = PackedFloat32Array(0.375, 0.5, 0.625, 0.75)
-colors = PackedColorArray(0.53333336, 0.29411766, 0.16862746, 1, 0.65882355, 0.44836605, 0.2588235, 1, 0.78431374, 0.6026144, 0.3490196, 1, 0.9098039, 0.75686276, 0.4392157, 1)
-metadata/_snap_enabled = true
-metadata/_snap_count = 8
+[sub_resource type="Gradient" id="Gradient_mb4rn"]
+offsets = PackedFloat32Array(0, 0.8643533, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.6221908, 0.6723784, 0.89258003, 1, 1, 1, 1, 1)
 
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_0l6b7"]
-gradient = SubResource("Gradient_niydy")
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_1l675"]
+gradient = SubResource("Gradient_mb4rn")
 
 [resource]
 script = ExtResource("1_dp0ln")
-texture = ExtResource("3_dtfia")
-normal = ExtResource("1_puckh")
-gradient = SubResource("GradientTexture1D_0l6b7")
-border = Color(0.9098039, 0.75686276, 0.4392157, 1)
+texture = ExtResource("3_0l6b7")
+normal = ExtResource("1_niydy")
+gradient = SubResource("GradientTexture1D_1l675")
+border = Color(0.7882353, 0.81960785, 0.94509804, 1)
+borderSize = 3.0
 metadata/_custom_type_script = "uid://di707vap5isgj"

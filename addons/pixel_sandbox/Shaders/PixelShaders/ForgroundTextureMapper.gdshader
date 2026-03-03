@@ -15,12 +15,16 @@ void fragment() {
 	
 	vec4 self = texture(TEXTURE, qUV);
 	
-	vec3 norm = texture(NORMAL_TEXTURE, qUV).rgb;
+	vec4 normalAndSpecular = texture(NORMAL_TEXTURE, qUV);
+	vec3 norm = normalAndSpecular.rgb;
+	float spec = 1.0 - normalAndSpecular.a;
 	
-	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm);
+	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm, spec);
 	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 2.0, 3.0, 3.0);
 	
 	COLOR = self * radiance;
+	//COLOR.rgb += highlights * radiance.rgb;
+	//COLOR.rgb = mix(COLOR.rgb, highlights, highlights);
 }
 
 

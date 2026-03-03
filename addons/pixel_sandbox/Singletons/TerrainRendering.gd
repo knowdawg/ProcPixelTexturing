@@ -252,8 +252,8 @@ func _ready() -> void:
 	lightmapSDF = TerrainRendering.getRIDImage(image, renDev)
 
 func _process(_delta: float) -> void:
-	if is_instance_valid(sdfGen):
-		sdfGen.createSDF(worldVisualImageForegroundRID, foregroundSDF, 0.0, true)
+	#if is_instance_valid(sdfGen):
+		#sdfGen.createSDF(worldVisualImageForegroundRID, foregroundSDF, 0.0, true)
 	updateLoadedRect()
 	updateTileTextureScrollAndSpritePosition()
 	

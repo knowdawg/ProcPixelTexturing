@@ -103,7 +103,6 @@ vec4 getColor(int type, ivec2 uv, float self, in sampler2DArray textures, in sam
 			if(disToEdge > int(borderParams.x)){
 				tVal.r *= 1.0 - borderParams.y;//(tVal.r * 0.3) + floor(0.6 + tVal.r) * (tVal.r * 0.7) * max(1.0 - float(disToEdge - 3) / float(3), 0.0);
 			}
-			//tVal.r = 0.0;
 
 			c = texture(gradients, vec3(vec2(tVal.r), tileIndex));
 
@@ -149,6 +148,7 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 	bool upSolid = solids[getTileIndex(up.r)] == 1;
 	bool downSolid = solids[getTileIndex(down.r)] == 1;
 
+
 	bool hasSolidNieghbor = leftSolid || rightSolid || upSolid || downSolid;
 	bool hasMissingNieghbor = !(leftSolid && rightSolid && upSolid && downSolid);
 
@@ -159,7 +159,19 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 	}else if(centerSolid && hasMissingNieghbor){
 		pixelType.x = 2;
 	}else if(centerSolid && !hasMissingNieghbor){
-		pixelType.x = 3;
+		//This can be optimizes somehow, dont need 8 reads prob only need 5
+		bool leftSame = getTileIndex(left.r) == getTileIndex(center.r);
+		bool rightSame = getTileIndex(right.r) == getTileIndex(center.r);
+		bool upSame = getTileIndex(up.r) == getTileIndex(center.r);
+		bool downSame = getTileIndex(down.r) == getTileIndex(center.r);
+
+		//maybye only draw the borders if the border colors are difrent enough??
+		if(leftSame && rightSame && upSame && downSame){
+			pixelType.x = 3;
+		}else{
+			pixelType.x = 2;
+		}
+		
 	}
 
 	//Background

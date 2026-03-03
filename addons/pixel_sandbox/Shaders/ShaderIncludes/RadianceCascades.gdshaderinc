@@ -9,7 +9,7 @@ global uniform vec2 PS_RENDER_QUADRANT_SIZE;
 global uniform vec2 PS_SCREEN_SIZE;
 
 
-vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal) {
+vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, float specular) {
 	vec3 result = vec3(0.0);
 	vec2 scalledUV = base_uv;
 	scalledUV *= float(dirGITexSize) / PS_RENDER_QUADRANT_SIZE.x;
@@ -24,17 +24,24 @@ vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal) 
 			ivec2 localRayCoord = ivec2(d, b);
 			int dirIndex = localRayCoord.x + (localRayCoord.y * probeSize);
 			float angle = 2.0 * PI * ((float(dirIndex) + 0.5) / float(probeSize * probeSize));
-			vec3 lightDir = vec3(cos(angle), -sin(angle), 1.0);
+			vec3 lightDir = normalize(vec3(cos(angle), -sin(angle), 0.75));
+			
+			vec3 viewVector = vec3(0.0, 0.0, 1.0);//Front on camera view
+			vec3 H = normalize(lightDir + viewVector); //the halfway vector
+			float spec = pow(max(dot(normal, H), 0.0), 16.0); //8.0 is the shininess
+			spec = clamp(spec, 0.0, 1.0);
+			//result += radVal * spec;
 			
 			float cNdotL = max(0.0, dot(normal, lightDir));
-			result += radVal * cNdotL;
+			//cNdotL *= (1.0 - specular); //reduces normal lighting based on how specular it is
+			result += radVal * cNdotL + radVal * spec * specular * 8.0;
 		}
 	}
 
 	return result / float(probeSize * probeSize);
 }
 
-vec4 getRadianceWithNormals(vec2 sUV, vec3 normal){
+vec4 getRadianceWithNormals(vec2 sUV, vec3 normal, float specular){
 	vec3 adjustedNormal = normal * 2.0 - 1.0;
 	
 	int probeSize = PS_INITIAL_CASCADE_PROBE_SIZE;
@@ -60,10 +67,10 @@ vec4 getRadianceWithNormals(vec2 sUV, vec3 normal){
 	vec2 uv11 = (base + vec2(1.0, 1.0)) / GITexSize;
 	
 	//Sample 4 probes
-	vec3 r00 = sample_probe(uv00, probeSize, dirGITexSize, adjustedNormal);
-	vec3 r10 = sample_probe(uv10, probeSize, dirGITexSize, adjustedNormal);
-	vec3 r01 = sample_probe(uv01, probeSize, dirGITexSize, adjustedNormal);
-	vec3 r11 = sample_probe(uv11, probeSize, dirGITexSize, adjustedNormal);
+	vec3 r00 = sample_probe(uv00, probeSize, dirGITexSize, adjustedNormal, specular);
+	vec3 r10 = sample_probe(uv10, probeSize, dirGITexSize, adjustedNormal, specular);
+	vec3 r01 = sample_probe(uv01, probeSize, dirGITexSize, adjustedNormal, specular);
+	vec3 r11 = sample_probe(uv11, probeSize, dirGITexSize, adjustedNormal, specular);
 	
 	//Bilinear blend
 	vec3 rx0 = mix(r00, r10, f.x);

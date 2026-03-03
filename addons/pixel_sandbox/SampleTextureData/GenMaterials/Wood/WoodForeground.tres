@@ -2,12 +2,14 @@
 
 [ext_resource type="Texture2D" uid="uid://d2l7oxeq07guv" path="res://Textures/MaterialMakerTextures/Wood/ForegroundWoodGrad.tres" id="1_ptgih"]
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_toupx"]
-[ext_resource type="Texture2D" uid="uid://blrti6uy0b2l7" path="res://Textures/MaterialMakerTextures/Wood/WoodForegroundNormal.png" id="2_uases"]
-[ext_resource type="Texture2D" uid="uid://dco5ltgerwu6t" path="res://Textures/MaterialMakerTextures/Wood/WoodForegroundTexture.png" id="4_5iub4"]
+[ext_resource type="Texture2D" uid="uid://dlv781dfih406" path="res://Textures/MaterialMakerTextures/CrystalNormal.png" id="2_5x5qv"]
+[ext_resource type="Texture2D" uid="uid://y8pme6q5757q" path="res://Textures/MaterialMakerTextures/Crystal.png" id="4_ryj0y"]
 
 [resource]
 script = ExtResource("1_toupx")
-texture = ExtResource("4_5iub4")
-normal = ExtResource("2_uases")
+texture = ExtResource("4_ryj0y")
+normal = ExtResource("2_5x5qv")
 gradient = ExtResource("1_ptgih")
+border = Color(0.25882354, 0.6901961, 0.84313726, 1)
+borderSize = 0.0
 metadata/_custom_type_script = "uid://di707vap5isgj"

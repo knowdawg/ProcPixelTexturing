@@ -35,8 +35,6 @@ func setupRenderingDevice():
 	var image1 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
 	image1.fill(Color.BLACK)
 	pingpongIm = TerrainRendering.getRIDImage(image1, rd)
-	
-	
 
 #Creates a sdf based on bitmapRID of the size of the render quadrant
 #Returns finalImage
