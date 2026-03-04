@@ -2,12 +2,12 @@ extends Resource
 class_name GenMaterial
 
 
-@export var texture : Texture2D
-@export var normal : Texture2D
+@export var texture : Texture2D #Greyscale image
+@export var normal : Texture2D #Specular intensity stored in the alpha channel
 @export var gradient : GradientTexture1D
 @export var border : Color
 
-@export var borderSize : float = 4.0 #How wide the border with have an influcnec on the color
+@export var borderSize : float = 3.0 #How wide the border with have an influcnec on the color
 @export var borderWeight : float = 0.2 #how much the border has an influence on color
 
 #Light Emission is the color of the tile. If you want the tile to give off light, set its color ocordingly

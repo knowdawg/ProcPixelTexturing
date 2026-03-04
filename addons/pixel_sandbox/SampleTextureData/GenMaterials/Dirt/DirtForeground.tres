@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://buhqonoqaxgs"]
+
+[ext_resource type="Texture2D" uid="uid://b5nmurmggaupm" path="res://Textures/MaterialMakerTextures/DirtTestNormal.png" id="1_ayo3v"]
+[ext_resource type="Texture2D" uid="uid://eeadwdb8yk1y" path="res://Textures/MaterialMakerTextures/DirtTest.png" id="3_rgay8"]
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="3_wdim6"]
+
+[sub_resource type="Gradient" id="Gradient_ayo3v"]
+offsets = PackedFloat32Array(0, 0.13722397, 0.60094637, 1)
+colors = PackedColorArray(0.1544716, 0.082651325, 0.025138265, 1, 0.33520398, 0.20193592, 0.09198911, 1, 0.7187964, 0.46698135, 0.26339546, 1, 0.8372181, 0.5696371, 0.3586846, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_rgay8"]
+gradient = SubResource("Gradient_ayo3v")
+
+[resource]
+script = ExtResource("3_wdim6")
+texture = ExtResource("3_rgay8")
+normal = ExtResource("1_ayo3v")
+gradient = SubResource("GradientTexture1D_rgay8")
+border = Color(0.7176471, 0.46666667, 0.2627451, 1)
+borderWeight = 0.5
+metadata/_custom_type_script = "uid://di707vap5isgj"

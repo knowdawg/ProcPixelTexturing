@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="TextureData" load_steps=11 format=3 uid="uid://dmla4e53rjkn6"]
+[gd_resource type="Resource" script_class="TextureData" format=3 uid="uid://dmla4e53rjkn6"]
 
 [ext_resource type="Texture2D" uid="uid://e6evdtxvbbrd" path="res://Textures/MaterialMakerTextures/Error/ErrorGradient.tres" id="1_tky1p"]
 [ext_resource type="Texture2D" uid="uid://dis8mj6lpdvxq" path="res://Textures/MaterialMakerTextures/Error/ErrorTexture.tres" id="2_8g4xb"]
@@ -10,10 +10,12 @@
 [ext_resource type="Resource" uid="uid://cph2h4bqyorxq" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Wood/WoodForeground.tres" id="7_vidxy"]
 [ext_resource type="Resource" uid="uid://bf8wsjfm01hjr" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Brick/BrickForeground.tres" id="8_4mal0"]
 [ext_resource type="Script" uid="uid://bykil1fb2qabg" path="res://addons/pixel_sandbox/Resources/TextureData.gd" id="9_pdsdv"]
+[ext_resource type="Resource" uid="uid://d1ddyg3g42rrn" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Crystal/CrystalForeground.tres" id="10_0r0fv"]
+[ext_resource type="Resource" uid="uid://buhqonoqaxgs" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Dirt/DirtForeground.tres" id="11_u1c3j"]
 
 [resource]
 script = ExtResource("9_pdsdv")
-materials = Array[ExtResource("3_8g4xb")]([ExtResource("4_sbipj"), ExtResource("4_b43ev"), ExtResource("5_ldssj"), ExtResource("6_m3hhm"), ExtResource("7_vidxy"), ExtResource("8_4mal0")])
+materials = Array[ExtResource("3_8g4xb")]([ExtResource("4_sbipj"), ExtResource("4_b43ev"), ExtResource("5_ldssj"), ExtResource("6_m3hhm"), ExtResource("7_vidxy"), ExtResource("8_4mal0"), ExtResource("10_0r0fv"), ExtResource("11_u1c3j")])
 errorTexture = ExtResource("2_8g4xb")
 errorGrad = ExtResource("1_tky1p")
 metadata/_custom_type_script = "uid://bykil1fb2qabg"

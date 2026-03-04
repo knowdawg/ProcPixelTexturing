@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://d1ddyg3g42rrn"]
+
+[ext_resource type="Texture2D" uid="uid://d2l7oxeq07guv" path="res://Textures/MaterialMakerTextures/Wood/ForegroundWoodGrad.tres" id="1_l6rm2"]
+[ext_resource type="Texture2D" uid="uid://dlv781dfih406" path="res://Textures/MaterialMakerTextures/CrystalNormal.png" id="2_lq7pe"]
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="3_gy2h2"]
+[ext_resource type="Texture2D" uid="uid://y8pme6q5757q" path="res://Textures/MaterialMakerTextures/Crystal.png" id="4_p5yq0"]
+
+[resource]
+script = ExtResource("3_gy2h2")
+texture = ExtResource("4_p5yq0")
+normal = ExtResource("2_lq7pe")
+gradient = ExtResource("1_l6rm2")
+border = Color(0.25882354, 0.6901961, 0.84313726, 1)
+lightEmission = Color(0.20983782, 0.41723716, 0.8770395, 1)
+metadata/_custom_type_script = "uid://di707vap5isgj"

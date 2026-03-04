@@ -130,9 +130,6 @@ func setup():
 		cascadeImageUniformsBinding1.append(TerrainRendering.getUniformImage(rid, 1))
 		cascadeImageUniformsBinding2.append(TerrainRendering.getUniformImage(rid, 2))
 	
-	"""
-	CHANGE BACK HERE, REMOVE '* initialCascadeRayCount' FROM BOTH THE X AND Y
-	"""
 	var image := Image.create_empty(initialCascadeResolution.x * initialCascadeRayCount, initialCascadeResolution.y * initialCascadeRayCount, false, Image.FORMAT_RGBAF);
 	image.fill(Color.BLACK)
 	finalOutputImageRID = TerrainRendering.getRIDImage(image, rd)

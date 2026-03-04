@@ -21,8 +21,10 @@ void fragment() {
 	
 	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm, spec);
 	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 2.0, 3.0, 3.0);
+	radiance.rgb = clamp(radiance.rgb, vec3(0.0), vec3(1.0 + spec));
 	
 	COLOR = self * radiance;
+	//COLOR.rgb = norm.rgb;
 	//COLOR.rgb += highlights * radiance.rgb;
 	//COLOR.rgb = mix(COLOR.rgb, highlights, highlights);
 }

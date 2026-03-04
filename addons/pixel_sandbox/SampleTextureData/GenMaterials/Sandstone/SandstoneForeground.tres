@@ -11,5 +11,7 @@ texture = ExtResource("4_36vb7")
 normal = ExtResource("2_tho6l")
 gradient = ExtResource("1_0kgy4")
 border = Color(0.9098039, 0.75686276, 0.4392157, 1)
+borderSize = 5.0
+borderWeight = 0.5
 lightEmission = Color(0, 0, 0, 0.11764706)
 metadata/_custom_type_script = "uid://di707vap5isgj"

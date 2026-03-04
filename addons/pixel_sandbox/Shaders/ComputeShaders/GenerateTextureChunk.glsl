@@ -45,7 +45,10 @@ int getTileIndex(float floatIndex){
 }
 
 
-int getDistanceToNearestEdge(ivec2 uv, int radiusSize, bool foreground) {
+int getDistanceToNearestEdge(ivec2 uv, int radiusSize, bool foreground, out vec2 dir) {
+	int returnRadius = radiusSize + 1;
+	vec2 dirSum = vec2(0.0);
+	int numOfDirAdds = 0;
 	// Search in expanding rings around center
 	for (int radius = 0; radius <= radiusSize; radius++) {
 		for (int x = -radius; x <= radius; x++) {
@@ -64,57 +67,20 @@ int getDistanceToNearestEdge(ivec2 uv, int radiusSize, bool foreground) {
 					if (sampleValue > 0.0) {
 						continue;
 					}
-					return radius;
-					// dis = length(vec2(offset)) / float(radiusSize);
-					// return normalize(vec2(offset));
+
+					dirSum += normalize(vec2(offset));
+					numOfDirAdds += 1;
+					if(radius < returnRadius){
+						returnRadius = radius;
+					}
 				}
 			}
 		}
 	}
-	return radiusSize + 1;
+	dir = dirSum / float(max(numOfDirAdds, 1)); //Do not normalize, does not need to be
+	return returnRadius;
 }
 
-
-vec4 getColor(int type, ivec2 uv, float self, in sampler2DArray textures, in sampler2DArray gradients, in sampler2D borders, ivec2 tileUV, bool foreground){
-	vec4 c = vec4(1.0);
-
-	//UV stuff
-	vec2 normalizedUV = fract(vec2(uv) / 256.0); //from 0-1
-	int tileIndex = getTileIndex(self);
-	vec3 arrayUV = vec3(normalizedUV, tileIndex);
-	
-	//sampling
-	vec4 tVal = texture(textures, arrayUV);
-	
-	switch(type){
-		case 0:
-			c.a = 0.0;
-			break;
-		case 1:
-			c = vec4(0.0, 0.0, 0.0, 1.0);
-			break;
-		case 2:
-			vec4 border = texture(borders, vec2(self, 0.0));
-			c = border;
-			break;
-		case 3:
-			vec2 borderParams = borderParamsForeground[tileIndex];
-			int disToEdge = getDistanceToNearestEdge(tileUV, int(borderParams.x), foreground);
-			if(disToEdge > int(borderParams.x)){
-				tVal.r *= 1.0 - borderParams.y;//(tVal.r * 0.3) + floor(0.6 + tVal.r) * (tVal.r * 0.7) * max(1.0 - float(disToEdge - 3) / float(3), 0.0);
-			}
-
-			c = texture(gradients, vec3(vec2(tVal.r), tileIndex));
-
-
-			break;
-		default:
-			c.a = 0.0;
-			break;
-	}
-	
-	return c;
-}
 
 vec4 getNormal(ivec2 uv, float self, in sampler2DArray normalTextures){
 	//UV stuff
@@ -125,6 +91,70 @@ vec4 getNormal(ivec2 uv, float self, in sampler2DArray normalTextures){
 	vec4 n = texture(normalTextures, arrayUV);
 
 	return n;
+}
+
+vec4 modifyNormalBasedOnEdgeDirection(vec4 normal, int disToEdge, float maxDisToEdge, vec2 dirToEdge, float disToEdgeRatio){
+	vec4 newNormal = normal;
+	if(disToEdge <= int(maxDisToEdge.x)){ //if you are near a border
+		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, disToEdgeRatio);
+	}
+	return newNormal;
+}
+
+void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv, ivec2 tileUV, float self, in sampler2DArray textures, in sampler2DArray gradients, in sampler2D borders, in sampler2DArray normalTextures, bool foreground){
+	vec4 c = vec4(1.0);
+	vec4 n = getNormal(uv, self, normalTextures);
+
+	//UV stuff
+	vec2 normalizedUV = fract(vec2(uv) / 256.0); //from 0-1
+	int tileIndex = getTileIndex(self);
+	vec3 arrayUV = vec3(normalizedUV, tileIndex);
+	
+	//Edge Information
+	vec2 dirToEdge = vec2(0.0);
+	vec2 borderParams = borderParamsForeground[tileIndex];
+	int disToEdge = getDistanceToNearestEdge(tileUV, int(borderParams.x), foreground, dirToEdge);
+	float distanceToEdgeRatio = clamp(float(disToEdge) / borderParams.x, 0.0, 1.0);
+
+	// float warp = float(disToEdge) / 1028.0;
+	// arrayUV.xy -= warp * dirToEdge;
+
+	//sampling
+	vec4 tVal = texture(textures, arrayUV);
+	
+	switch(type){
+		case 0:
+			c.a = 0.0;
+			break;
+		case 1:
+			c = vec4(0.0, 0.0, 0.0, 1.0);
+			n.rgb = vec3(0.5, 0.5, 1.0);
+			break;
+		case 2:
+			vec4 border = texture(borders, vec2(self, 0.0));
+			c = border;
+			//n.rgb = mix(vec3(0.5, 0.5, 1.0), n.rgb, 0.5); //make borders a bit more visible even if the normal is in the oposite direction
+			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
+			break;
+		case 3:
+			if(disToEdge > int(borderParams.x)){
+				tVal.r *= 1.0 - borderParams.y;
+			}else if(tVal.r < 0.5 * distanceToEdgeRatio){
+				tVal.r *= 1.0 - borderParams.y;
+			}
+
+			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
+			
+			c = texture(gradients, vec3(vec2(tVal.r), tileIndex));
+
+			break;
+		default:
+			c.a = 0.0;
+			break;
+	}
+	
+	color = c;
+	normal = n;
 }
 
 //returns a ivec2 where the x value is the pixel type for the forground and y value is the pixel type for the background
@@ -191,7 +221,18 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 	}else if(centerSolid && hasMissingNieghbor){
 		pixelType.y = 2;
 	}else if(centerSolid && !hasMissingNieghbor){
-		pixelType.y = 3;
+		//This can be optimizes somehow, dont need 8 reads prob only need 5
+		bool leftSame = getTileIndex(left.g) == getTileIndex(center.g);
+		bool rightSame = getTileIndex(right.g) == getTileIndex(center.g);
+		bool upSame = getTileIndex(up.g) == getTileIndex(center.g);
+		bool downSame = getTileIndex(down.g) == getTileIndex(center.g);
+
+		//maybye only draw the borders if the border colors are difrent enough??
+		if(leftSame && rightSame && upSame && downSame){
+			pixelType.y = 3;
+		}else{
+			pixelType.y = 2;
+		}
 	}
 	
 	
@@ -217,10 +258,14 @@ void main() {
 	
 	ivec2 pixelType = getPixelType(TILE_IMAGE_UV, tileData.rg);
 	
-	vec4 foregroundColor = getColor(pixelType.x, chunkOffsetUV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground, TILE_IMAGE_UV, true);
-	vec4 backgroundColor = getColor(pixelType.y, chunkOffsetUV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground, TILE_IMAGE_UV, false);
-	vec4 foregroundNormal = getNormal(chunkOffsetUV, tileData.r, normal2dArrayForeground);
-	vec4 backgroundNormal = getNormal(chunkOffsetUV, tileData.g, normal2dArrayBackground);
+	vec4 foregroundColor;
+	vec4 backgroundColor;
+	vec4 foregroundNormal;// = getNormal(chunkOffsetUV, tileData.r, normal2dArrayForeground);
+	vec4 backgroundNormal;// = getNormal(chunkOffsetUV, tileData.g, normal2dArrayBackground);
+	//foregroundColor = getColor(pixelType.x, chunkOffsetUV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground, TILE_IMAGE_UV, true);
+	//backgroundColor = getColor(pixelType.y, chunkOffsetUV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground, TILE_IMAGE_UV, false);
+	calculateColorAndNormal(foregroundColor, foregroundNormal, pixelType.x, chunkOffsetUV, TILE_IMAGE_UV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground, normal2dArrayForeground, true); //foreground
+	calculateColorAndNormal(backgroundColor, backgroundNormal, pixelType.y, chunkOffsetUV, TILE_IMAGE_UV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground, normal2dArrayBackground, false); //background
 
 	vec4 emissionColor = vec4(0.0);
 	emissionColor += texture(emissionColorsForeground, vec2(tileData.r, 0.0)); // foreground light
