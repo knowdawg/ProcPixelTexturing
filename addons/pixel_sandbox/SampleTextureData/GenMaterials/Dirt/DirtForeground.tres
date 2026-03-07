@@ -5,10 +5,10 @@
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="3_wdim6"]
 
 [sub_resource type="Gradient" id="Gradient_ayo3v"]
-offsets = PackedFloat32Array(0, 0.13722397, 0.60094637, 1)
-colors = PackedColorArray(0.1544716, 0.082651325, 0.025138265, 1, 0.33520398, 0.20193592, 0.09198911, 1, 0.7187964, 0.46698135, 0.26339546, 1, 0.8372181, 0.5696371, 0.3586846, 1)
+offsets = PackedFloat32Array(0.083333336, 0.33333334, 0.5833333, 1)
+colors = PackedColorArray(0.20392157, 0.10980392, 0.15294118, 1, 0.53333336, 0.29411766, 0.16862746, 1, 0.6784314, 0.46666667, 0.34117648, 1, 0.7529412, 0.5803922, 0.4509804, 1)
 metadata/_snap_enabled = true
-metadata/_snap_count = 8
+metadata/_snap_count = 12
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_rgay8"]
 gradient = SubResource("Gradient_ayo3v")
@@ -18,6 +18,7 @@ script = ExtResource("3_wdim6")
 texture = ExtResource("3_rgay8")
 normal = ExtResource("1_ayo3v")
 gradient = SubResource("GradientTexture1D_rgay8")
-border = Color(0.7176471, 0.46666667, 0.2627451, 1)
-borderWeight = 0.5
+border = Color(0.6784314, 0.46666667, 0.34117648, 1)
+borderSize = 5.0
+borderWeight = 0.4
 metadata/_custom_type_script = "uid://di707vap5isgj"

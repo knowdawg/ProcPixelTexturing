@@ -116,7 +116,7 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 	int disToEdge = getDistanceToNearestEdge(tileUV, int(borderParams.x), foreground, dirToEdge);
 	float distanceToEdgeRatio = clamp(float(disToEdge) / borderParams.x, 0.0, 1.0);
 
-	// float warp = float(disToEdge) / 1028.0;
+	// float warp = float(disToEdge) / 256.0;
 	// arrayUV.xy -= warp * dirToEdge;
 
 	//sampling
@@ -133,7 +133,6 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 		case 2:
 			vec4 border = texture(borders, vec2(self, 0.0));
 			c = border;
-			//n.rgb = mix(vec3(0.5, 0.5, 1.0), n.rgb, 0.5); //make borders a bit more visible even if the normal is in the oposite direction
 			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
 			break;
 		case 3:
@@ -145,6 +144,7 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 
 			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
 			
+			tVal.r = clamp(tVal.r, 0.0, 0.99);
 			c = texture(gradients, vec3(vec2(tVal.r), tileIndex));
 
 			break;
@@ -183,24 +183,25 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 	bool hasMissingNieghbor = !(leftSolid && rightSolid && upSolid && downSolid);
 
 	if(!centerSolid && hasSolidNieghbor){
-		pixelType.x = 1;
+		pixelType.x = 1; //Black Border Pixel
 	}else if(!centerSolid){
-		pixelType.x = 0;
+		pixelType.x = 0; //Empty Pixel
 	}else if(centerSolid && hasMissingNieghbor){
-		pixelType.x = 2;
+		pixelType.x = 2; //Border Pixel
 	}else if(centerSolid && !hasMissingNieghbor){
-		//This can be optimizes somehow, dont need 8 reads prob only need 5
 		bool leftSame = getTileIndex(left.r) == getTileIndex(center.r);
 		bool rightSame = getTileIndex(right.r) == getTileIndex(center.r);
 		bool upSame = getTileIndex(up.r) == getTileIndex(center.r);
 		bool downSame = getTileIndex(down.r) == getTileIndex(center.r);
 
 		//maybye only draw the borders if the border colors are difrent enough??
+		//mabye if there is a difrent tile new to me I get the border weight instead of being a border tile??
 		if(leftSame && rightSame && upSame && downSame){
 			pixelType.x = 3;
 		}else{
 			pixelType.x = 2;
 		}
+		//pixelType.x = 3;
 		
 	}
 
@@ -221,18 +222,19 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 	}else if(centerSolid && hasMissingNieghbor){
 		pixelType.y = 2;
 	}else if(centerSolid && !hasMissingNieghbor){
-		//This can be optimizes somehow, dont need 8 reads prob only need 5
 		bool leftSame = getTileIndex(left.g) == getTileIndex(center.g);
 		bool rightSame = getTileIndex(right.g) == getTileIndex(center.g);
 		bool upSame = getTileIndex(up.g) == getTileIndex(center.g);
 		bool downSame = getTileIndex(down.g) == getTileIndex(center.g);
 
 		//maybye only draw the borders if the border colors are difrent enough??
+		//mabye if there is a difrent tile new to me I get the border weight instead of being a border tile??
 		if(leftSame && rightSame && upSame && downSame){
 			pixelType.y = 3;
 		}else{
 			pixelType.y = 2;
 		}
+		//pixelType.x = 3;
 	}
 	
 	

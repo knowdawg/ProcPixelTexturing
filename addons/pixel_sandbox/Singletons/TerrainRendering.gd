@@ -38,6 +38,8 @@ worldNormalImage:
 	the image that normals are writen to as an output of generateTextureChunk shader
 """
 
+"""---LIGHTING IMAGES---"""
+var finalLightImageRID : RID
 var lightMapRID : RID
 """
 Light Map:
@@ -45,6 +47,16 @@ Light Map:
 	For blocks that want to block light and cast shadows, thier emission color should be (0.0, 0.0, 0.0, 1.0)
 	For blocks that want dont want to block light, thier emission color should be (0.0, 0.0, 0.0, 0.0)
 """
+var lightBuffer : LightBuffer
+var lightBufferRID : RID
+"""
+Light Buffer:
+	A subviewport that renders only emisive materials in the scene.
+	Each frame, this is combined with the lightmap before lighting calculations are done
+"""
+var additiveBlendShaderFile
+var additiveBlendShader
+var additiveBlendPipeline
 
 var spriteForeground : Sprite2D
 var spriteBackground : Sprite2D
@@ -234,9 +246,15 @@ func _ready() -> void:
 	
 	#Setup pipeline for calculate Enviermental Textures
 	renDev = RenderingServer.get_rendering_device()
+	#Texture Chunk Shader Settup
 	textureChunkShaderFile = load("uid://dvrxg8j3h7sl")
 	textureChunkShader = renDev.shader_create_from_spirv(textureChunkShaderFile.get_spirv())
 	persPipeline = renDev.compute_pipeline_create(textureChunkShader)
+	#Additive Blend Shader Settup (for merging the lightmap and lightbuffer)
+	additiveBlendShaderFile = load("uid://b2l1ub01t6vsa")
+	additiveBlendShader = renDev.shader_create_from_spirv(additiveBlendShaderFile.get_spirv())
+	additiveBlendPipeline = renDev.compute_pipeline_create(additiveBlendShader)
+	
 	setupEnviromentObjects()
 	
 	contructTextureArrays()
@@ -259,10 +277,24 @@ func _process(_delta: float) -> void:
 	
 	updateChunks()
 	
-	if is_instance_valid(sdfGen):
-		sdfGen.createSDF(lightMapRID, lightmapSDF, 0.0, true)
-		if is_instance_valid(radCasc):
+	if is_instance_valid(sdfGen) and is_instance_valid(radCasc):
+		#Combine the LightBuffer with the lightMapRID
+		if is_instance_valid(lightBuffer):
+			"""
+			Make a third texture that this writes two. That way, Radiance Cascades wont have to make a new unifomr each frame
+			and its also less confusing.
+			Everything will then be able to create off of the same lightmap texture
+			This will also make the offset easier to deal with
+			"""
+			lightBufferRID = lightBuffer.getViewportTextureRID()
+			executeAdditiveBlendShader(lightMapRID, lightBufferRID, finalLightImageRID)
+		
+			sdfGen.createSDF(finalLightImageRID, lightmapSDF, 0.0, true)
 			radCasc.updateGlobalIllumination()
+			
+			#renDev.free_rid(lightBufferRID)
+		#sdfGen.createSDF(lightMapRID, lightmapSDF, 0.0, true)
+		#radCasc.updateGlobalIllumination()
 
 func setupEnviromentObjects() -> void:
 	#Create an image on the GPU for each of the world images
@@ -282,11 +314,15 @@ func setupEnviromentObjects() -> void:
 	worldNormalImageBackground.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldNormalImageBackgroundRID = TerrainRendering.getRIDImage(worldNormalImageBackground, renDev)
 	
-	#Create an image on the GPU for the lightmap
+	#Create an image on the GPU for the lightmap, the one the chunks write to
 	var lightmapImage = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
 	lightmapImage.fill(Color(0.0, 0.0, 0.0, 0.0))
 	lightMapRID = TerrainRendering.getRIDImage(lightmapImage, renDev)
 	
+	#Create an image on the GPU for the final lightmap, the one that is sent to the lighting shader
+	var finalLightImage = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
+	finalLightImage.fill(Color(0.0, 0.0, 0.0, 0.0))
+	finalLightImageRID = TerrainRendering.getRIDImage(finalLightImage, renDev)
 
 func setupChunks() -> void:
 	var numOfChunks : Vector2 = ceil(TerrainRendering.mapSize / float(TerrainRendering.chunkSize))
@@ -483,6 +519,26 @@ func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	renDev.free_rid(chunkDataRID)
 	renDev.free_rid(tileImageRID)
 
+func executeAdditiveBlendShader(source1 : RID, source2 : RID, dest : RID):
+	var source1ImageUniform : RDUniform = getUniformImage(source1, 0)
+	var source2ImageUniform : RDUniform = getUniformImage(source2, 1)
+	var destImageUniform : RDUniform = getUniformImage(dest, 2)
+	
+	var cam : Camera2D = get_viewport().get_camera_2d()
+	if !is_instance_valid(cam):
+		return
+	var camPos : Vector2i = Vector2i(round(cam.get_screen_center_position())) - Vector2i(renderSectionSize / 2, renderSectionSize / 2)
+	
+	var sb : RID = getRIDStorageBufferInt([camPos.x, camPos.y], renDev)
+	var sbUniform : RDUniform = getUniformStorageBufferInt(sb, 3)
+	var uniformSet : RID = renDev.uniform_set_create([source1ImageUniform, source2ImageUniform, destImageUniform, sbUniform], additiveBlendShader, 0)
+	
+	var computeList = renDev.compute_list_begin()
+	
+	var w : int = int(ceil(float(TerrainRendering.renderSectionSize) / 32.0))
+	var workgroups := Vector3i(int(w), int(w), 1)
+	
+	TerrainRendering.executeComputeShader(workgroups, renDev, computeList, additiveBlendPipeline, [uniformSet])
 
 #A version of executeTextureChunkShader for blueprints that writes to a seperate output buffer instead of the main visual immage
 func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, outlineSize : int) -> Array[RID]:

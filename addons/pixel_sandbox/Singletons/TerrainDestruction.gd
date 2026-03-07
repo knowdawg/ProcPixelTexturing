@@ -83,3 +83,9 @@ func addTileRadius(worldPosition : Vector2, tileIndex : int, radius : int, tilem
 		TerrainRendering.distributeTerrainEdit(tEdits[k])
 	
 	return prevTiles
+
+
+func getTileRect(rect : Rect2i) -> PackedByteArray:
+	var a : PackedByteArray
+	
+	return a

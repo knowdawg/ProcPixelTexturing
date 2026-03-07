@@ -4,18 +4,19 @@
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="2_wvktt"]
 [ext_resource type="Texture2D" uid="uid://2dk1nmkxhtou" path="res://Textures/MaterialMakerTextures/DirtTestBackground.png" id="3_wvktt"]
 
-[sub_resource type="Gradient" id="Gradient_mdquv"]
-offsets = PackedFloat32Array(0, 0.13722397, 0.60094637, 1)
-colors = PackedColorArray(0.1544716, 0.082651325, 0.025138265, 1, 0.33520398, 0.20193592, 0.09198911, 1, 0.7187964, 0.46698135, 0.26339546, 1, 0.8372181, 0.5696371, 0.3586846, 1)
+[sub_resource type="Gradient" id="Gradient_en05r"]
+colors = PackedColorArray(0.20392157, 0.10980392, 0.15294118, 1, 0.53333336, 0.29411766, 0.16862746, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 12
 
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_dddxl"]
-gradient = SubResource("Gradient_mdquv")
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_wvktt"]
+gradient = SubResource("Gradient_en05r")
 
 [resource]
 script = ExtResource("2_wvktt")
 texture = ExtResource("3_wvktt")
 normal = ExtResource("1_en05r")
-gradient = SubResource("GradientTexture1D_dddxl")
-border = Color(0.7176471, 0.46666667, 0.2627451, 1)
+gradient = SubResource("GradientTexture1D_wvktt")
+border = Color(0.36862746, 0.20392157, 0.16078432, 1)
 lightEmission = Color(0, 0, 0, 0)
 metadata/_custom_type_script = "uid://di707vap5isgj"

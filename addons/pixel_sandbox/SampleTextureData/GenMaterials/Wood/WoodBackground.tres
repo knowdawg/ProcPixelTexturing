@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://c735ugwqq63hq" path="res://Textures/MaterialMakerTextures/WoodTestBackground.png" id="3_ylr8p"]
 
 [sub_resource type="Gradient" id="Gradient_agklg"]
-offsets = PackedFloat32Array(0, 0.5536278, 1)
+offsets = PackedFloat32Array(0, 0.5094637, 1)
 colors = PackedColorArray(0.25919235, 0.14699459, 0.07179824, 1, 0.6124455, 0.3812419, 0.22785059, 1, 0.8063741, 0.53510594, 0.35940745, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_ylr8p"]
@@ -16,6 +16,6 @@ script = ExtResource("1_4b6u7")
 texture = ExtResource("3_ylr8p")
 normal = ExtResource("1_agklg")
 gradient = SubResource("GradientTexture1D_ylr8p")
-border = Color(0.80784315, 0.53333336, 0.36078432, 1)
+border = Color(0.6117647, 0.38039216, 0.22745098, 1)
 lightEmission = Color(0, 0, 0, 0)
 metadata/_custom_type_script = "uid://di707vap5isgj"

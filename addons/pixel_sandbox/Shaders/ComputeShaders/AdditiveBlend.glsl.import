@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://b2l1ub01t6vsa"
+path="res://.godot/imported/AdditiveBlend.glsl-35efb66148976ea1f7f90571a6049d37.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/AdditiveBlend.glsl"
+dest_files=["res://.godot/imported/AdditiveBlend.glsl-35efb66148976ea1f7f90571a6049d37.res"]
+
+[params]
+

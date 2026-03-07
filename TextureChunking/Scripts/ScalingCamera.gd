@@ -12,3 +12,5 @@ func _process(_delta: float) -> void:
 		
 		TerrainRendering.worldPosition = cPos
 		RenderingServer.global_shader_parameter_set("PS_CAMERA_POSITION", cPos)
+		
+		TerrainRendering.lightBuffer.get_viewport().get_camera_2d().global_position = get_screen_center_position()

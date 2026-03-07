@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://bfaudsbosyh6y"]
+
+[ext_resource type="Script" uid="uid://qke8n57ecxtv" path="res://Test/subviewport_testing.gd" id="1_eub8y"]
+[ext_resource type="Texture2D" uid="uid://dp7ls3bwc1ghb" path="res://icon.svg" id="2_i44dx"]
+
+[node name="SubviewportTesting" type="Node2D" unique_id=794720643]
+script = ExtResource("1_eub8y")
+
+[node name="Both" type="SubViewportContainer" parent="." unique_id=1868974958]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 586.0
+offset_right = 1098.0
+offset_bottom = 512.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="BothViewport" type="SubViewport" parent="Both" unique_id=273835042]
+disable_3d = true
+handle_input_locally = false
+canvas_cull_mask = 4293918723
+render_target_update_mode = 4
+
+[node name="one" type="SubViewportContainer" parent="." unique_id=4389165]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 512.0
+offset_bottom = 512.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="OneViewport" type="SubViewport" parent="one" unique_id=663578911]
+disable_3d = true
+canvas_cull_mask = 4293918721
+
+[node name="Sprite2D" type="Sprite2D" parent="one/OneViewport" unique_id=603670137]
+position = Vector2(85, 84)
+texture = ExtResource("2_i44dx")
+
+[node name="Sprite2D2" type="Sprite2D" parent="one/OneViewport" unique_id=941069208]
+visibility_layer = 2
+position = Vector2(297, 85)
+texture = ExtResource("2_i44dx")

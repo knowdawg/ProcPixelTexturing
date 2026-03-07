@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://b06kpbgva0xs1"]
+
+[ext_resource type="Texture2D" uid="uid://ltwo5yannqss" path="res://Textures/MaterialMakerTextures/GrassTestNormal.png" id="1_a6qee"]
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_txybp"]
+[ext_resource type="Texture2D" uid="uid://cnsfca4de3q4h" path="res://Textures/MaterialMakerTextures/GrassTest.png" id="3_qob44"]
+
+[sub_resource type="Gradient" id="Gradient_axh2m"]
+offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8)
+colors = PackedColorArray(0.09803922, 0.2, 0.1764706, 1, 0.27450982, 0.50980395, 0.19607843, 1, 0.45882353, 0.654902, 0.2627451, 1, 0.65882355, 0.7921569, 0.34509805, 1, 0.8156863, 0.85490197, 0.5686275, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 5
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_8gedd"]
+gradient = SubResource("Gradient_axh2m")
+
+[resource]
+script = ExtResource("1_txybp")
+texture = ExtResource("3_qob44")
+normal = ExtResource("1_a6qee")
+gradient = SubResource("GradientTexture1D_8gedd")
+border = Color(0.65882355, 0.7921569, 0.34509805, 1)
+metadata/_custom_type_script = "uid://di707vap5isgj"

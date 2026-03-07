@@ -1,6 +1,8 @@
 extends Node
 class_name RadianceCascades
 
+@export var debugSprite : Sprite2D
+
 @export_group("Radiance Cascades Parameters")
 @export var cascadeCount : int = 6
 @export var initialCascadeRayCount : int = 4 #set to 2 for low quality mode. Causes a little bit of ringing
@@ -49,6 +51,9 @@ func _ready() -> void:
 	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION", GI)
 	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA", dirGI)
 	RenderingServer.global_shader_parameter_set("PS_INITIAL_CASCADE_PROBE_SIZE", initialCascadeRayCount)
+	
+	if debugSprite:
+		debugSprite.texture = GI
 
 func updateGlobalIllumination():
 	for i in range(len(cascadeImageRIDs)):
@@ -136,5 +141,5 @@ func setup():
 	
 	#Create Uniforms
 	lightSDFUniform = TerrainRendering.getUniformImage(TerrainRendering.lightmapSDF, 0)
-	lightImageUniform = TerrainRendering.getUniformImage(TerrainRendering.lightMapRID, 1)
+	lightImageUniform = TerrainRendering.getUniformImage(TerrainRendering.finalLightImageRID, 1)
 	finalOutputImageUniform = TerrainRendering.getUniformImage(finalOutputImageRID, 1)
