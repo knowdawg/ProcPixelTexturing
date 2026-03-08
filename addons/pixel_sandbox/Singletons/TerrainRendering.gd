@@ -270,8 +270,6 @@ func _ready() -> void:
 	lightmapSDF = TerrainRendering.getRIDImage(image, renDev)
 
 func _process(_delta: float) -> void:
-	#if is_instance_valid(sdfGen):
-		#sdfGen.createSDF(worldVisualImageForegroundRID, foregroundSDF, 0.0, true)
 	updateLoadedRect()
 	updateTileTextureScrollAndSpritePosition()
 	
@@ -280,12 +278,6 @@ func _process(_delta: float) -> void:
 	if is_instance_valid(sdfGen) and is_instance_valid(radCasc):
 		#Combine the LightBuffer with the lightMapRID
 		if is_instance_valid(lightBuffer):
-			"""
-			Make a third texture that this writes two. That way, Radiance Cascades wont have to make a new unifomr each frame
-			and its also less confusing.
-			Everything will then be able to create off of the same lightmap texture
-			This will also make the offset easier to deal with
-			"""
 			lightBufferRID = lightBuffer.getViewportTextureRID()
 			executeAdditiveBlendShader(lightMapRID, lightBufferRID, finalLightImageRID)
 		

@@ -18,7 +18,11 @@ void main(){
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
 
     vec4 sum = imageLoad(sourceImage1, uv);
-    sum += imageLoad(sourceImage2, (uv - ivec2(camPosX, camPosY)) % size);
+
+    vec4 temp = imageLoad(sourceImage2, (uv - ivec2(camPosX, camPosY)) % size);
+    temp.a = floor(temp.a);
+
+    sum += temp;
 
     imageStore(outputImage, uv, sum);
 }

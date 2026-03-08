@@ -80,7 +80,7 @@ void main(){
 
     float textureScalling = (imSize / 512.0);
 
-	for(int i = 0; i < 80; i++){
+	for(int i = 0; i < 32; i++){
 		vec2 curPos = vec2(uv) + (angleVector * disTraveled);
 
         if(curPos.x < 0 || curPos.y < 0 || curPos.x > size.x - 1 || curPos.y > size.y - 1){ //If you leave the screen, you failed

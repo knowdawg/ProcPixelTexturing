@@ -18,7 +18,7 @@
 
 [resource]
 script = ExtResource("9_pdsdv")
-materials = Array[ExtResource("3_8g4xb")]([ExtResource("4_sbipj"), ExtResource("4_b43ev"), ExtResource("5_ldssj"), ExtResource("6_m3hhm"), ExtResource("7_vidxy"), ExtResource("8_4mal0"), ExtResource("10_0r0fv"), ExtResource("11_u1c3j"), ExtResource("12_4gjhk"), ExtResource("13_mm0km"), ExtResource("14_fih6h")])
+materials = Array[ExtResource("3_8g4xb")]([ExtResource("4_sbipj"), ExtResource("12_4gjhk"), ExtResource("8_4mal0"), ExtResource("11_u1c3j"), ExtResource("4_b43ev"), ExtResource("5_ldssj"), ExtResource("6_m3hhm"), ExtResource("7_vidxy"), ExtResource("10_0r0fv"), ExtResource("13_mm0km"), ExtResource("14_fih6h")])
 errorTexture = ExtResource("2_8g4xb")
 errorGrad = ExtResource("1_tky1p")
 metadata/_custom_type_script = "uid://bykil1fb2qabg"

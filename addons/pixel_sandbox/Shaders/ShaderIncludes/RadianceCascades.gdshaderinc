@@ -1,6 +1,6 @@
 
 global uniform vec2 PS_CAMERA_POSITION;
-global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_linear, repeat_enable;
+global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform int PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE;
 global uniform sampler2D PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA : filter_nearest, repeat_enable;
 global uniform int PS_INITIAL_CASCADE_PROBE_SIZE;
@@ -141,7 +141,6 @@ vec3 getRadiance(vec2 sUV){
 	
 	vec2 uv = lightLocalPosition / GITexSize;
 	uv *= GITexSize / PS_RENDER_QUADRANT_SIZE.x;
-	uv /= float(GIProbeSize);
 	
 	vec3 radiance = texture(PS_GLOBAL_ILLUMINATION, uv).rgb;
 	
