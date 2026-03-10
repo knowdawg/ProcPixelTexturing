@@ -28,13 +28,12 @@ vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, 
 			
 			vec3 viewVector = vec3(0.0, 0.0, 1.0);//Front on camera view
 			vec3 H = normalize(lightDir + viewVector); //the halfway vector
-			float spec = pow(max(dot(normal, H), 0.0), 16.0); //8.0 is the shininess
+			float spec = pow(max(dot(normal, H), 0.0), 16.0); //16.0 is the shininess
 			spec = clamp(spec, 0.0, 1.0);
-			//result += radVal * spec;
 			
 			float cNdotL = max(0.0, dot(normal, lightDir));
 			//cNdotL *= (1.0 - specular); //reduces normal lighting based on how specular it is
-			result += radVal * cNdotL + radVal * spec * specular * 8.0;
+			result += radVal * cNdotL;// + radVal * spec * specular * 8.0; //8.0
 		}
 	}
 

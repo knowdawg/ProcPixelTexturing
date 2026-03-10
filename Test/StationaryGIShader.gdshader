@@ -3,5 +3,5 @@ shader_type canvas_item;
 
 
 void fragment() {
-	COLOR.rgb = pow(getRadiance(SCREEN_UV), vec3(1.0 / 2.2));
+	COLOR.rgb = pow(getRadiance(SCREEN_UV), vec3(1.0 / 6.6));
 }

@@ -90,6 +90,8 @@ void main(){
         }
         combinedRadiance += radiance / 4.0; //gunna be adding radiance 4 times and we want the average of each of the 4 n+1 probes
     }
+    
+    //combinedRadiance.rgb = pow(combinedRadiance.rgb, vec3(1.0 / 2.2));
 
     imageStore(mergeToCascade, rayCoord, combinedRadiance);
 }

@@ -259,7 +259,9 @@ script = ExtResource("13_mu78b")
 
 [node name="Sprite2D" type="Sprite2D" parent="World2D/FireParticles" unique_id=1953944105]
 visible = false
+modulate = Color(0.44705883, 1, 1, 1)
 visibility_layer = 512
+scale = Vector2(0.5, 0.5)
 texture = SubResource("GradientTexture2D_dvw3m")
 
 [node name="EmisiveRect" type="ColorRect" parent="World2D/FireParticles" unique_id=951435877]

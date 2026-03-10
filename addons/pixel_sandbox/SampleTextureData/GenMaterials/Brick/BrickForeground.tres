@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://y8pme6q5757q" path="res://Textures/MaterialMakerTextures/Crystal.png" id="3_0l6b7"]
 
 [sub_resource type="Gradient" id="Gradient_mb4rn"]
-offsets = PackedFloat32Array(0, 0.8643533, 1)
+offsets = PackedFloat32Array(0, 0.5588235, 1)
 colors = PackedColorArray(0, 0, 0, 1, 0.6221908, 0.6723784, 0.89258003, 1, 1, 1, 1, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_1l675"]
