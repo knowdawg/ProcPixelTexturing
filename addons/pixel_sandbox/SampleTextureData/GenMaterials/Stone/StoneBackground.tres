@@ -4,19 +4,18 @@
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="2_edloj"]
 [ext_resource type="Texture2D" uid="uid://p2tphbiapibj" path="res://Textures/MaterialMakerTextures/StoneTestBackground.png" id="3_edloj"]
 
-[sub_resource type="Gradient" id="Gradient_dysbm"]
-offsets = PackedFloat32Array(0, 0.5, 1)
+[sub_resource type="Gradient" id="Gradient_bdmx0"]
+offsets = PackedFloat32Array(0, 0.22870663, 1)
 colors = PackedColorArray(0.1254902, 0.18039216, 0.21568628, 1, 0.34117648, 0.44705883, 0.46666667, 1, 0.65882355, 0.70980394, 0.69803923, 1)
-metadata/_snap_enabled = true
 
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_n4mju"]
-gradient = SubResource("Gradient_dysbm")
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_edloj"]
+gradient = SubResource("Gradient_bdmx0")
 
 [resource]
 script = ExtResource("2_edloj")
 texture = ExtResource("3_edloj")
 normal = ExtResource("1_bdmx0")
-gradient = SubResource("GradientTexture1D_n4mju")
+gradient = SubResource("GradientTexture1D_edloj")
 border = Color(0.65882355, 0.70980394, 0.69803923, 1)
 borderSize = 4.0
 lightEmission = Color(0, 0, 0, 0)

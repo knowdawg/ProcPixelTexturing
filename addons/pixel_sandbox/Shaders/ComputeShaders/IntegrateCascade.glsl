@@ -47,8 +47,8 @@ void main(){
 
     // //amplify lighting
     // radiance.rgb *= 2.0;
-    radiance.rgb = apply_exposure(radiance.rgb);
-    radiance.rgb = boost_luminance(radiance.rgb);
+    //radiance.rgb = apply_exposure(radiance.rgb);
+    //radiance.rgb = boost_luminance(radiance.rgb);
 
     imageStore(outputBuffer, probeCoord, radiance);
    // imageStore(outputBuffer, probeCoord, imageLoad(cascade, probeCoord));

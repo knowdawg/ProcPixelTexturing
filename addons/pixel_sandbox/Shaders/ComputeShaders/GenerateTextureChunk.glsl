@@ -96,7 +96,7 @@ vec4 getNormal(ivec2 uv, float self, in sampler2DArray normalTextures){
 vec4 modifyNormalBasedOnEdgeDirection(vec4 normal, int disToEdge, float maxDisToEdge, vec2 dirToEdge, float disToEdgeRatio){
 	vec4 newNormal = normal;
 	if(disToEdge <= int(maxDisToEdge.x)){ //if you are near a border
-		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, disToEdgeRatio);
+		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, clamp(disToEdgeRatio + 0.35, 0.0, 1.0));
 	}
 	return newNormal;
 }

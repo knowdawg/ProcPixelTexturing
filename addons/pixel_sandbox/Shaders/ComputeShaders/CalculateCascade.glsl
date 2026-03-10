@@ -59,7 +59,7 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
         if(p.x < 0 || p.y < 0 || p.x >= size.x || p.y >= size.y) break;
 
         
-        //SDF Raymarching, requires less itterations
+        // SDF Raymarching, requires less itterations
         // vec4 sdfVal = imageLoad(lightSDF, ivec2(p));
         // if(sdfVal.r < 0.001 || dis == scaledInterval.y){
         //     radiance = sampleLightImage(ivec2(p));
@@ -67,7 +67,7 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
         // }
         // dis += sdfVal.r * size.x;
 
-        //SDF Raymarching, Switching to Fixed Length Raymarching With Volumetrics when close enough to something with volume
+        //SDF Raymarching, Switching to Fixed Length Raymarching when close enough to something with volume
         if(dis == scaledInterval.y){
             break;
         }
@@ -78,6 +78,7 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
         vec4 sdfVal = imageLoad(lightSDF, ivec2(p));
         if(sdfVal.r < 0.001){
             vec4 myPos = sampleLightImage(ivec2(p));
+
             radiance.rgb += myPos.rgb * transmittance * myPos.a;
             transmittance *= 1.0 - myPos.a;
             dis += 1.0; //Step 1 pixel
