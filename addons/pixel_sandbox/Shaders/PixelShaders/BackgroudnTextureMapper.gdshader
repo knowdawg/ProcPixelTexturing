@@ -4,34 +4,6 @@ shader_type canvas_item;
 
 global uniform vec2 PS_TILE_TEXTURE_SCROLL;
 
-vec3 rgb2hsv(vec3 c) {
-    vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
-    vec4 p = mix(vec4(c.bg, K.wz),
-                 vec4(c.gb, K.xy),
-                 step(c.b, c.g));
-    vec4 q = mix(vec4(p.xyw, c.r),
-                 vec4(c.r, p.yzx),
-                 step(p.x, c.r));
-
-    float d = q.x - min(q.w, q.y);
-    float e = 1.0e-10;
-    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)),
-                d / (q.x + e),
-                q.x);
-}
-vec3 hsv2rgb(vec3 c) {
-    vec3 rgb = clamp(abs(mod(c.x * 6.0 + vec3(0, 4, 2),
-                             6.0) - 3.0) - 1.0,
-                     0.0,
-                     1.0);
-    return c.z * mix(vec3(1.0), rgb, c.y);
-}
-vec3 darkenHSV(vec3 color, float factor) {
-    vec3 hsv = rgb2hsv(color);
-    hsv.z *= factor;  // Reduce brightness
-    return hsv2rgb(hsv);
-}
-
 void fragment() {
 	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
 	vec2 qUV = UV + PS_TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
@@ -39,14 +11,15 @@ void fragment() {
 	qUV = floor(qUV * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE;
 	
 	vec4 self = texture(TEXTURE, qUV);
-	self.rgb = darkenHSV(self.rgb, 0.5);
+	//self.rgb = darkenHSV(self.rgb, 0.5);
 	
 	vec4 normalAndSpecular = texture(NORMAL_TEXTURE, qUV);
 	vec3 norm = normalAndSpecular.rgb;
 	float spec = 1.0 - normalAndSpecular.a;
 	
 	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm, spec);
-	radiance.rgb = pow(radiance.rgb, vec3(1.0 / 6.0));
+	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 3.0, 3.0, 3.0);
+	radiance.rgb = pow(radiance.rgb, vec3(1.0 / 2.2));
 	//radiance.rgb = brightnessExposureLuminance(radiance.rgb, 1.0 + spec, 1.0 + spec, 1.0 + spec);
 	//radiance.rgb = clamp(radiance.rgb, vec3(0.0), vec3(1.0 + spec));
 	

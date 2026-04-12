@@ -100,7 +100,7 @@ func generateSampleImage(tile : int, size : Vector2i) -> Image:
 	im.fill(Color(float(tile) / float(uniqueTiles - 1), 0.0, 0.0, 1.0))
 	return im
 
-func contructTextureArrays():
+func constructTextureArrays():
 	
 	###---------TEXTURES---------###
 	#Create a default sampler
@@ -117,6 +117,7 @@ func contructTextureArrays():
 	var tex2dArray : Texture2DArray = foregroundTextureData.getTextureArray(uniqueTiles)
 	var normal2dArray : Texture2DArray = foregroundTextureData.getNormalArray(uniqueTiles)
 	var gradient2dArray : Texture2DArray = foregroundTextureData.getGradientArray(uniqueTiles)
+	var borderGradient2dArray : Texture2DArray = foregroundTextureData.getBorderGradientArray(uniqueTiles)
 	var borderColors := foregroundTextureData.getBorderTexture(uniqueTiles)
 	var emissionColors := foregroundTextureData.getLightEmissionTexture(uniqueTiles)
 	
@@ -150,11 +151,18 @@ func contructTextureArrays():
 	u.binding = 3
 	u.uniform_type = samplerUniformType
 	u.add_id(defaultSampler)
-	u.add_id(getRIDImage(borderColors, renDev))
+	u.add_id(getRIDImage2DArray(borderGradient2dArray, renDev))
 	textureUniforms.append(u)
 	
 	u = RDUniform.new()
 	u.binding = 4
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage(borderColors, renDev))
+	textureUniforms.append(u)
+	
+	u = RDUniform.new()
+	u.binding = 5
 	u.uniform_type = samplerUniformType
 	u.add_id(defaultSampler)
 	u.add_id(getRIDImage(emissionColors, renDev))
@@ -165,39 +173,47 @@ func contructTextureArrays():
 	tex2dArray = backgroundTextureData.getTextureArray(uniqueTiles)
 	normal2dArray = backgroundTextureData.getNormalArray(uniqueTiles)
 	gradient2dArray = backgroundTextureData.getGradientArray(uniqueTiles)
+	borderGradient2dArray = backgroundTextureData.getBorderGradientArray(uniqueTiles)
 	borderColors = backgroundTextureData.getBorderTexture(uniqueTiles)
 	emissionColors = backgroundTextureData.getLightEmissionTexture(uniqueTiles)
 	
 	u = RDUniform.new()
-	u.binding = 5
+	u.binding = 6
 	u.uniform_type = RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
 	u.add_id(defaultSampler)
 	u.add_id(getRIDImage2DArray(tex2dArray, renDev))
 	textureUniforms.append(u)
 	
 	u = RDUniform.new()
-	u.binding = 6
+	u.binding = 7
 	u.uniform_type = samplerUniformType
 	u.add_id(defaultSampler)
 	u.add_id(getRIDImage2DArray(normal2dArray, renDev))
 	textureUniforms.append(u)
 	
 	u = RDUniform.new()
-	u.binding = 7
+	u.binding = 8
 	u.uniform_type = samplerUniformType
 	u.add_id(defaultSampler)
 	u.add_id(getRIDImage2DArray(gradient2dArray, renDev))
 	textureUniforms.append(u)
 	
 	u = RDUniform.new()
-	u.binding = 8
+	u.binding = 9
+	u.uniform_type = samplerUniformType
+	u.add_id(defaultSampler)
+	u.add_id(getRIDImage2DArray(borderGradient2dArray, renDev))
+	textureUniforms.append(u)
+	
+	u = RDUniform.new()
+	u.binding = 10
 	u.uniform_type = samplerUniformType
 	u.add_id(defaultSampler)
 	u.add_id(getRIDImage(borderColors, renDev))
 	textureUniforms.append(u)
 	
 	u = RDUniform.new()
-	u.binding = 9
+	u.binding = 11
 	u.uniform_type = samplerUniformType
 	u.add_id(defaultSampler)
 	u.add_id(getRIDImage(emissionColors, renDev))
@@ -257,7 +273,7 @@ func _ready() -> void:
 	
 	setupEnviromentObjects()
 	
-	contructTextureArrays()
+	constructTextureArrays()
 	setupChunks()
 	
 	#setup foreground SDF
@@ -287,6 +303,9 @@ func _process(_delta: float) -> void:
 			#renDev.free_rid(lightBufferRID)
 		#sdfGen.createSDF(lightMapRID, lightmapSDF, 0.0, true)
 		#radCasc.updateGlobalIllumination()
+		
+	if Input.is_action_just_pressed("ReloadTexture"):
+		constructTextureArrays()
 
 func setupEnviromentObjects() -> void:
 	#Create an image on the GPU for each of the world images
@@ -500,7 +519,7 @@ func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	
 	var uniformSet : RID = renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputForeground, outputBackground, lightMap, outputNormalForeground, outputNormalBackground], textureChunkShader, 2)
 	
-	var computeList = renDev.compute_list_begin()
+	var computeList: int = renDev.compute_list_begin()
 	
 	var w : int = int(ceil(float(TerrainRendering.chunkSize) / 8.0))
 	var workgroups := Vector3i(int(w), int(w), 1)
@@ -525,12 +544,14 @@ func executeAdditiveBlendShader(source1 : RID, source2 : RID, dest : RID):
 	var sbUniform : RDUniform = getUniformStorageBufferInt(sb, 3)
 	var uniformSet : RID = renDev.uniform_set_create([source1ImageUniform, source2ImageUniform, destImageUniform, sbUniform], additiveBlendShader, 0)
 	
-	var computeList = renDev.compute_list_begin()
+	var computeList: int = renDev.compute_list_begin()
 	
 	var w : int = int(ceil(float(TerrainRendering.renderSectionSize) / 32.0))
 	var workgroups := Vector3i(int(w), int(w), 1)
 	
 	TerrainRendering.executeComputeShader(workgroups, renDev, computeList, additiveBlendPipeline, [uniformSet])
+	
+	renDev.free_rid(sb)
 
 #A version of executeTextureChunkShader for blueprints that writes to a seperate output buffer instead of the main visual immage
 func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, outlineSize : int) -> Array[RID]:
@@ -568,7 +589,7 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 	var dummyNormal2 := getUniformImage(dummyLightmapRID, 6)
 	
 	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniformForeground, outputUniformBackground, dummyLightmapUniform, dummyNormal1, dummyNormal2], textureChunkShader, 2)
-	var computeList = renDev.compute_list_begin()
+	var computeList: int = renDev.compute_list_begin()
 	
 	var w : int = int(ceil(float(TerrainRendering.chunkSize) / 8.0))
 	var workgroups := Vector3i(int(w), int(w), 1)
@@ -576,6 +597,7 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 	
 	renDev.free_rid(chunkDataRID)
 	renDev.free_rid(tileImageRID)
+	renDev.free_rid(dummyLightmapRID)
 	
 	return [outputImageForegroundRID, outputImageBackgroundRID]
 
@@ -616,7 +638,7 @@ func getRIDStorageBufferFloat(data : PackedFloat32Array, rd : RenderingDevice) -
 	var dataRID : RID = rd.storage_buffer_create(packedData.size(), packedData)
 	return dataRID
 
-func getRIDImage(image : Image, rd : RenderingDevice) -> RID: #Read only
+func getRIDImage(image : Image, rd : RenderingDevice) -> RID:
 	var imageSize := image.get_size()
 	var textureView := RDTextureView.new()
 	var textureFormat := RDTextureFormat.new()

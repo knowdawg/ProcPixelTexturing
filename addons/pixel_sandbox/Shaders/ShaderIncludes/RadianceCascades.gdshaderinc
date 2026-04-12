@@ -1,6 +1,6 @@
 
 global uniform vec2 PS_CAMERA_POSITION;
-global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
+global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_linear, repeat_enable;
 global uniform int PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE;
 global uniform sampler2D PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA : filter_nearest, repeat_enable;
 global uniform int PS_INITIAL_CASCADE_PROBE_SIZE;
@@ -33,7 +33,7 @@ vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, 
 			
 			float cNdotL = max(0.0, dot(normal, lightDir));
 			//cNdotL *= (1.0 - specular); //reduces normal lighting based on how specular it is
-			result += radVal * cNdotL;// + radVal * spec * specular * 8.0; //8.0
+			result += radVal * cNdotL + radVal * spec * specular * 32.0; //8.0
 		}
 	}
 

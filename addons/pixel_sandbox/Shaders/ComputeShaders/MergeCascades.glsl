@@ -16,6 +16,7 @@ vec4 mergeIntervals(vec4 near, vec4 far) {
     float farOcluder = far.a; //will be 0 is far hit something
     //Far's radiance can be ocluded by near's radiance if near hit
     vec3 radiance = near.rgb + (far.rgb * nearOcluder);
+
     return vec4(radiance, (nearOcluder * farOcluder));
 }
 

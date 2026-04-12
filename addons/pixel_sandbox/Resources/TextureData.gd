@@ -49,6 +49,19 @@ func getGradientArray(numOfTextures : int) -> Texture2DArray:
 	
 	return tex2dArray
 
+func getBorderGradientArray(numOfTextures : int) -> Texture2DArray:
+	var tex2dArray := Texture2DArray.new()
+	var imageArray : Array[Image] = []
+	for i in range(numOfTextures):
+		var im : Image
+		im = getBorderGradient(i).get_image()
+		im.convert(Image.FORMAT_RGBA8)
+		imageArray.append(im)
+	
+	tex2dArray.create_from_images(imageArray)
+	
+	return tex2dArray
+
 func getBorderTexture(numOfTextures : int) -> Image:
 	var borderColors : Image = Image.create_empty(numOfTextures, 1, false, Image.FORMAT_RGBA8)
 	for i in range(numOfTextures):
@@ -73,7 +86,7 @@ func getSolidArray(numOfTextures : int) -> PackedInt32Array:
 	return PackedInt32Array(solidArray)
 
 func getLightEmissionTexture(numOfTextures : int) -> Image:
-	var emissionColors : Image = Image.create_empty(numOfTextures, 1, false, Image.FORMAT_RGBA8)
+	var emissionColors : Image = Image.create_empty(numOfTextures, 1, false, Image.FORMAT_RGBAF)
 	for i in range(numOfTextures):
 		emissionColors.set_pixel(i, 0, getLightEmission(i))
 	
@@ -97,6 +110,13 @@ func getNormal(index : int) -> Texture2D:
 func getGradient(index : int) -> Texture2D:
 	if index < materials.size():
 		return materials[index].gradient
+	return errorGrad
+
+func getBorderGradient(index : int) -> Texture2D:
+	if index < materials.size():
+		var g : GradientTexture1D = materials[index].borderGradient
+		if g:
+			return g
 	return errorGrad
 
 

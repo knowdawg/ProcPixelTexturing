@@ -1,0 +1,6 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://dnj65jvctj3f4"]
+
+[ext_resource type="Shader" uid="uid://defwx0mrqnf0o" path="res://Test/GenericLighting.gdshader" id="1_qlc85"]
+
+[resource]
+shader = ExtResource("1_qlc85")

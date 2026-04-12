@@ -5,28 +5,32 @@ class_name RadianceCascades
 
 @export_group("Radiance Cascades Parameters")
 @export var cascadeCount : int = 6
-@export var initialCascadeRayCount : int = 4 #set to 2 for low quality mode. Causes a little bit of ringing
+@export var initialCascadeRayCount : int = 2
 @export var initailCascadeRayLength : int = 1
 @export var initialCascadeResolution : Vector2i = Vector2i(512, 512)
 
 var rd : RenderingDevice
 
+#First step: Raymarching from each probe
 var cascadeShaderFile = preload("uid://bisgk0gq36n2y")
 var cascadeShader : RID
 var cascadePipeline : RID
 
+#Secound step: Merge each cascades, highest angular resolution -> lowest angular resolution
 var combineShaderFile = preload("uid://dnnbnbh3iidv7")
 var combineShader : RID
 var combinePipeline : RID
 
-var integrateShaderFile = preload("uid://b0k2vav6dsip1")
+#Third Step: Calculate the radiance from all direction of the final probe layer
+var integrateShaderFile = preload("uid://cxvi33278o674")
 var integrateShader : RID
 var integratePipeline : RID
 
+#Keep track of image RID
 var cascadeImageRIDs : Array[RID] = []
 var finalOutputImageRID : RID
 
-#uniforms
+#Shader Uniforms
 var lightSDFUniform : RDUniform
 var lightImageUniform : RDUniform
 var finalOutputImageUniform : RDUniform

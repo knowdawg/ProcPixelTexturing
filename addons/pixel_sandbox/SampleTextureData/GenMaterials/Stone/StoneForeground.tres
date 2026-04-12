@@ -4,9 +4,20 @@
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_wfmjd"]
 [ext_resource type="Texture2D" uid="uid://b4uon77xuh1l4" path="res://Textures/MaterialMakerTextures/StoneTest.png" id="3_b3qcm"]
 
-[sub_resource type="Gradient" id="Gradient_o658l"]
-offsets = PackedFloat32Array(0, 0.22870663, 1)
+[sub_resource type="Gradient" id="Gradient_3fevh"]
+offsets = PackedFloat32Array(0, 0.125, 0.25)
 colors = PackedColorArray(0.1254902, 0.18039216, 0.21568628, 1, 0.34117648, 0.44705883, 0.46666667, 1, 0.65882355, 0.70980394, 0.69803923, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_b3qcm"]
+gradient = SubResource("Gradient_3fevh")
+
+[sub_resource type="Gradient" id="Gradient_o658l"]
+offsets = PackedFloat32Array(0, 0.375, 1)
+colors = PackedColorArray(0.1254902, 0.18039216, 0.21568628, 1, 0.34117648, 0.44705883, 0.46666667, 1, 0.65882355, 0.70980394, 0.69803923, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_5t7cv"]
 gradient = SubResource("Gradient_o658l")
@@ -19,4 +30,5 @@ gradient = SubResource("GradientTexture1D_5t7cv")
 border = Color(0.65882355, 0.70980394, 0.69803923, 1)
 borderSize = 5.0
 borderWeight = 0.5
+borderGradient = SubResource("GradientTexture1D_b3qcm")
 metadata/_custom_type_script = "uid://di707vap5isgj"

@@ -10,23 +10,6 @@ layout(set = 0, binding = 2, std430) readonly buffer Params {
     int probeSize;
 };
 
-/*
-Maybye decouple the integrate cascade and caculate light direction logic into two compute shaders so i can get lighting direction on any cascade, not just the last one
-I could write lighting direction to a seperate texture, perhaps even a lower resolution one.
-*/
-
-
-vec3 apply_exposure(vec3 color) {
-    return 1.0 - exp(-color * 3.0);
-}
-
-vec3 boost_luminance(vec3 color) {
-    float lum = dot(color, vec3(0.299, 0.587, 0.114));
-    vec3 normalized = color / max(lum, 0.0001);
-    return normalized * lum * 3.0;
-}
-
-
 //1 thread per probe
 void main(){
     ivec2 probeCoord = ivec2(gl_GlobalInvocationID.xy);
@@ -45,11 +28,5 @@ void main(){
     //average out the probe
     radiance.rgb /= probeSize * probeSize;
 
-    // //amplify lighting
-    // radiance.rgb *= 2.0;
-    //radiance.rgb = apply_exposure(radiance.rgb);
-    //radiance.rgb = boost_luminance(radiance.rgb);
-
     imageStore(outputBuffer, probeCoord, radiance);
-   // imageStore(outputBuffer, probeCoord, imageLoad(cascade, probeCoord));
 }

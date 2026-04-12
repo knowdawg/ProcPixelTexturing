@@ -9,14 +9,16 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(set = 0, binding = 0) uniform sampler2DArray tex2dArrayForeground;
 layout(set = 0, binding = 1) uniform sampler2DArray normal2dArrayForeground;
 layout(set = 0, binding = 2) uniform sampler2DArray gradient2dArrayForeground;
-layout(set = 0, binding = 3) uniform sampler2D borderColorsForeground;
-layout(set = 0, binding = 4) uniform sampler2D emissionColorsForeground;
+layout(set = 0, binding = 3) uniform sampler2DArray borderGradient2dArrayForeground;
+layout(set = 0, binding = 4) uniform sampler2D borderColorsForeground;
+layout(set = 0, binding = 5) uniform sampler2D emissionColorsForeground;
 
-layout(set = 0, binding = 5) uniform sampler2DArray tex2dArrayBackground;
-layout(set = 0, binding = 6) uniform sampler2DArray normal2dArrayBackground;
-layout(set = 0, binding = 7) uniform sampler2DArray gradient2dArrayBackground;
-layout(set = 0, binding = 8) uniform sampler2D borderColorsBackground;
-layout(set = 0, binding = 9) uniform sampler2D emissionColorsBackground;
+layout(set = 0, binding = 6) uniform sampler2DArray tex2dArrayBackground;
+layout(set = 0, binding = 7) uniform sampler2DArray normal2dArrayBackground;
+layout(set = 0, binding = 8) uniform sampler2DArray gradient2dArrayBackground;
+layout(set = 0, binding = 9) uniform sampler2DArray borderGradient2dArrayBackground;
+layout(set = 0, binding = 10) uniform sampler2D borderColorsBackground;
+layout(set = 0, binding = 11) uniform sampler2D emissionColorsBackground;
 
 //Set 1: Constant Storage Buffers
 layout(set = 1, binding = 0, std430) readonly buffer BorderParamsForeground { vec2 borderParamsForeground[]; };
@@ -96,12 +98,12 @@ vec4 getNormal(ivec2 uv, float self, in sampler2DArray normalTextures){
 vec4 modifyNormalBasedOnEdgeDirection(vec4 normal, int disToEdge, float maxDisToEdge, vec2 dirToEdge, float disToEdgeRatio){
 	vec4 newNormal = normal;
 	if(disToEdge <= int(maxDisToEdge.x)){ //if you are near a border
-		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, clamp(disToEdgeRatio + 0.35, 0.0, 1.0));
+		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, clamp(disToEdgeRatio + 0.25, 0.0, 1.0));
 	}
 	return newNormal;
 }
 
-void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv, ivec2 tileUV, float self, in sampler2DArray textures, in sampler2DArray gradients, in sampler2D borders, in sampler2DArray normalTextures, bool foreground){
+void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv, ivec2 tileUV, float self, in sampler2DArray textures, in sampler2DArray gradients, in sampler2DArray borderGradients, in sampler2D borders, in sampler2DArray normalTextures, bool foreground){
 	vec4 c = vec4(1.0);
 	vec4 n = getNormal(uv, self, normalTextures);
 
@@ -112,7 +114,7 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 	
 	//Edge Information
 	vec2 dirToEdge = vec2(0.0);
-	vec2 borderParams = borderParamsForeground[tileIndex];
+	vec2 borderParams = borderParamsForeground[tileIndex]; //x is max distance, y is border wieght
 	int disToEdge = getDistanceToNearestEdge(tileUV, int(borderParams.x), foreground, dirToEdge);
 	float distanceToEdgeRatio = clamp(float(disToEdge) / borderParams.x, 0.0, 1.0);
 
@@ -136,16 +138,14 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
 			break;
 		case 3:
-			if(disToEdge > int(borderParams.x)){
-				tVal.r *= 1.0 - borderParams.y;
-			}else if(tVal.r < 0.5 * distanceToEdgeRatio){
-				tVal.r *= 1.0 - borderParams.y;
-			}
-
-			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
-			
+			//If I am close to the edge, use the border gradients
 			tVal.r = clamp(tVal.r, 0.0, 0.99);
 			c = texture(gradients, vec3(vec2(tVal.r), tileIndex));
+			if(disToEdge < int(borderParams.x)){
+				c = texture(borderGradients, vec3(vec2(tVal.r), tileIndex));
+			}
+			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
+			
 
 			break;
 		default:
@@ -262,12 +262,10 @@ void main() {
 	
 	vec4 foregroundColor;
 	vec4 backgroundColor;
-	vec4 foregroundNormal;// = getNormal(chunkOffsetUV, tileData.r, normal2dArrayForeground);
-	vec4 backgroundNormal;// = getNormal(chunkOffsetUV, tileData.g, normal2dArrayBackground);
-	//foregroundColor = getColor(pixelType.x, chunkOffsetUV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground, TILE_IMAGE_UV, true);
-	//backgroundColor = getColor(pixelType.y, chunkOffsetUV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground, TILE_IMAGE_UV, false);
-	calculateColorAndNormal(foregroundColor, foregroundNormal, pixelType.x, chunkOffsetUV, TILE_IMAGE_UV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderColorsForeground, normal2dArrayForeground, true); //foreground
-	calculateColorAndNormal(backgroundColor, backgroundNormal, pixelType.y, chunkOffsetUV, TILE_IMAGE_UV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderColorsBackground, normal2dArrayBackground, false); //background
+	vec4 foregroundNormal;
+	vec4 backgroundNormal;
+	calculateColorAndNormal(foregroundColor, foregroundNormal, pixelType.x, chunkOffsetUV, TILE_IMAGE_UV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderGradient2dArrayForeground, borderColorsForeground, normal2dArrayForeground, true); //foreground
+	calculateColorAndNormal(backgroundColor, backgroundNormal, pixelType.y, chunkOffsetUV, TILE_IMAGE_UV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderGradient2dArrayBackground, borderColorsBackground, normal2dArrayBackground, false); //background
 
 	vec4 emissionColor = vec4(0.0);
 	emissionColor += texture(emissionColorsForeground, vec2(tileData.r, 0.0)); // foreground light

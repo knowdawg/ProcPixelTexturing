@@ -52,16 +52,16 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
     vec2 scaledInterval = vec2(scaleToLightMap(ivec2(interval)));
 
     float dis = scaledInterval.x;
-    for (int i = 0; i < 64; i++){
+    for (int i = 0; i < 16; i++){
+        if(dis >= scaledInterval.y){
+            break;
+        }
         dis = clamp(dis, scaledInterval.x, scaledInterval.y);
         vec2 p = scaledOrigin + (dir * dis);
 
         if(p.x < 0 || p.y < 0 || p.x >= size.x || p.y >= size.y) break;
 
         //SDF Raymarching, Switching to Fixed Length Raymarching when close to something
-        if(dis == scaledInterval.y){
-            break;
-        }
         if(transmittance < 0.01){
             transmittance = 0.0;
             break;
@@ -69,7 +69,7 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
         vec4 sdfVal = imageLoad(lightSDF, ivec2(p));
         if(sdfVal.r < 0.001){
             vec4 myPos = sampleLightImage(ivec2(p));
-            myPos.rgb = pow(myPos.rgb, vec3(6.0));//color correct, when reading from the lighting texture, this is reversed. this makes the immage brighter while keeping colors acurate
+            myPos.rgb = pow(myPos.rgb, vec3(2.2));//color correct, when reading from the lighting texture, this is reversed. this makes the immage brighter while keeping colors acurate
 
             radiance.rgb += myPos.rgb * transmittance * myPos.a;
             transmittance *= 1.0 - myPos.a;
@@ -79,6 +79,9 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
         }
     }
     radiance.a = transmittance;
+    if(dis < scaledInterval.y){
+        radiance.a = 0.0;
+    }
     return radiance;
 }
 
