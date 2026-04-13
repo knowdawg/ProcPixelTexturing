@@ -1,8 +1,8 @@
 [gd_resource type="GradientTexture1D" format=3 uid="uid://dyqjl75k42htp"]
 
 [sub_resource type="Gradient" id="Gradient_jpu7r"]
-offsets = PackedFloat32Array(0, 0.25, 0.5, 0.75, 0.875, 1)
-colors = PackedColorArray(0.03529412, 0.039215688, 0.078431375, 1, 0.06535948, 0.08627452, 0.12418301, 1, 0.095424846, 0.13333334, 0.16993465, 1, 0.1254902, 0.18039216, 0.21568628, 1, 0.8117647, 0.34117648, 0.23529412, 1, 0.9098039, 0.75686276, 0.4392157, 1)
+offsets = PackedFloat32Array(0, 0.75, 0.875, 1)
+colors = PackedColorArray(0.03529412, 0.039215688, 0.078431375, 1, 0.06535948, 0.08627452, 0.12418301, 1, 0.88, 0.3338133, 0.21120001, 1, 1, 0.8923333, 0.65999997, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 8
 

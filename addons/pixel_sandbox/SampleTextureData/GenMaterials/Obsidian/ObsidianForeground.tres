@@ -5,11 +5,22 @@
 [ext_resource type="Texture2D" uid="uid://dmdw0p5kdq3fw" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundNormal.png" id="2_fo4qp"]
 [ext_resource type="Texture2D" uid="uid://hhukqgvivmu1" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundTexture.png" id="4_n4erf"]
 
+[sub_resource type="Gradient" id="Gradient_14imh"]
+offsets = PackedFloat32Array(0, 0.125, 0.25, 0.5)
+colors = PackedColorArray(0.03529412, 0.039215688, 0.078431375, 1, 0.06535948, 0.08627452, 0.12418301, 1, 0.095424846, 0.13333334, 0.16993465, 1, 0.1254902, 0.18039216, 0.21568628, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_075cc"]
+gradient = SubResource("Gradient_14imh")
+
 [resource]
 script = ExtResource("1_1rnos")
 texture = ExtResource("4_n4erf")
 normal = ExtResource("2_fo4qp")
 gradient = ExtResource("1_feu3d")
 border = Color(0.22352941, 0.2901961, 0.3137255, 1)
+borderSize = 4.0
 borderWeight = 0.3
+borderGradient = SubResource("GradientTexture1D_075cc")
 metadata/_custom_type_script = "uid://di707vap5isgj"

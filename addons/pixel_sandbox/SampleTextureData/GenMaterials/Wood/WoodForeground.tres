@@ -4,8 +4,15 @@
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_toupx"]
 [ext_resource type="Texture2D" uid="uid://c7nqmn2tpywsd" path="res://Textures/MaterialMakerTextures/WoodTest.png" id="3_5x5qv"]
 
+[sub_resource type="Gradient" id="Gradient_ladtk"]
+offsets = PackedFloat32Array(0, 0.5494186)
+colors = PackedColorArray(0.6124455, 0.3812419, 0.22785059, 1, 0.8063741, 0.53510594, 0.35940745, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_5x5qv"]
+gradient = SubResource("Gradient_ladtk")
+
 [sub_resource type="Gradient" id="Gradient_ryj0y"]
-offsets = PackedFloat32Array(0, 0.5536278, 1)
+offsets = PackedFloat32Array(0.15506329, 0.6329114, 1)
 colors = PackedColorArray(0.25919235, 0.14699459, 0.07179824, 1, 0.6124455, 0.3812419, 0.22785059, 1, 0.8063741, 0.53510594, 0.35940745, 1)
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_qiymx"]
@@ -17,4 +24,5 @@ texture = ExtResource("3_5x5qv")
 normal = ExtResource("1_ladtk")
 gradient = SubResource("GradientTexture1D_qiymx")
 border = Color(0.6117647, 0.38039216, 0.22745098, 1)
+borderGradient = SubResource("GradientTexture1D_5x5qv")
 metadata/_custom_type_script = "uid://di707vap5isgj"

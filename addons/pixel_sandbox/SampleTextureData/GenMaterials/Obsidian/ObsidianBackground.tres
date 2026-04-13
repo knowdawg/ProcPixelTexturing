@@ -1,15 +1,33 @@
 [gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://bsr5hqvsvdap8"]
 
-[ext_resource type="Texture2D" uid="uid://bao713otah12o" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianBackgroundGrad.tres" id="1_obxag"]
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_yt3pu"]
 [ext_resource type="Texture2D" uid="uid://dmdw0p5kdq3fw" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundNormal.png" id="2_b5bap"]
 [ext_resource type="Texture2D" uid="uid://hhukqgvivmu1" path="res://Textures/MaterialMakerTextures/Obsidian/ObsidianForegroundTexture.png" id="4_d0fit"]
+
+[sub_resource type="Gradient" id="Gradient_t8vsv"]
+colors = PackedColorArray(0.03529412, 0.039215688, 0.078431375, 1, 0.1254902, 0.18039216, 0.21568628, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ngkye"]
+gradient = SubResource("Gradient_t8vsv")
+
+[sub_resource type="Gradient" id="Gradient_16l8k"]
+offsets = PackedFloat32Array(0, 0.75, 0.875, 1)
+colors = PackedColorArray(0.03529412, 0.039215688, 0.078431375, 1, 0.06535948, 0.08627452, 0.12418301, 1, 0.29, 0.12184833, 0.0841, 1, 0.54, 0.45108002, 0.2592, 1)
+metadata/_snap_enabled = true
+metadata/_snap_count = 8
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_t8vsv"]
+gradient = SubResource("Gradient_16l8k")
 
 [resource]
 script = ExtResource("1_yt3pu")
 texture = ExtResource("4_d0fit")
 normal = ExtResource("2_b5bap")
-gradient = ExtResource("1_obxag")
+gradient = SubResource("GradientTexture1D_t8vsv")
 border = Color(0.22352941, 0.2901961, 0.3137255, 1)
+borderSize = 6.0
+borderGradient = SubResource("GradientTexture1D_ngkye")
 lightEmission = Color(0, 0, 0, 0)
 metadata/_custom_type_script = "uid://di707vap5isgj"

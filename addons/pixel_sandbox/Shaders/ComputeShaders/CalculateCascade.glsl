@@ -52,7 +52,7 @@ vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
     vec2 scaledInterval = vec2(scaleToLightMap(ivec2(interval)));
 
     float dis = scaledInterval.x;
-    for (int i = 0; i < 16; i++){
+    for (int i = 0; i < 64; i++){
         if(dis >= scaledInterval.y){
             break;
         }

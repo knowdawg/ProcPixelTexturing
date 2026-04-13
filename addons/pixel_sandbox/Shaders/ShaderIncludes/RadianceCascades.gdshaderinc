@@ -32,8 +32,8 @@ vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, 
 			spec = clamp(spec, 0.0, 1.0);
 			
 			float cNdotL = max(0.0, dot(normal, lightDir));
-			//cNdotL *= (1.0 - specular); //reduces normal lighting based on how specular it is
-			result += radVal * cNdotL + radVal * spec * specular * 32.0; //8.0
+			
+			result += radVal * cNdotL + radVal * spec * specular * 32.0;
 		}
 	}
 

@@ -22,7 +22,7 @@ layout(set = 0, binding = 11) uniform sampler2D emissionColorsBackground;
 
 //Set 1: Constant Storage Buffers
 layout(set = 1, binding = 0, std430) readonly buffer BorderParamsForeground { vec2 borderParamsForeground[]; };
-layout(set = 1, binding = 1, std430) readonly buffer BorderParamsBackground { vec2 borderParamsBackground[]; };
+layout(set = 1, binding = 1, std430) readonly buffer BorderParamsBackground { vec2 borderParamsBackground[]; }; //Curently Does Nothing, The shader curently only used the foreground border params. Need to change this
 layout(set = 1, binding = 2, std430) readonly buffer SolidBuffer { uint solids[]; }; //Only for foreground. Background will assume the same solidity as thier foreground counterpart
 
 //Set 2: Variable Uniforms
