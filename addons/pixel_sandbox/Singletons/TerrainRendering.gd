@@ -299,10 +299,6 @@ func _process(_delta: float) -> void:
 		
 			sdfGen.createSDF(finalLightImageRID, lightmapSDF, 0.0, true)
 			radCasc.updateGlobalIllumination()
-			
-			#renDev.free_rid(lightBufferRID)
-		#sdfGen.createSDF(lightMapRID, lightmapSDF, 0.0, true)
-		#radCasc.updateGlobalIllumination()
 		
 	if Input.is_action_just_pressed("ReloadTexture"):
 		constructTextureArrays()

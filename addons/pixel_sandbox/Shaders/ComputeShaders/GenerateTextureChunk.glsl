@@ -98,7 +98,8 @@ vec4 getNormal(ivec2 uv, float self, in sampler2DArray normalTextures){
 vec4 modifyNormalBasedOnEdgeDirection(vec4 normal, int disToEdge, float maxDisToEdge, vec2 dirToEdge, float disToEdgeRatio){
 	vec4 newNormal = normal;
 	if(disToEdge <= int(maxDisToEdge.x)){ //if you are near a border
-		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, clamp(disToEdgeRatio + 0.25, 0.0, 1.0));
+		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, 0.5);//clamp(disToEdgeRatio + 0.25, 0.0, 1.0));
+
 	}
 	return newNormal;
 }
@@ -118,8 +119,11 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 	int disToEdge = getDistanceToNearestEdge(tileUV, int(borderParams.x), foreground, dirToEdge);
 	float distanceToEdgeRatio = clamp(float(disToEdge) / borderParams.x, 0.0, 1.0);
 
-	// float warp = float(disToEdge) / 256.0;
-	// arrayUV.xy -= warp * dirToEdge;
+	//quantize dirToEdge to 8 Directions
+	// float a = atan(dirToEdge.y, dirToEdge.x);
+	// float qSize = 2.0 * 3.1415926535 / 8.0;
+	// a = floor(a / qSize + 0.5) * qSize;
+	// dirToEdge = vec2(cos(a), sin(a)); 
 
 	//sampling
 	vec4 tVal = texture(textures, arrayUV);
@@ -138,13 +142,17 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
 			break;
 		case 3:
+			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
+
 			//If I am close to the edge, use the border gradients
 			tVal.r = clamp(tVal.r, 0.0, 0.99);
 			c = texture(gradients, vec3(vec2(tVal.r), tileIndex));
-			if(disToEdge < int(borderParams.x)){
+			if(disToEdge <= int(borderParams.x)){
 				c = texture(borderGradients, vec3(vec2(tVal.r), tileIndex));
 			}
-			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
+			// if(abs(float(disToEdge) - borderParams.x) < 0.01){
+			// 	c = texture(borders, vec2(self, 0.0));
+			// }
 			
 
 			break;

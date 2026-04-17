@@ -17,6 +17,7 @@ void fragment() {
 	
 	vec4 normalAndSpecular = texture(NORMAL_TEXTURE, qUV);
 	vec3 norm = normalAndSpecular.rgb;
+	
 	float spec = 1.0 - normalAndSpecular.a;
 	
 	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm, spec);
@@ -24,6 +25,17 @@ void fragment() {
 	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 2.0, 2.0, 2.0);
 	//radiance.rgb = brightnessExposureLuminance(radiance.rgb, 2.0 + spec, 2.0 + spec, 2.0 + spec);
 	radiance.rgb = clamp(radiance.rgb, vec3(0.0), vec3(1.0 + spec));
+	
+	//vec3 adjustedNormal = norm * 2.0 - 1.0;
+	//adjustedNormal.z = 0.0;
+	//float angleDif = dot(normalize(adjustedNormal), vec3(0.0, 1.0, 0.0));
+	
+	//angleDif = ceil(angleDif * 8.0) / 8.0;
+	//angleDif = 1.0 - angleDif;
+	//angleDif *= 0.3;
+	//angleDif = 1.0 - angleDif;
+	//self.rgb *= angleDif;
+	
 	
 	COLOR = self * radiance;
 	//COLOR.rgb = norm.rgb;

@@ -236,7 +236,7 @@ mouse_filter = 2
 [node name="RadianceCascades" type="Node" parent="World2D" unique_id=1674210530 node_paths=PackedStringArray("debugSprite")]
 script = ExtResource("10_txt8w")
 debugSprite = NodePath("../../GUI/MinimapHolder/GlobalIlluminationMinimap")
-initialCascadeResolution = Vector2i(256, 256)
+cascadeCount = 5
 
 [node name="Sun" parent="World2D" unique_id=65406066 instance=ExtResource("7_k60dn")]
 visible = false
@@ -286,6 +286,7 @@ offset_bottom = 8.0
 mouse_filter = 2
 
 [node name="SilentPixelArt" type="Sprite2D" parent="World2D" unique_id=1101289117]
+visible = false
 texture_filter = 1
 material = ExtResource("14_xil5r")
 position = Vector2(271, 400)
