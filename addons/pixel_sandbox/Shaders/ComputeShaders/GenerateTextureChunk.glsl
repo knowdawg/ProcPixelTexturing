@@ -47,16 +47,19 @@ int getTileIndex(float floatIndex){
 }
 
 
-int getDistanceToNearestEdge(ivec2 uv, int radiusSize, bool foreground, out vec2 dir) {
+int getDistanceToNearestEdge(ivec2 uv, int radiusSize, bool foreground, out vec2 dir, out float density) {
 	int returnRadius = radiusSize + 1;
 	vec2 dirSum = vec2(0.0);
 	int numOfDirAdds = 0;
+	int tileArea = 0;
 	// Search in expanding rings around center
-	for (int radius = 0; radius <= radiusSize; radius++) {
-		for (int x = -radius; x <= radius; x++) {
-			for (int y = -radius; y <= radius; y++) {
+	for (int radius = 0; radius <= radiusSize; radius++){
+		for (int x = -radius; x <= radius; x++){
+			for (int y = -radius; y <= radius; y++){
 				// Only check the outer ring at each radius
-				if (abs(x) == radius || abs(y) == radius) {
+				if (abs(x) == radius || abs(y) == radius){
+					tileArea++;
+
 					ivec2 offset = ivec2(x, y);
 					ivec2 sampleUV = uv + ivec2(offset);
 					float sampleValue;
@@ -80,6 +83,8 @@ int getDistanceToNearestEdge(ivec2 uv, int radiusSize, bool foreground, out vec2
 		}
 	}
 	dir = dirSum / float(max(numOfDirAdds, 1)); //Do not normalize, does not need to be
+	density = float(numOfDirAdds) / float(tileArea);
+	density = 1.0 - smoothstep(0.0, 0.65, density);
 	return returnRadius;
 }
 
@@ -95,11 +100,11 @@ vec4 getNormal(ivec2 uv, float self, in sampler2DArray normalTextures){
 	return n;
 }
 
-vec4 modifyNormalBasedOnEdgeDirection(vec4 normal, int disToEdge, float maxDisToEdge, vec2 dirToEdge, float disToEdgeRatio){
+vec4 modifyNormalBasedOnEdgeDirection(vec4 normal, int disToEdge, float maxDisToEdge, vec2 dirToEdge, float disToEdgeRatio, float density){
 	vec4 newNormal = normal;
 	if(disToEdge <= int(maxDisToEdge.x)){ //if you are near a border
-		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, 0.5);//clamp(disToEdgeRatio + 0.25, 0.0, 1.0));
-
+		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, clamp(disToEdgeRatio - 0.25, 0.0, 1.0));
+		newNormal.rgb = mix(vec3(0.5, 0.5, newNormal.b), newNormal.rgb, density);
 	}
 	return newNormal;
 }
@@ -115,15 +120,16 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 	
 	//Edge Information
 	vec2 dirToEdge = vec2(0.0);
+	float density = 0.0;
 	vec2 borderParams = borderParamsForeground[tileIndex]; //x is max distance, y is border wieght
-	int disToEdge = getDistanceToNearestEdge(tileUV, int(borderParams.x), foreground, dirToEdge);
+	int disToEdge = getDistanceToNearestEdge(tileUV, int(borderParams.x), foreground, dirToEdge, density);
 	float distanceToEdgeRatio = clamp(float(disToEdge) / borderParams.x, 0.0, 1.0);
 
 	//quantize dirToEdge to 8 Directions
-	// float a = atan(dirToEdge.y, dirToEdge.x);
-	// float qSize = 2.0 * 3.1415926535 / 8.0;
-	// a = floor(a / qSize + 0.5) * qSize;
-	// dirToEdge = vec2(cos(a), sin(a)); 
+	float a = atan(dirToEdge.y, dirToEdge.x);
+	float qSize = 2.0 * 3.1415926535 / 8.0;
+	a = floor(a / qSize + 0.5) * qSize;
+	dirToEdge = vec2(cos(a), sin(a));
 
 	//sampling
 	vec4 tVal = texture(textures, arrayUV);
@@ -139,10 +145,10 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 		case 2:
 			vec4 border = texture(borders, vec2(self, 0.0));
 			c = border;
-			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
+			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio, density);
 			break;
 		case 3:
-			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio);
+			n = modifyNormalBasedOnEdgeDirection(n, disToEdge, borderParams.x, dirToEdge, distanceToEdgeRatio, density);
 
 			//If I am close to the edge, use the border gradients
 			tVal.r = clamp(tVal.r, 0.0, 0.99);
@@ -150,7 +156,7 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 			if(disToEdge <= int(borderParams.x)){
 				c = texture(borderGradients, vec3(vec2(tVal.r), tileIndex));
 			}
-			// if(abs(float(disToEdge) - borderParams.x) < 0.01){
+			// if(disToEdge == float(borderParams.x)){
 			// 	c = texture(borders, vec2(self, 0.0));
 			// }
 			

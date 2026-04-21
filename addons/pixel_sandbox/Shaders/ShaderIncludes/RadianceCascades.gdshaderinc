@@ -1,6 +1,6 @@
 
 global uniform vec2 PS_CAMERA_POSITION;
-global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_linear, repeat_enable;
+global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
 global uniform int PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE;
 global uniform sampler2D PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA : filter_nearest, repeat_enable;
 global uniform int PS_INITIAL_CASCADE_PROBE_SIZE;
@@ -9,10 +9,10 @@ global uniform vec2 PS_RENDER_QUADRANT_SIZE;
 global uniform vec2 PS_SCREEN_SIZE;
 
 
-vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, float specular) {
+vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, float specular, float lightHeight) {
 	vec3 result = vec3(0.0);
 	vec2 scalledUV = base_uv;
-	scalledUV *= float(dirGITexSize) / PS_RENDER_QUADRANT_SIZE.x;
+	scalledUV *= dirGITexSize / PS_RENDER_QUADRANT_SIZE.x;
 	scalledUV = floor(scalledUV * float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE)) / float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE);
 	
 	for (int d = 0; d < probeSize; d++) {
@@ -24,7 +24,7 @@ vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, 
 			ivec2 localRayCoord = ivec2(d, b);
 			int dirIndex = localRayCoord.x + (localRayCoord.y * probeSize);
 			float angle = 2.0 * PI * ((float(dirIndex) + 0.5) / float(probeSize * probeSize));
-			vec3 lightDir = normalize(vec3(cos(angle), -sin(angle), 0.75)); //0.4
+			vec3 lightDir = normalize(vec3(cos(angle), -sin(angle), lightHeight)); //lightHeight should be from 0-1
 			
 			vec3 viewVector = vec3(0.0, 0.0, 1.0);//Front on camera view
 			vec3 H = normalize(lightDir + viewVector); //the halfway vector
@@ -33,14 +33,14 @@ vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, 
 			
 			float cNdotL = max(0.0, dot(normal, lightDir));
 			
-			result += radVal * cNdotL + radVal * spec * specular * 32.0;
+			result += radVal * (cNdotL + spec * specular * 32.0);
 		}
 	}
 
 	return result / float(probeSize * probeSize);
 }
 
-vec4 getRadianceWithNormals(vec2 sUV, vec3 normal, float specular){
+vec4 getRadianceWithNormals(vec2 sUV, vec3 normal, float specular, float lightHeight){
 	vec3 adjustedNormal = normal * 2.0 - 1.0;
 	
 	int probeSize = PS_INITIAL_CASCADE_PROBE_SIZE;
@@ -60,21 +60,21 @@ vec4 getRadianceWithNormals(vec2 sUV, vec3 normal, float specular){
 	vec2 f = fract(probe_pos);
 	
 	//Convert probe coords → UV
-	vec2 uv00 = (base) / GITexSize;
-	vec2 uv10 = (base + vec2(1.0, 0.0)) / GITexSize;
-	vec2 uv01 = (base + vec2(0.0, 1.0)) / GITexSize;
-	vec2 uv11 = (base + vec2(1.0, 1.0)) / GITexSize;
+	vec2 uv00 = (probe_pos) / GITexSize;
+	//vec2 uv10 = (probe_pos + vec2(1.0, 0.0)) / GITexSize;
+	//vec2 uv01 = (probe_pos + vec2(0.0, 1.0)) / GITexSize;
+	//vec2 uv11 = (probe_pos + vec2(1.0, 1.0)) / GITexSize;
 	
 	//Sample 4 probes
-	vec3 r00 = sample_probe(uv00, probeSize, dirGITexSize, adjustedNormal, specular);
-	vec3 r10 = sample_probe(uv10, probeSize, dirGITexSize, adjustedNormal, specular);
-	vec3 r01 = sample_probe(uv01, probeSize, dirGITexSize, adjustedNormal, specular);
-	vec3 r11 = sample_probe(uv11, probeSize, dirGITexSize, adjustedNormal, specular);
+	vec3 r00 = sample_probe(uv00, probeSize, dirGITexSize, adjustedNormal, specular, lightHeight);
+	//vec3 r10 = sample_probe(uv10, probeSize, dirGITexSize, adjustedNormal, specular, lightHeight);
+	//vec3 r01 = sample_probe(uv01, probeSize, dirGITexSize, adjustedNormal, specular, lightHeight);
+	//vec3 r11 = sample_probe(uv11, probeSize, dirGITexSize, adjustedNormal, specular, lightHeight);
 	
 	//Bilinear blend
-	vec3 rx0 = mix(r00, r10, f.x);
-	vec3 rx1 = mix(r01, r11, f.x);
-	vec3 finalRadiance = mix(rx0, rx1, f.y);
+	//vec3 rx0 = mix(r00, r10, f.x);
+	//vec3 rx1 = mix(r01, r11, f.x);
+	vec3 finalRadiance = r00;//mix(rx0, rx1, f.y);
 	
 	return vec4(finalRadiance, 1.0);
 }

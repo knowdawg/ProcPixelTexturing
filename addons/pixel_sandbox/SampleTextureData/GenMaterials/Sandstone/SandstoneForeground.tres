@@ -6,10 +6,9 @@
 [ext_resource type="Texture2D" uid="uid://uopsv0d0g1gw" path="res://Textures/MaterialMakerTextures/SandstoneTest.png" id="4_uuc14"]
 
 [sub_resource type="Gradient" id="Gradient_0tx8c"]
-offsets = PackedFloat32Array(0, 0.6)
-colors = PackedColorArray(0.5647059, 0.26666668, 0.19607843, 1, 0.9647059, 0.5921569, 0.47058824, 1)
+offsets = PackedFloat32Array(0, 0.3, 0.7)
+colors = PackedColorArray(0.14117648, 0.08235294, 0.15294118, 1, 0.5647059, 0.26666668, 0.19607843, 1, 0.9647059, 0.5921569, 0.47058824, 1)
 metadata/_snap_enabled = true
-metadata/_snap_count = 5
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_uuc14"]
 gradient = SubResource("Gradient_0tx8c")
@@ -20,6 +19,6 @@ texture = ExtResource("4_uuc14")
 normal = ExtResource("2_0tx8c")
 gradient = ExtResource("1_0kgy4")
 border = Color(0.7647059, 0.43137255, 0.33333334, 1)
-borderSize = 5.0
+borderSize = 4.0
 borderGradient = SubResource("GradientTexture1D_uuc14")
 metadata/_custom_type_script = "uid://di707vap5isgj"

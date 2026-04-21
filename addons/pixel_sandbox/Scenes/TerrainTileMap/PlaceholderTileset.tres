@@ -31,6 +31,11 @@ texture = ExtResource("5_hl3we")
 texture_region_size = Vector2i(1, 1)
 0:0/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m5wms"]
+texture = ExtResource("1_5dnna")
+texture_region_size = Vector2i(1, 1)
+0:0/0 = 0
+
 [resource]
 tile_size = Vector2i(1, 1)
 sources/0 = SubResource("TileSetAtlasSource_w2ci1")
@@ -38,3 +43,4 @@ sources/1 = SubResource("TileSetAtlasSource_03pyr")
 sources/2 = SubResource("TileSetAtlasSource_rrck5")
 sources/3 = SubResource("TileSetAtlasSource_lepxs")
 sources/4 = SubResource("TileSetAtlasSource_48smy")
+sources/5 = SubResource("TileSetAtlasSource_m5wms")

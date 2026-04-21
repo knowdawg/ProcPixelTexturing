@@ -8,15 +8,15 @@
 [ext_resource type="Resource" uid="uid://dayh330155l82" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/EMTPY/EMPTY.tres" id="4_v2v6w"]
 [ext_resource type="Resource" uid="uid://b0bgnk5wdblcc" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Sand/SandBackground.tres" id="5_3d0kk"]
 [ext_resource type="Resource" uid="uid://bsr5hqvsvdap8" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Obsidian/ObsidianBackground.tres" id="6_3d0kk"]
+[ext_resource type="Resource" uid="uid://cgeuiu53utv7h" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Brick/BrickBackground.tres" id="6_mkqmg"]
 [ext_resource type="Resource" uid="uid://ecdcbo8k8e6m" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Wood/WoodBackground.tres" id="7_hy46j"]
-[ext_resource type="Resource" uid="uid://bf8wsjfm01hjr" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Brick/BrickForeground.tres" id="9_au1mm"]
 [ext_resource type="Resource" uid="uid://b1josu377mgpb" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Crystal/CrystalBackground.tres" id="9_g5dqk"]
 [ext_resource type="Resource" uid="uid://dowf508x1b2fj" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Dirt/DirtBackground.tres" id="11_mkqmg"]
 [ext_resource type="Resource" uid="uid://bokbs6032yqeg" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Stone/StoneBackground.tres" id="12_mkqmg"]
 
 [resource]
 script = ExtResource("1_gjqv8")
-materials = Array[ExtResource("3_qtl88")]([ExtResource("4_v2v6w"), ExtResource("12_mkqmg"), ExtResource("9_au1mm"), ExtResource("11_mkqmg"), ExtResource("4_jgj6a"), ExtResource("5_3d0kk"), ExtResource("6_3d0kk"), ExtResource("7_hy46j"), ExtResource("9_g5dqk")])
+materials = Array[ExtResource("3_qtl88")]([ExtResource("4_v2v6w"), ExtResource("12_mkqmg"), ExtResource("6_mkqmg"), ExtResource("11_mkqmg"), ExtResource("4_jgj6a"), ExtResource("5_3d0kk"), ExtResource("6_3d0kk"), ExtResource("7_hy46j"), ExtResource("9_g5dqk")])
 errorTexture = ExtResource("2_57raw")
 errorGrad = ExtResource("1_dlnrt")
 metadata/_custom_type_script = "uid://bykil1fb2qabg"
