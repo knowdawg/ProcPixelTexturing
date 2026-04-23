@@ -153,9 +153,14 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 			//If I am close to the edge, use the border gradients
 			tVal.r = clamp(tVal.r, 0.0, 0.99);
 			c = texture(gradients, vec3(vec2(tVal.r), tileIndex));
-			if(disToEdge <= int(borderParams.x * clamp(tVal.r + borderParams.y, 0.0, 1.0))){
+
+			float borderThreshold = mix(tVal.r - 0.5, 1.0 - float(disToEdge) / borderParams.x, borderParams.y);
+			if(borderThreshold > 0.0 && disToEdge <= int(borderParams.x)){
 				c = texture(borderGradients, vec3(vec2(tVal.r), tileIndex));
 			}
+			// if(disToEdge <= int(borderParams.x * clamp(tVal.r + borderParams.y, 0.0, 1.0))){
+			// 	c = texture(borderGradients, vec3(vec2(tVal.r), tileIndex));
+			// }
 			// if(disToEdge == float(borderParams.x)){
 			// 	c = texture(borders, vec2(self, 0.0));
 			// }
@@ -210,12 +215,13 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 
 		//maybye only draw the borders if the border colors are difrent enough??
 		//mabye if there is a difrent tile new to me I get the border weight instead of being a border tile??
+		//Perhpas I can have blend groups and if two materials share a blend group they will blend together.
 		if(leftSame && rightSame && upSame && downSame){
 			pixelType.x = 3;
 		}else{
 			pixelType.x = 2;
 		}
-		//pixelType.x = 3;
+		pixelType.x = 3;
 		
 	}
 

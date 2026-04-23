@@ -13,9 +13,10 @@ metadata/_snap_enabled = true
 gradient = SubResource("Gradient_edloj")
 
 [sub_resource type="Gradient" id="Gradient_bdmx0"]
-offsets = PackedFloat32Array(0, 0.6, 1)
-colors = PackedColorArray(0.058000006, 0.0839, 0.1, 1, 0.1254902, 0.18039216, 0.21568628, 1, 0.34117648, 0.44705883, 0.46666667, 1)
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(0.029000003, 0.04195, 0.05, 1, 0.058000006, 0.0839, 0.1, 1, 0.1254902, 0.18039216, 0.21568628, 1)
 metadata/_snap_enabled = true
+metadata/_snap_count = 8
 
 [sub_resource type="GradientTexture1D" id="GradientTexture1D_edloj"]
 gradient = SubResource("Gradient_bdmx0")
@@ -25,8 +26,9 @@ script = ExtResource("2_edloj")
 texture = ExtResource("3_edloj")
 normal = ExtResource("1_bdmx0")
 gradient = SubResource("GradientTexture1D_edloj")
-border = Color(0.34117648, 0.44705883, 0.46666667, 1)
+border = Color(0.1254902, 0.18039216, 0.21568628, 1)
 borderSize = 5.0
+borderWeight = 0.0
 borderGradient = SubResource("GradientTexture1D_dysbm")
 lightEmission = Color(0, 0, 0, 0)
 metadata/_custom_type_script = "uid://di707vap5isgj"
