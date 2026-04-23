@@ -7,8 +7,8 @@ class_name GenMaterial
 @export var gradient : GradientTexture1D
 @export var border : Color
 
-@export var borderSize : float = 3.0 #How wide the border with have an influcnec on the color
-@export var borderWeight : float = 0.2 #how much the border has an influence on color
+@export var borderSize : float = 4.0 #How wide the border with have an influcnec on the color
+@export var borderWeight : float = 0.5 #how much of the border is effected by borderGradient. it takes the texture and adds this value to it when deciding the pixels color.
 @export var borderGradient : GradientTexture1D
 
 #Light Emission is the color of the tile. If you want the tile to give off light, set its color ocordingly
