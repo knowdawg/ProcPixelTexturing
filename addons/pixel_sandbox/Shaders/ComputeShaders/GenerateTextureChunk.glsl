@@ -158,13 +158,6 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 			if(borderThreshold > 0.0 && disToEdge <= int(borderParams.x)){
 				c = texture(borderGradients, vec3(vec2(tVal.r), tileIndex));
 			}
-			// if(disToEdge <= int(borderParams.x * clamp(tVal.r + borderParams.y, 0.0, 1.0))){
-			// 	c = texture(borderGradients, vec3(vec2(tVal.r), tileIndex));
-			// }
-			// if(disToEdge == float(borderParams.x)){
-			// 	c = texture(borders, vec2(self, 0.0));
-			// }
-			
 
 			break;
 		default:
@@ -254,7 +247,7 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 		}else{
 			pixelType.y = 2;
 		}
-		//pixelType.x = 3;
+		pixelType.y = 3;
 	}
 	
 	

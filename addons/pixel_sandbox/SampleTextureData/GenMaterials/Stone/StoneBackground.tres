@@ -14,7 +14,7 @@ gradient = SubResource("Gradient_edloj")
 
 [sub_resource type="Gradient" id="Gradient_bdmx0"]
 offsets = PackedFloat32Array(0, 0.5, 1)
-colors = PackedColorArray(0.029000003, 0.04195, 0.05, 1, 0.058000006, 0.0839, 0.1, 1, 0.1254902, 0.18039216, 0.21568628, 1)
+colors = PackedColorArray(0.029000003, 0.04195, 0.05, 1, 0.10440001, 0.15102, 0.18, 1, 0.1254902, 0.18039216, 0.21568628, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 8
 

@@ -1,12 +1,11 @@
 [gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://b06kpbgva0xs1"]
 
-[ext_resource type="Texture2D" uid="uid://ltwo5yannqss" path="res://Textures/MaterialMakerTextures/GrassTestNormal.png" id="1_a6qee"]
+[ext_resource type="Texture2D" uid="uid://tcgnbnq15bf3" path="res://Textures/MaterialMakerTextures/GrassTestingNormal.png" id="1_a6qee"]
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_txybp"]
-[ext_resource type="Texture2D" uid="uid://cnsfca4de3q4h" path="res://Textures/MaterialMakerTextures/GrassTest.png" id="3_qob44"]
+[ext_resource type="Texture2D" uid="uid://bd742h3ydh110" path="res://Textures/MaterialMakerTextures/GrassTesting.png" id="3_qob44"]
 
 [sub_resource type="Gradient" id="Gradient_a6qee"]
-offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8)
-colors = PackedColorArray(0.09803922, 0.2, 0.1764706, 1, 0.27450982, 0.50980395, 0.19607843, 1, 0.45882353, 0.654902, 0.2627451, 1, 0.65882355, 0.7921569, 0.34509805, 1, 0.8156863, 0.85490197, 0.5686275, 1)
+colors = PackedColorArray(0.27450982, 0.50980395, 0.19607843, 1, 0.8156863, 0.85490197, 0.5686275, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 5
 
@@ -14,8 +13,8 @@ metadata/_snap_count = 5
 gradient = SubResource("Gradient_a6qee")
 
 [sub_resource type="Gradient" id="Gradient_axh2m"]
-offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8)
-colors = PackedColorArray(0.09803922, 0.2, 0.1764706, 1, 0.27450982, 0.50980395, 0.19607843, 1, 0.45882353, 0.654902, 0.2627451, 1, 0.65882355, 0.7921569, 0.34509805, 1, 0.8156863, 0.85490197, 0.5686275, 1)
+offsets = PackedFloat32Array(0, 0.6, 1)
+colors = PackedColorArray(0.07644999, 0.22, 0.028599998, 1, 0.20329998, 0.38, 0.1444, 1, 0.65882355, 0.7921569, 0.34509805, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 5
 
@@ -28,6 +27,7 @@ texture = ExtResource("3_qob44")
 normal = ExtResource("1_a6qee")
 gradient = SubResource("GradientTexture1D_8gedd")
 border = Color(0.65882355, 0.7921569, 0.34509805, 1)
+borderSize = 3.0
+borderWeight = 1.0
 borderGradient = SubResource("GradientTexture1D_qob44")
-lightEmission = Color(0.38039216, 0.8117647, 0.37254903, 1)
 metadata/_custom_type_script = "uid://di707vap5isgj"

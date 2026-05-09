@@ -10,9 +10,10 @@ void fragment() {
 	vec3 norm = normalAndSpecular.rgb;
 	float spec = 1.0 - normalAndSpecular.a;
 	
-	vec3 c = getRadianceWithNormals(SCREEN_UV, norm, spec, 0.75).rgb;
-	c = brightnessExposureLuminance(c, 3.0, 3.0, 3.0);
-	c = pow(c, vec3(1.0 / 2.2));
+	vec3 radiance = getRadianceWithNormals(SCREEN_UV, norm, spec, 0.75).rgb;
+	radiance.rgb = pow(radiance.rgb, vec3(1.0 / 2.2));
+	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 2.0, 2.0, 2.0);
+	radiance.rgb = clamp(radiance.rgb, vec3(0.0), vec3(1.0));
 	
-	COLOR.rgb *= c;
+	COLOR.rgb *= radiance;
 }

@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://ccbo0bcl7g2bi"]
 
-[ext_resource type="Texture2D" uid="uid://dlv781dfih406" path="res://Textures/MaterialMakerTextures/CrystalNormal.png" id="1_3kjyd"]
+[ext_resource type="Texture2D" uid="uid://bgl7ee1k4rg6j" path="res://Textures/MaterialMakerTextures/TilesNormal.png" id="1_3kjyd"]
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_rdbkm"]
-[ext_resource type="Texture2D" uid="uid://y8pme6q5757q" path="res://Textures/MaterialMakerTextures/Crystal.png" id="3_ivf0k"]
+[ext_resource type="Texture2D" uid="uid://bkc1ycdp2luol" path="res://Textures/MaterialMakerTextures/Tiles.png" id="3_ivf0k"]
 
 [sub_resource type="Gradient" id="Gradient_3kjyd"]
 offsets = PackedFloat32Array(0, 0.33333334, 0.6666667, 1)
@@ -29,4 +29,5 @@ normal = ExtResource("1_3kjyd")
 gradient = SubResource("GradientTexture1D_l1bqb")
 border = Color(0.9098039, 0.75686276, 0.4392157, 1)
 borderGradient = SubResource("GradientTexture1D_ivf0k")
+lightEmission = Color(0.63, 0.59692496, 0.2331, 1)
 metadata/_custom_type_script = "uid://di707vap5isgj"

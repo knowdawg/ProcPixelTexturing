@@ -1,11 +1,12 @@
 [gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://oq1frewneuwv"]
 
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_88epq"]
-[ext_resource type="Texture2D" uid="uid://v0a2qyye2rw4" path="res://Textures/MaterialMakerTextures/Sand/SandForegroundNormal.png" id="2_k2vn8"]
-[ext_resource type="Texture2D" uid="uid://bhncobikshoru" path="res://Textures/MaterialMakerTextures/Sand/SandForegroundTexture.png" id="4_8q7vg"]
+[ext_resource type="Texture2D" uid="uid://cgpqvnh58a0f4" path="res://Textures/MaterialMakerTextures/SimpleDirtNormal.png" id="1_uixn7"]
+[ext_resource type="Texture2D" uid="uid://b0n8cuor7vv77" path="res://Textures/MaterialMakerTextures/SimpleDirt.png" id="3_dsgbi"]
 
 [sub_resource type="Gradient" id="Gradient_dsgbi"]
-colors = PackedColorArray(0.7592157, 0.5717647, 0.3309804, 1, 0.9098039, 0.75686276, 0.4392157, 1)
+offsets = PackedFloat32Array(0, 0.6)
+colors = PackedColorArray(0.82, 0.6601, 0.451, 1, 0.9098039, 0.75686276, 0.4392157, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 5
 
@@ -13,7 +14,7 @@ metadata/_snap_count = 5
 gradient = SubResource("Gradient_dsgbi")
 
 [sub_resource type="Gradient" id="Gradient_uixn7"]
-colors = PackedColorArray(0.7592157, 0.5717647, 0.3309804, 1, 0.9098039, 0.75686276, 0.4392157, 1)
+colors = PackedColorArray(0.71, 0.5377067, 0.31239998, 1, 0.9098039, 0.75686276, 0.4392157, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 5
 
@@ -22,9 +23,10 @@ gradient = SubResource("Gradient_uixn7")
 
 [resource]
 script = ExtResource("1_88epq")
-texture = ExtResource("4_8q7vg")
-normal = ExtResource("2_k2vn8")
+texture = ExtResource("3_dsgbi")
+normal = ExtResource("1_uixn7")
 gradient = SubResource("GradientTexture1D_dsgbi")
 border = Color(0.9098039, 0.75686276, 0.4392157, 1)
+borderWeight = 0.6
 borderGradient = SubResource("GradientTexture1D_y4ari")
 metadata/_custom_type_script = "uid://di707vap5isgj"

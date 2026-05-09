@@ -51,7 +51,7 @@ func _ready() -> void:
 	var dirGI : Texture2DRD = Texture2DRD.new()
 	dirGI.set_texture_rd_rid(cascadeImageRIDs[0])
 		
-	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE", initialCascadeResolution.x)# * initialCascadeRayCount)
+	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE", initialCascadeResolution.x)
 	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION", GI)
 	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA", dirGI)
 	RenderingServer.global_shader_parameter_set("PS_INITIAL_CASCADE_PROBE_SIZE", initialCascadeRayCount)

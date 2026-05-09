@@ -24,7 +24,7 @@ vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, 
 			ivec2 localRayCoord = ivec2(d, b);
 			int dirIndex = localRayCoord.x + (localRayCoord.y * probeSize);
 			float angle = 2.0 * PI * ((float(dirIndex) + 0.5) / float(probeSize * probeSize));
-			vec3 lightDir = normalize(vec3(cos(angle), -sin(angle), lightHeight - specular * 0.5)); //lightHeight should be from 0-1
+			vec3 lightDir = normalize(vec3(cos(angle), -sin(angle), lightHeight)); //lightHeight should be from 0-1
 			
 			vec3 viewVector = vec3(0.0, 0.0, 1.0);//Front on camera view
 			vec3 H = normalize(lightDir + viewVector); //the halfway vector
@@ -33,7 +33,7 @@ vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, 
 			
 			float cNdotL = max(0.0, dot(normal, lightDir));
 			
-			result += radVal * (cNdotL + spec * specular * 32.0);
+			result += radVal * clamp(cNdotL + spec * specular * 32.0, 0.0, 1.0);
 		}
 	}
 

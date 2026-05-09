@@ -1,32 +1,23 @@
 [gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://dowf508x1b2fj"]
 
-[ext_resource type="Texture2D" uid="uid://c24iqvf16c2gn" path="res://Textures/MaterialMakerTextures/DirtTestBackgroundNormal.png" id="1_en05r"]
+[ext_resource type="Texture2D" uid="uid://p3gsj24x2bqh" path="res://Textures/MaterialMakerTextures/KyoraRockyBackgroundDirtNormal.png" id="1_en05r"]
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="2_wvktt"]
-[ext_resource type="Texture2D" uid="uid://2dk1nmkxhtou" path="res://Textures/MaterialMakerTextures/DirtTestBackground.png" id="3_wvktt"]
-
-[sub_resource type="Gradient" id="Gradient_wvktt"]
-offsets = PackedFloat32Array(0, 0.5, 1)
-colors = PackedColorArray(0.3019608, 0.16862746, 0.19607843, 1, 0.47843137, 0.28235295, 0.25490198, 1, 0.66, 0.38599002, 0.3498, 1)
-metadata/_snap_enabled = true
-metadata/_snap_count = 12
-
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_f6o8f"]
-gradient = SubResource("Gradient_wvktt")
+[ext_resource type="Texture2D" uid="uid://b2sbuq7xkr41s" path="res://Textures/MaterialMakerTextures/KyoraRockyBackgroundDirt.png" id="3_wvktt"]
 
 [sub_resource type="Gradient" id="Gradient_en05r"]
-colors = PackedColorArray(0.3019608, 0.16862746, 0.19607843, 1, 0.47843137, 0.28235295, 0.25490198, 1)
+colors = PackedColorArray(0.19, 0.11754666, 0.0912, 1, 0.22, 0.1716, 0.14739999, 1)
 metadata/_snap_enabled = true
-metadata/_snap_count = 12
+metadata/_snap_count = 8
 
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_wvktt"]
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_haaje"]
 gradient = SubResource("Gradient_en05r")
 
 [resource]
 script = ExtResource("2_wvktt")
 texture = ExtResource("3_wvktt")
 normal = ExtResource("1_en05r")
-gradient = SubResource("GradientTexture1D_wvktt")
-border = Color(0.3019608, 0.16862746, 0.19607843, 1)
-borderGradient = SubResource("GradientTexture1D_f6o8f")
+gradient = SubResource("GradientTexture1D_haaje")
+border = Color(0.23137255, 0.18039216, 0.15294118, 1)
+borderGradient = SubResource("GradientTexture1D_haaje")
 lightEmission = Color(0, 0, 0, 0)
 metadata/_custom_type_script = "uid://di707vap5isgj"
