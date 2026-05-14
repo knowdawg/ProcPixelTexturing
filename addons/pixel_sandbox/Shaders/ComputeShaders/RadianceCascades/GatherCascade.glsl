@@ -13,10 +13,6 @@ layout(set = 0, binding = 2, std430) readonly buffer Params {
 };
 
 vec4 sampleLightImage(ivec2 fragCoord){
-    // ivec2 scalledCoord = fragCoord / (1 << cascadeIndex);
-    // scalledCoord /= c0ProbeSize; //the input is in probe space which is c0ProbeSize times larger than mip0
-
-    // scalledCoord = clamp(scalledCoord, ivec2(1), imageSize(lightImage) - ivec2(1));
     vec2 uv = vec2(fragCoord) / vec2(imageSize(outputBuffer));
 
     vec4 radiance = texture(lightImage, uv);
@@ -92,9 +88,20 @@ void main(){
     float angle = 2.0 * PI * ((float(dirIndex) + 0.5) / float(numOfRays));
     vec2 dir = vec2(cos(angle), sin(angle));
 
-    vec4 closeRadiance = sampleLightImage(probePos + ivec2(ray_interval().x * dir));
-    vec4 farRadiance = sampleLightImage(probePos + ivec2(ray_interval().y * dir));
-    vec4 radiance = closeRadiance;//mergeIntervals(closeRadiance, farRadiance);
+
+    vec4 radiance = vec4(0.0, 0.0, 0.0, 1.0);
+    vec2 interval = ray_interval();
+    int sampleCount = 1 + (cascadeIndex * 2);
+    for(int i = 0; i < sampleCount; i++){
+        float curInterval = mix(interval.x, interval.y, float(i) / float(sampleCount));
+        vec4 curRadiance = sampleLightImage(probePos + ivec2(curInterval * dir));
+        
+        radiance = mergeIntervals(radiance, curRadiance);
+    }
+
+    // vec4 closeRadiance = sampleLightImage(probePos + ivec2(ray_interval().x * dir));
+    // vec4 farRadiance = sampleLightImage(probePos + ivec2(ray_interval().y * dir));
+    // vec4 radiance = closeRadiance;//mergeIntervals(closeRadiance, farRadiance);
 
 
     //March!

@@ -1,10 +1,8 @@
 extends Node
 class_name RadianceCascades
 
-@export var merge : bool = false
-
 @export_group("Radiance Cascades Parameters")
-@export var cascadeCount : int = 6
+@export var cascadeCount : int = 5
 @export var initialCascadeRayCount : int = 2
 @export var initailCascadeRayLength : int = 1
 @export var initialCascadeResolution : Vector2i = Vector2i(512, 512)
@@ -51,9 +49,6 @@ func setup():
 	#create a mipmap for each cascade, cascade 0 just has the base light image
 	mipImageRIDs.append(TerrainRendering.finalLightImageRID)
 	for i in range(1, cascadeCount):
-		if i > 4: #TEMP, FIX LATER
-			mipImageRIDs.append(mipImageRIDs[4])
-			continue
 		var imSize : int = TerrainRendering.renderSectionSize / pow(2, float(i)) #Halve each cascade
 		var image := Image.create_empty(imSize, imSize, false, TerrainRendering.LIGHTING_IMAGE_FORMAT);
 		image.fill(Color.BLACK)
@@ -103,9 +98,9 @@ func _ready() -> void:
 func updateGlobalIllumination():
 	#Step 1: Generate Mipmaps
 	for i in range(1, cascadeCount):
-		if i > 4:
+		if i > 5:
 			continue
-		var w : int = (TerrainRendering.renderSectionSize / int(pow(2, float(i)))) / 32
+		var w : int = (TerrainRendering.renderSectionSize / int(pow(2, float(i)))) / 16
 		var workGroups : Vector3i = Vector3i(w, w, 1)
 		
 		var source : RDUniform = TerrainRendering.getUniformImage(mipImageRIDs[i - 1], 0)
@@ -123,7 +118,8 @@ func updateGlobalIllumination():
 		var w : int = (TerrainRendering.renderSectionSize / 32) * initialCascadeRayCount
 		var workGroups : Vector3i = Vector3i(w, w, 1)
 		
-		var lightImage : RDUniform = TerrainRendering.getUniformSampler(mipImageRIDs[i], sampler, 0)
+		var lightmapMip = mipImageRIDs[i]
+		var lightImage : RDUniform = TerrainRendering.getUniformSampler(lightmapMip, sampler, 0)
 		var outputCascadeBuffer : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[i], 1)
 		
 		var paramsData := PackedInt32Array([initialCascadeRayCount, initailCascadeRayLength, i])
@@ -137,9 +133,7 @@ func updateGlobalIllumination():
 		
 		rd.free_rid(uniformSet)
 		rd.free_rid(params)
-		
-	if !merge:
-		return
+	
 	#Step 3: Merge Cascades
 	for i in range(cascadeCount - 1, 0, -1):
 		var w : int = (TerrainRendering.renderSectionSize / 32) * initialCascadeRayCount

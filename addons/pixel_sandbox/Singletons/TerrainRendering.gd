@@ -284,13 +284,14 @@ func _process(_delta: float) -> void:
 	updateChunks()
 	
 	if is_instance_valid(sdfGen) and is_instance_valid(radCasc):
-		#Combine the LightBuffer with the lightMapRID
-		if is_instance_valid(lightBuffer):
-			lightBufferRID = lightBuffer.getViewportTextureRID()
-			executeAdditiveBlendShader(lightMapRID, lightBufferRID, finalLightImageRID)
+		sdfGen.createSDF(finalLightImageRID, lightmapSDF, 0.0, true)
 		
-			sdfGen.createSDF(finalLightImageRID, lightmapSDF, 0.0, true)
-			radCasc.updateGlobalIllumination()
+	#Combine the LightBuffer with the lightMapRID
+	if is_instance_valid(lightBuffer):
+		lightBufferRID = lightBuffer.getViewportTextureRID()
+		executeAdditiveBlendShader(lightMapRID, lightBufferRID, finalLightImageRID)
+	
+		radCasc.updateGlobalIllumination()
 		
 	if Input.is_action_just_pressed("ReloadTexture"):
 		constructTextureArrays()
