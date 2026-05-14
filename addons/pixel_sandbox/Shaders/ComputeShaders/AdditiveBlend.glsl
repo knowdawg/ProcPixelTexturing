@@ -11,6 +11,8 @@ layout(set = 0, binding = 2, rgba32f) uniform writeonly image2D outputImage;
 layout(set = 0, binding = 3, std430) readonly buffer Params {
     int camPosX;
     int camPosY;
+    int wrapX;
+    int wrapY;
 };
 
 void main(){
@@ -24,5 +26,7 @@ void main(){
 
     sum += temp;
 
-    imageStore(outputImage, uv, sum);
+    ivec2 wrappedUV = (uv - ivec2(wrapX, wrapY)) % size; //undo the offset
+
+    imageStore(outputImage, wrappedUV, sum);
 }

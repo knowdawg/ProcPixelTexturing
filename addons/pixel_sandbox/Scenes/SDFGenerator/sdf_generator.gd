@@ -50,8 +50,8 @@ func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offse
 	
 	
 	var worldOffsetData := PackedInt32Array([
-	int(TerrainRendering.tileTextureOffset.x * float(TerrainRendering.renderSectionSize)),
-	int(TerrainRendering.tileTextureOffset.y * float(TerrainRendering.renderSectionSize))
+	int(TerrainRendering.textureWrapCount.x * float(TerrainRendering.renderSectionSize)),
+	int(TerrainRendering.textureWrapCount.y * float(TerrainRendering.renderSectionSize))
 	])
 	if !offsetByCameraPos:
 		worldOffsetData = PackedInt32Array([0, 0])
@@ -113,7 +113,7 @@ func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offse
 	return returnRID
 
 
-#@export var debugSprite : Sprite2D
+@export var debugSprite : Sprite2D
 #
 #var sdf : RID
 #func updateSDF():
@@ -131,3 +131,8 @@ func _ready():
 	setupRenderingDevice()
 	
 	TerrainRendering.sdfGen = self
+	
+	if debugSprite:
+		var tex2DRD : Texture2DRD = Texture2DRD.new()
+		tex2DRD.set_texture_rd_rid(TerrainRendering.lightmapSDF)
+		debugSprite.texture = tex2DRD

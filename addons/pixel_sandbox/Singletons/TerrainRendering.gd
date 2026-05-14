@@ -5,15 +5,14 @@ enum LAYER_TYPE {FOREGROUND, BACKGROUND}
 var sdfGen : SDFGenerator
 var radCasc : RadianceCascades
 
-var foregroundSDF : RID
-var backgroundSDF : RID
 var lightmapSDF : RID
 
-var worldPosition : Vector2
-var tileTextureOffset : Vector2
 
-var sunDirection : float =  - PI / 2.0
-var lightrays : RID
+var textureWrapCount : Vector2 #Amount of times the envirement texture has wrapped in on itself
+var textureWrapPixelOffset : Vector2i #The pixel count of the current offset
+var cameraPosition : Vector2
+var cameraChunkPixelProgress : Vector2i #distance from the camera to the top left corner of the chunk it is in
+
 var GI : RID
 
 #World Details
@@ -23,7 +22,6 @@ var mapSize : Vector2i = PixelSandboxSettings.mapSize
 var loadedRect : Rect2
 
 #World Objects
-
 var worldVisualImageForegroundRID : RID
 var worldVisualImageBackgroundRID : RID
 """
@@ -60,7 +58,6 @@ var additiveBlendPipeline
 
 var spriteForeground : Sprite2D
 var spriteBackground : Sprite2D
-var spriteLighting : Sprite2D
 
 var chunks : Array
 var activeChunks : Dictionary[Vector2i, TextureChunk] #Contains All Chunks in the current Render Quadrant
@@ -69,7 +66,6 @@ var chunk = preload("uid://dafgjgn78ehp2")
 
 #Texture Details
 var uniqueTiles : int = 256 #Keep at 256 as each image channel are in 8 bits
-var textureSize := Vector2i(256, 256)
 
 var foregroundTextureData : TextureData = load(PixelSandboxSettings.textureDataForeground)
 var backgroundTextureData : TextureData = load(PixelSandboxSettings.textureDataBackground)
@@ -85,7 +81,8 @@ var textureChunkShader
 var persPipeline : RID
 
 #Constants
-var IMAGE_FORMAT : int = Image.FORMAT_RGBAF
+const TERRAIN_IMAGE_FORMAT : int = Image.FORMAT_RGBA8
+const LIGHTING_IMAGE_FORMAT = Image.FORMAT_RGBAH
 
 func dirtyAll():
 	var numOfChunks : Vector2i = Vector2i(chunks.size(), chunks[0].size())
@@ -96,12 +93,11 @@ func dirtyAll():
 
 #returns an image of the specified size filled with the specified material
 func generateSampleImage(tile : int, size : Vector2i) -> Image:
-	var im : Image = Image.create_empty(size.x, size.y, false, IMAGE_FORMAT)
+	var im : Image = Image.create_empty(size.x, size.y, false, TERRAIN_IMAGE_FORMAT)
 	im.fill(Color(float(tile) / float(uniqueTiles - 1), 0.0, 0.0, 1.0))
 	return im
 
 func constructTextureArrays():
-	
 	###---------TEXTURES---------###
 	#Create a default sampler
 	var samplerState := RDSamplerState.new()
@@ -245,7 +241,6 @@ func constructTextureArrays():
 	
 	buffferUniformSet = renDev.uniform_set_create(bufferUniforms, textureChunkShader, 1)
 
-
 func isPositionLoaded(pos : Vector2) -> bool:
 	if !loadedRect:
 		return false
@@ -276,12 +271,9 @@ func _ready() -> void:
 	constructTextureArrays()
 	setupChunks()
 	
-	#setup foreground SDF
-	var image := Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
-	image.fill(Color.BLACK)
-	foregroundSDF = TerrainRendering.getRIDImage(image, renDev)
+	#setup lightmap SDF
 	
-	image = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
+	var image = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
 	image.fill(Color.BLACK)
 	lightmapSDF = TerrainRendering.getRIDImage(image, renDev)
 
@@ -305,29 +297,29 @@ func _process(_delta: float) -> void:
 
 func setupEnviromentObjects() -> void:
 	#Create an image on the GPU for each of the world images
-	var worldImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	var worldImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, TERRAIN_IMAGE_FORMAT);
 	worldImageForeground.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldVisualImageForegroundRID = TerrainRendering.getRIDImage(worldImageForeground, renDev)
 	
-	var worldImageBackground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	var worldImageBackground = Image.create_empty(renderSectionSize, renderSectionSize, false, TERRAIN_IMAGE_FORMAT);
 	worldImageBackground.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldVisualImageBackgroundRID = TerrainRendering.getRIDImage(worldImageBackground, renDev)
 	
-	var worldNormalImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	var worldNormalImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, TERRAIN_IMAGE_FORMAT);
 	worldNormalImageForeground.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldNormalImageForegroundRID = TerrainRendering.getRIDImage(worldNormalImageForeground, renDev)
 	
-	var worldNormalImageBackground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBA8);
+	var worldNormalImageBackground = Image.create_empty(renderSectionSize, renderSectionSize, false, TERRAIN_IMAGE_FORMAT);
 	worldNormalImageBackground.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldNormalImageBackgroundRID = TerrainRendering.getRIDImage(worldNormalImageBackground, renDev)
 	
 	#Create an image on the GPU for the lightmap, the one the chunks write to
-	var lightmapImage = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
+	var lightmapImage = Image.create_empty(renderSectionSize, renderSectionSize, false, LIGHTING_IMAGE_FORMAT);
 	lightmapImage.fill(Color(0.0, 0.0, 0.0, 0.0))
 	lightMapRID = TerrainRendering.getRIDImage(lightmapImage, renDev)
 	
 	#Create an image on the GPU for the final lightmap, the one that is sent to the lighting shader
-	var finalLightImage = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAF);
+	var finalLightImage = Image.create_empty(renderSectionSize, renderSectionSize, false, LIGHTING_IMAGE_FORMAT);
 	finalLightImage.fill(Color(0.0, 0.0, 0.0, 0.0))
 	finalLightImageRID = TerrainRendering.getRIDImage(finalLightImage, renDev)
 
@@ -432,13 +424,16 @@ func isChunkInBounds(chunkCoord):
 func updateTileTextureScrollAndSpritePosition() -> void:
 	if !is_instance_valid(get_viewport().get_camera_2d()):
 		return
-	var cameraPos := get_viewport().get_camera_2d().get_screen_center_position()
-	var centerChunk := worldToChunk(cameraPos)
+	cameraPosition = get_viewport().get_camera_2d().get_screen_center_position()
+	cameraChunkPixelProgress = Vector2i(cameraPosition) % chunkSize
+	var centerChunk := worldToChunk(cameraPosition)
 	
 	var scroll : Vector2 = Vector2.ZERO
 	scroll = Vector2(centerChunk * chunkSize) / float(renderSectionSize)
-	tileTextureOffset = scroll
-	RenderingServer.global_shader_parameter_set("PS_TILE_TEXTURE_SCROLL", scroll)
+	textureWrapCount = scroll - Vector2(0.5, 0.5)
+	textureWrapPixelOffset = Vector2i(textureWrapCount * renderSectionSize) % renderSectionSize
+	
+	RenderingServer.global_shader_parameter_set("PS_TILE_TEXTURE_SCROLL", textureWrapCount)
 	
 	var cPos : Vector2 = (centerChunk - (Vector2i(renderSectionSize / chunkSize, renderSectionSize / chunkSize) / 2)) * chunkSize
 	RenderingServer.global_shader_parameter_set("PS_TOP_LEFT_CHUNK_POSITION", cPos)
@@ -452,8 +447,6 @@ func updateTileTextureScrollAndSpritePosition() -> void:
 		spriteForeground.global_position = (scroll * float(renderSectionSize))
 	if is_instance_valid(spriteBackground):
 		spriteBackground.global_position = (scroll * float(renderSectionSize))
-	if is_instance_valid(spriteLighting):
-		spriteLighting.global_position = (scroll * float(renderSectionSize))
 	
 
 func updateLoadedRect() -> void:
@@ -536,7 +529,8 @@ func executeAdditiveBlendShader(source1 : RID, source2 : RID, dest : RID):
 		return
 	var camPos : Vector2i = Vector2i(round(cam.get_screen_center_position())) - Vector2i(renderSectionSize / 2, renderSectionSize / 2)
 	
-	var sb : RID = getRIDStorageBufferInt([camPos.x, camPos.y], renDev)
+	var sb : RID = getRIDStorageBufferInt([camPos.x, camPos.y,
+	 textureWrapPixelOffset.x, textureWrapPixelOffset.y], renDev)
 	var sbUniform : RDUniform = getUniformStorageBufferInt(sb, 3)
 	var uniformSet : RID = renDev.uniform_set_create([source1ImageUniform, source2ImageUniform, destImageUniform, sbUniform], additiveBlendShader, 0)
 	
@@ -565,18 +559,18 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 	var tileImageUniform : RDUniform = getUniformImage(tileImageRID, 1)
 	
 	#Output Buffer Setup
-	var outputImageForeground : Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBA8)
+	var outputImageForeground : Image = Image.create_empty(maxDimention, maxDimention, false, TERRAIN_IMAGE_FORMAT)
 	outputImageForeground.fill(Color.BLACK)
 	var outputImageForegroundRID : RID = getRIDImage(outputImageForeground, renDev)
 	var outputUniformForeground := getUniformImage(outputImageForegroundRID, 2)
 	
-	var outputImageBackground: Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBA8)
+	var outputImageBackground: Image = Image.create_empty(maxDimention, maxDimention, false, TERRAIN_IMAGE_FORMAT)
 	outputImageBackground.fill(Color.BLACK)
 	var outputImageBackgroundRID : RID = getRIDImage(outputImageBackground, renDev)
 	var outputUniformBackground := getUniformImage(outputImageBackgroundRID, 3)
 	
 	#Blueprints dont use lightmaps or normals... for now... and probabbly never. Writint a seperate shader for the blueprints would probably be a good idea
-	var dummyLightmap: Image = Image.create_empty(maxDimention, maxDimention, false, Image.FORMAT_RGBAF)
+	var dummyLightmap: Image = Image.create_empty(maxDimention, maxDimention, false, LIGHTING_IMAGE_FORMAT)
 	dummyLightmap.fill(Color.BLACK)
 	var dummyLightmapRID : RID = getRIDImage(dummyLightmap, renDev)
 	var dummyLightmapUniform := getUniformImage(dummyLightmapRID, 4)
@@ -598,6 +592,7 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 	return [outputImageForegroundRID, outputImageBackgroundRID]
 
 
+
 #Compute Shader Boilerplate functions
 
 func executeComputeShader(workGroup : Vector3i, rd : RenderingDevice, computeList : int, pipeline : RID, uniformSetArray : Array[RID]):
@@ -613,6 +608,15 @@ func getUniformImage(imageRID : RID, binding : int) -> RDUniform:
 	imageUniform.binding = binding
 	imageUniform.add_id(imageRID)
 	return imageUniform
+
+func getUniformSampler(imageRID : RID, samplerRID : RID, binding : int):
+	var samplerUniform := RDUniform.new()
+	samplerUniform.uniform_type = RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
+	samplerUniform.binding = binding
+	samplerUniform.add_id(samplerRID)
+	samplerUniform.add_id(imageRID)
+	
+	return samplerUniform
 
 func getUniformStorageBufferInt(dataRID : RID, binding : int) -> RDUniform:
 	var storageBufferUniform := RDUniform.new()
@@ -653,6 +657,8 @@ func getRIDImage(image : Image, rd : RenderingDevice) -> RID:
 			textureFormat.format = RenderingDevice.DATA_FORMAT_R32G32_SFLOAT
 		Image.FORMAT_RGBF:
 			textureFormat.format = RenderingDevice.DATA_FORMAT_R32G32B32_SFLOAT
+		Image.FORMAT_RGBAH:
+			textureFormat.format = RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT
 		_:
 			# Default to RGBA8
 			print("WARNING: Unknown image format ", image.get_format(), ", defaulting to RGBA8")
@@ -666,7 +672,6 @@ func getRIDImage(image : Image, rd : RenderingDevice) -> RID:
 	)
 	var rid := rd.texture_create(textureFormat, textureView, [image.get_data()])
 	return rid
-#RenderingDevice.DATA_FORMAT_A8B8G8R8_UINT_PACK32
 
 func getRIDImage2DArray(imageArray : Texture2DArray, rd : RenderingDevice) -> RID:
 	var textureView := RDTextureView.new()

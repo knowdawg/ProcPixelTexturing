@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://djqe87hqn7eo2"
+path="res://.godot/imported/MergeCascades.glsl-1fcd4d5a0dc84960830f8f0589dd9758.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/RadianceCascades/MergeCascades.glsl"
+dest_files=["res://.godot/imported/MergeCascades.glsl-1fcd4d5a0dc84960830f8f0589dd9758.res"]
+
+[params]
+

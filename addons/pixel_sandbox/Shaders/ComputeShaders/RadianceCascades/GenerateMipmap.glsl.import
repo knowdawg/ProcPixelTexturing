@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dtlktq75wb17s"
+path="res://.godot/imported/GenerateMipmap.glsl-4d97b10341924096fac308b49d5943ba.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/RadianceCascades/GenerateMipmap.glsl"
+dest_files=["res://.godot/imported/GenerateMipmap.glsl-4d97b10341924096fac308b49d5943ba.res"]
+
+[params]
+
