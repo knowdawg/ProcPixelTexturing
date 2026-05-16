@@ -5,19 +5,23 @@
 [ext_resource type="Texture2D" uid="uid://b2sbuq7xkr41s" path="res://Textures/MaterialMakerTextures/KyoraRockyBackgroundDirt.png" id="3_wvktt"]
 
 [sub_resource type="Gradient" id="Gradient_en05r"]
-colors = PackedColorArray(0.19, 0.11754666, 0.0912, 1, 0.22, 0.1716, 0.14739999, 1)
+offsets = PackedFloat32Array(0, 0.125, 0.625, 1)
+colors = PackedColorArray(0.65, 0.20150003, 0.06500001, 1, 0.39, 0.13883999, 0.06240001, 1, 0.10440001, 0.15102, 0.18, 1, 0.33060002, 0.47823, 0.57, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 8
 
-[sub_resource type="GradientTexture1D" id="GradientTexture1D_haaje"]
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_wvktt"]
+gradient = SubResource("Gradient_en05r")
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_f6o8f"]
 gradient = SubResource("Gradient_en05r")
 
 [resource]
 script = ExtResource("2_wvktt")
 texture = ExtResource("3_wvktt")
 normal = ExtResource("1_en05r")
-gradient = SubResource("GradientTexture1D_haaje")
-border = Color(0.23137255, 0.18039216, 0.15294118, 1)
-borderGradient = SubResource("GradientTexture1D_haaje")
+gradient = SubResource("GradientTexture1D_f6o8f")
+border = Color(0.1254902, 0.18039216, 0.21568628, 1)
+borderGradient = SubResource("GradientTexture1D_wvktt")
 lightEmission = Color(0, 0, 0, 0)
 metadata/_custom_type_script = "uid://di707vap5isgj"

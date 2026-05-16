@@ -12,15 +12,6 @@ layout(set = 0, binding = 2, std430) readonly buffer Params {
     int cascadeIndex; //TODO: TURN INTO A PUSH CONSTANT
 };
 
-vec4 sampleLightImage(ivec2 fragCoord){
-    vec2 uv = vec2(fragCoord) / vec2(imageSize(outputBuffer));
-
-    vec4 radiance = texture(lightImage, uv);
-    radiance.a = 1.0 - radiance.a;
-
-    return radiance;
-}
-
 // Get the scale factor for a ray
 float ray_scale(int cIndex) {
     if (cIndex <= 0) return 0.0;
@@ -32,36 +23,15 @@ vec2 ray_interval() {
     return c0RayLength * vec2(ray_scale(cascadeIndex), ray_scale(cascadeIndex + 1));
 }
 
+vec4 sampleLightImage(ivec2 fragCoord){
+    vec2 uv = vec2(fragCoord) / vec2(imageSize(outputBuffer));
 
-//origin is in probe space
-//interval is in probe space
-vec4 ray_march(vec2 origin, vec2 dir, vec2 interval){
-    vec4 radiance = vec4(0.0, 0.0, 0.0, 0.0); //0 in alpha is hit nothing, 1 is hit something
-    float transmittance = 1.0;
+    vec4 radiance = texture(lightImage, uv);
+    radiance.a = 1.0 - radiance.a;
 
-    float dis = interval.x;
-    for (int i = 0; i < 8; i++){
-        if(dis >= interval.y){
-            break;
-        }
-        
-        if(transmittance < 0.01){
-            transmittance = 0.0;
-            break;
-        }
-
-        vec2 p = origin + (dis * dir);
-
-        vec4 myPos = sampleLightImage(ivec2(p));
-
-        radiance.rgb += myPos.rgb * transmittance * myPos.a;
-        transmittance *= 1.0 - myPos.a;
-        dis += (interval.y - interval.x) / 8.0;
-        
-    }
-    radiance.a = transmittance;
     return radiance;
 }
+
 
 vec4 mergeIntervals(vec4 near, vec4 far) {
     float nearOcluder = near.a;
@@ -91,25 +61,13 @@ void main(){
 
     vec4 radiance = vec4(0.0, 0.0, 0.0, 1.0);
     vec2 interval = ray_interval();
-    int sampleCount = 1 + (cascadeIndex * 2);
+    int sampleCount = 1 + (cascadeIndex * 1);
     for(int i = 0; i < sampleCount; i++){
         float curInterval = mix(interval.x, interval.y, float(i) / float(sampleCount));
         vec4 curRadiance = sampleLightImage(probePos + ivec2(curInterval * dir));
         
         radiance = mergeIntervals(radiance, curRadiance);
     }
-
-    // vec4 closeRadiance = sampleLightImage(probePos + ivec2(ray_interval().x * dir));
-    // vec4 farRadiance = sampleLightImage(probePos + ivec2(ray_interval().y * dir));
-    // vec4 radiance = closeRadiance;//mergeIntervals(closeRadiance, farRadiance);
-
-
-    //March!
-    //vec4 radiance = ray_march(vec2(probePos), dir, ray_interval());
-
-    //vec2 uv = vec2(rayCoord) / vec2(imageSize(outputBuffer));
-
-    //radiance = vec4(dir.x, dir.y, 0.0, 1.0);
 
     imageStore(outputBuffer, rayCoord, radiance);
 }
