@@ -5,8 +5,8 @@
 [ext_resource type="Texture2D" uid="uid://b2sbuq7xkr41s" path="res://Textures/MaterialMakerTextures/KyoraRockyBackgroundDirt.png" id="3_wvktt"]
 
 [sub_resource type="Gradient" id="Gradient_en05r"]
-offsets = PackedFloat32Array(0, 0.125, 0.625, 1)
-colors = PackedColorArray(0.65, 0.20150003, 0.06500001, 1, 0.39, 0.13883999, 0.06240001, 1, 0.10440001, 0.15102, 0.18, 1, 0.33060002, 0.47823, 0.57, 1)
+offsets = PackedFloat32Array(0, 0.375, 0.875)
+colors = PackedColorArray(0.052200004, 0.07551, 0.09, 1, 0.10440001, 0.15102, 0.18, 1, 0.2356, 0.32464665, 0.38, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 8
 
