@@ -6,7 +6,7 @@ global uniform vec2 PS_TILE_TEXTURE_SCROLL;
 
 void fragment() {
 	float textureScalling = PS_RENDER_QUADRANT_SIZE.x / 512.0;
-	vec2 qUV = UV + PS_TILE_TEXTURE_SCROLL - vec2(0.5, 0.5);
+	vec2 qUV = UV + PS_TILE_TEXTURE_SCROLL;
 	qUV = fract(qUV);
 	qUV = floor(qUV * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE;
 	
@@ -19,7 +19,7 @@ void fragment() {
 	
 	vec4 radiance = vec4(1.0);
 	radiance = getRadianceWithNormals(SCREEN_UV, norm, spec, 0.5);
-	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 3.0, 3.0, 3.0);
+	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 9.0, 3.0, 3.0);
 	radiance.rgb = pow(radiance.rgb, vec3(1.0 / 2.2));
 	//radiance.rgb = brightnessExposureLuminance(radiance.rgb, 1.0 + spec, 1.0 + spec, 1.0 + spec);
 	//radiance.rgb = clamp(radiance.rgb, vec3(0.0), vec3(1.0 + spec));

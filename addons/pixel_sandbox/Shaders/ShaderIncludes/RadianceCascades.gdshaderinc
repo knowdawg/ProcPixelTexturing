@@ -61,20 +61,9 @@ vec4 getRadianceWithNormals(vec2 sUV, vec3 normal, float specular, float lightHe
 	
 	//Convert probe coords → UV
 	vec2 uv00 = (probe_pos) / GITexSize;
-	//vec2 uv10 = (probe_pos + vec2(1.0, 0.0)) / GITexSize;
-	//vec2 uv01 = (probe_pos + vec2(0.0, 1.0)) / GITexSize;
-	//vec2 uv11 = (probe_pos + vec2(1.0, 1.0)) / GITexSize;
 	
-	//Sample 4 probes
 	vec3 r00 = sample_probe(uv00, probeSize, dirGITexSize, adjustedNormal, specular, lightHeight);
-	//vec3 r10 = sample_probe(uv10, probeSize, dirGITexSize, adjustedNormal, specular, lightHeight);
-	//vec3 r01 = sample_probe(uv01, probeSize, dirGITexSize, adjustedNormal, specular, lightHeight);
-	//vec3 r11 = sample_probe(uv11, probeSize, dirGITexSize, adjustedNormal, specular, lightHeight);
-	
-	//Bilinear blend
-	//vec3 rx0 = mix(r00, r10, f.x);
-	//vec3 rx1 = mix(r01, r11, f.x);
-	vec3 finalRadiance = r00;//mix(rx0, rx1, f.y);
+	vec3 finalRadiance = r00;
 	
 	return vec4(finalRadiance, 1.0);
 }

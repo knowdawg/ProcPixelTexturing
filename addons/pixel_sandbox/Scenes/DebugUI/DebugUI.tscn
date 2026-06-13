@@ -1,0 +1,510 @@
+[gd_scene format=3 uid="uid://cyeitbf8jouvv"]
+
+[ext_resource type="Script" uid="uid://ivow8vexukkm" path="res://addons/pixel_sandbox/Scenes/DebugUI/debug_ui.gd" id="1_7bnmo"]
+
+[sub_resource type="Gradient" id="Gradient_ev223"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vdm7v"]
+gradient = SubResource("Gradient_ev223")
+width = 1028
+height = 1028
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ph125"]
+gradient = SubResource("Gradient_ev223")
+width = 1028
+height = 1028
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_7bnmo"]
+gradient = SubResource("Gradient_ev223")
+width = 256
+height = 256
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_nboh4"]
+gradient = SubResource("Gradient_ev223")
+width = 128
+height = 128
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_rn7wl"]
+gradient = SubResource("Gradient_ev223")
+
+[sub_resource type="Gradient" id="Gradient_lpvph"]
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_7b5qc"]
+gradient = SubResource("Gradient_lpvph")
+width = 32
+height = 32
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ksob3"]
+gradient = SubResource("Gradient_ev223")
+width = 512
+height = 512
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ak3ko"]
+gradient = SubResource("Gradient_lpvph")
+width = 512
+height = 512
+
+[node name="Debug" type="CanvasLayer" unique_id=1961782324]
+script = ExtResource("1_7bnmo")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1522493728]
+visible = false
+position = Vector2(800, 511)
+
+[node name="Cascades" type="Control" parent="." unique_id=2068603116]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -282.0
+offset_top = -278.0
+offset_right = -242.0
+offset_bottom = -238.0
+
+[node name="Cascade0" type="TextureRect" parent="Cascades" unique_id=737250281]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+offset_left = 322.0
+offset_top = 299.0
+offset_right = 1350.0
+offset_bottom = 1327.0
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_vdm7v")
+
+[node name="Label0" type="Label" parent="Cascades" unique_id=2129983704]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 639.0
+offset_top = 970.0
+offset_right = 684.0
+offset_bottom = 1015.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Cascade 0"
+horizontal_alignment = 1
+
+[node name="Cascade1" type="TextureRect" parent="Cascades" unique_id=932822722]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+offset_left = 316.0
+offset_top = 303.0
+offset_right = 1344.0
+offset_bottom = 1331.0
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_ph125")
+
+[node name="Label1" type="Label" parent="Cascades" unique_id=288307417]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 903.0
+offset_top = 970.0
+offset_right = 988.0
+offset_bottom = 1015.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Cascade 1"
+horizontal_alignment = 1
+
+[node name="Cascade2" type="TextureRect" parent="Cascades" unique_id=1053169719]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+offset_left = 1098.0
+offset_top = 801.0
+offset_right = 2126.0
+offset_bottom = 1829.0
+scale = Vector2(0.25, 0.25)
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_ph125")
+
+[node name="Label2" type="Label" parent="Cascades" unique_id=1747949914]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1189.0
+offset_top = 972.0
+offset_right = 1234.0
+offset_bottom = 1017.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Cascade 2"
+horizontal_alignment = 1
+
+[node name="Cascade3" type="TextureRect" parent="Cascades" unique_id=247401212]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+offset_left = 1382.0
+offset_top = 802.0
+offset_right = 2410.0
+offset_bottom = 1830.0
+scale = Vector2(0.25, 0.25)
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_ph125")
+
+[node name="Label3" type="Label" parent="Cascades" unique_id=1847749067]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1475.0
+offset_top = 972.0
+offset_right = 1520.0
+offset_bottom = 1017.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Cascade 3"
+horizontal_alignment = 1
+
+[node name="Cascade4" type="TextureRect" parent="Cascades" unique_id=2109921418]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+offset_left = 1666.0
+offset_top = 802.0
+offset_right = 2694.0
+offset_bottom = 1830.0
+scale = Vector2(0.25, 0.25)
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_ph125")
+
+[node name="Label4" type="Label" parent="Cascades" unique_id=2145488655]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1767.0
+offset_top = 973.0
+offset_right = 1812.0
+offset_bottom = 1018.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Cascade 4"
+horizontal_alignment = 1
+
+[node name="Mips" type="Control" parent="." unique_id=525331275]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Mip1" type="TextureRect" parent="Mips" unique_id=398972722]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+offset_left = 545.0
+offset_top = 799.0
+offset_right = 801.0
+offset_bottom = 1055.0
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_7bnmo")
+
+[node name="Label" type="Label" parent="Mips" unique_id=5605988]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 639.0
+offset_top = 970.0
+offset_right = 684.0
+offset_bottom = 1015.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Mip 1"
+horizontal_alignment = 1
+
+[node name="Mip2" type="TextureRect" parent="Mips" unique_id=565964685]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+offset_left = 825.0
+offset_top = 800.0
+offset_right = 953.0
+offset_bottom = 928.0
+scale = Vector2(2, 2)
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_nboh4")
+
+[node name="Label2" type="Label" parent="Mips" unique_id=1955882046]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 903.0
+offset_top = 970.0
+offset_right = 988.0
+offset_bottom = 1015.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Mip 2"
+horizontal_alignment = 1
+
+[node name="Mip3" type="TextureRect" parent="Mips" unique_id=859881591]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+offset_left = 1098.0
+offset_top = 801.0
+offset_right = 1162.0
+offset_bottom = 865.0
+scale = Vector2(4, 4)
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_rn7wl")
+
+[node name="Label3" type="Label" parent="Mips" unique_id=1681955344]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1189.0
+offset_top = 972.0
+offset_right = 1234.0
+offset_bottom = 1017.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Mip 3"
+horizontal_alignment = 1
+
+[node name="Mip4" type="TextureRect" parent="Mips" unique_id=1843065816]
+unique_name_in_owner = true
+visible = false
+texture_filter = 1
+layout_mode = 0
+offset_left = 1382.0
+offset_top = 802.0
+offset_right = 1414.0
+offset_bottom = 834.0
+scale = Vector2(8, 8)
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_7b5qc")
+
+[node name="Label4" type="Label" parent="Mips" unique_id=560858923]
+visible = false
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1475.0
+offset_top = 972.0
+offset_right = 1520.0
+offset_bottom = 1017.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Mip 4"
+horizontal_alignment = 1
+
+[node name="TextureMargin" type="MarginContainer" parent="." unique_id=1983298321]
+visible = false
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -512.0
+offset_top = -1036.0
+offset_bottom = 1036.0
+grow_horizontal = 0
+grow_vertical = 2
+scale = Vector2(0.5, 0.5)
+pivot_offset_ratio = Vector2(1, 0.5)
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="LightingTextures" type="VBoxContainer" parent="TextureMargin" unique_id=1431520018]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_constants/separation = 8
+
+[node name="EmisiveTiles" type="TextureRect" parent="TextureMargin/LightingTextures" unique_id=1858624591]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_ksob3")
+
+[node name="Label" type="Label" parent="TextureMargin/LightingTextures/EmisiveTiles" unique_id=35177195]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -45.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Emisive Pixels"
+horizontal_alignment = 1
+
+[node name="EmisiveObjects" type="TextureRect" parent="TextureMargin/LightingTextures" unique_id=1986277308]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_ksob3")
+
+[node name="Label" type="Label" parent="TextureMargin/LightingTextures/EmisiveObjects" unique_id=1472693111]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -45.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Emisive Objects"
+horizontal_alignment = 1
+
+[node name="RadianceCascadesInput" type="TextureRect" parent="TextureMargin/LightingTextures" unique_id=748216808]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_ksob3")
+
+[node name="Label" type="Label" parent="TextureMargin/LightingTextures/RadianceCascadesInput" unique_id=1999124472]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -45.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Radiance Cascades Input (mip0)"
+horizontal_alignment = 1
+
+[node name="GlobalIlluminationMinimap" type="TextureRect" parent="TextureMargin/LightingTextures" unique_id=1510731733]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 10
+texture = SubResource("GradientTexture2D_ak3ko")
+
+[node name="Label" type="Label" parent="TextureMargin/LightingTextures/GlobalIlluminationMinimap" unique_id=1737789206]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -45.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.46100003, 1, 0.33999997, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 32
+text = "Global Illumination"
+horizontal_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=948282045]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="TerrainRenderingValues" type="RichTextLabel" parent="MarginContainer" unique_id=1032767750]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/default_color = Color(0.4627451, 1, 0.34117648, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+bbcode_enabled = true
+fit_content = true
+scroll_active = false

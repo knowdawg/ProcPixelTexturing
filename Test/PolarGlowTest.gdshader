@@ -30,7 +30,7 @@ vec2 toPolar(vec2 cartesian){
 void fragment() {
 	vec2 qUV = floor(UV * resolution) / resolution;
 
-	vec4 c = vec4(1.0);
+	vec4 c = vec4(1.0, 1.0, 1.0, 1.0);
 	float centerDis = distance(qUV, vec2(0.5, 0.5));
 	vec2 clipUV = UV * 2.0 - 1.0;
 	vec2 iResolution = 1.0 / TEXTURE_PIXEL_SIZE;
@@ -60,6 +60,9 @@ void fragment() {
 	float blackHole = smoothstep(holeSize - 0.05, holeSize, centerDis);
 	vec4 hc = texture(holeColor, vec2(smoothstep(0.0, holeSize, centerDis)));
 	c.rgb = mix(c.rgb, hc.rgb, 1.0 - blackHole);
+
+	c.a = (c.r + c.g + c.b);
+	c.a += 1.0 - blackHole;
 
 	COLOR = c;
 }

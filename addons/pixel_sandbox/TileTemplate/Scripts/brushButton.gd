@@ -120,7 +120,7 @@ func getActiveElementImage(isForeground : bool = true) -> Image:
 	
 	if tt. activeElement.isSample:
 		sampleBrushSize = tt.brushSize
-		im = Image.create_empty(sampleBrushSize.x, sampleBrushSize.y, false, TerrainRendering.IMAGE_FORMAT)
+		im = Image.create_empty(sampleBrushSize.x, sampleBrushSize.y, false, TerrainRendering.TERRAIN_IMAGE_FORMAT)
 		
 		if isForeground:
 			im.blit_rect(tt.activeElement.blueprint.imageForground, Rect2i(Vector2i(0, 0), sampleBrushSize), Vector2i(0, 0))

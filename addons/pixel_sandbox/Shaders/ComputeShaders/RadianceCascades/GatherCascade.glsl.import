@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bjglfxo50elcd"
+path="res://.godot/imported/GatherCascade.glsl-c102179c0eb198c33696c05e764c45c8.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/RadianceCascades/GatherCascade.glsl"
+dest_files=["res://.godot/imported/GatherCascade.glsl-c102179c0eb198c33696c05e764c45c8.res"]
+
+[params]
+
