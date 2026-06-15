@@ -9,13 +9,12 @@ layout(set = 0, binding = 1, rgba16f) uniform writeonly image2D outputBuffer;
 layout(set = 0, binding = 2, std430) readonly buffer Params {
     int c0ProbeSize; //how wide (and tall) the first cascade's raycasts take up on the output texture
     int c0RayLength;
-    int cascadeIndex; //TODO: TURN INTO A PUSH CONSTANT
+    int cascadeIndex;
 };
 
 // Get the scale factor for a ray
 float ray_scale(int cIndex) {
-    if (cIndex <= 0) return 0.0;
-    return float(1 << (2 * (cIndex - 1)));//Four times the ray length per cascade: first (0 -> 1), secound (1 -> 4), third (4 -> 16) ect
+    return float(1 << (2 * cIndex));//Four times the ray length per cascade: first (0 -> 1), secound (1 -> 4), third (4 -> 16) ect
 }
 
 // Get the start & end offset for a ray. It will sample the light image based on these values
@@ -23,23 +22,18 @@ vec2 ray_interval() {
     return c0RayLength * vec2(ray_scale(cascadeIndex), ray_scale(cascadeIndex + 1));
 }
 
-vec4 sampleLightImage(ivec2 fragCoord){
-    vec2 uv = vec2(fragCoord) / vec2(imageSize(outputBuffer));
+//Beer-Lambert extinction scale. Optical depth over a step = density * extinction * stepLength
+//(step length in cascade-texel units). Higher = harder/denser occlusion (less leak); lower =
+//softer / more translucent. This physically replaces the old per-mip occlusion amplification:
+//long steps (far cascades) now accumulate proportionally more occlusion, so light cannot skip
+//past walls, while partial densities stay translucent instead of being forced opaque.
+const float extinction = 2.0;
 
-    vec4 radiance = texture(lightImage, uv);
-    radiance.a = 1.0 - radiance.a;
-
-    return radiance;
-}
-
-
-vec4 mergeIntervals(vec4 near, vec4 far) {
-    float nearOcluder = near.a;
-    float farOcluder = far.a;
-    //Far's radiance can be ocluded by near's radiance if near hit
-    vec3 radiance = near.rgb + (far.rgb * nearOcluder);
-
-    return vec4(radiance, (nearOcluder * farOcluder));
+//Returns the medium at a point: rgb = emitted radiance, a = occluder/medium density in [0,1].
+//No longer inverted to transmittance - the march integrates density via Beer-Lambert below.
+vec4 sampleLightImage(vec2 fragCoord){
+    vec2 uv = fragCoord / vec2(imageSize(outputBuffer));
+    return texture(lightImage, uv);
 }
 
 void main(){
@@ -59,15 +53,27 @@ void main(){
     vec2 dir = vec2(cos(angle), sin(angle));
 
 
-    vec4 radiance = vec4(0.0, 0.0, 0.0, 1.0);
+    vec3 radiance = vec3(0.0);
+    float transmittance = 1.0; //1 = fully clear; decays via Beer-Lambert as the ray crosses density
+
     vec2 interval = ray_interval();
-    int sampleCount = 1 + (cascadeIndex * 1);
+    float mipTexels = (interval.y - interval.x) / float(1 << cascadeIndex);
+    int sampleCount = max(2, int(ceil(mipTexels))) * c0RayLength;
+    float dl = (interval.y - interval.x) / float(sampleCount); //step length, cascade-texel units
+
     for(int i = 0; i < sampleCount; i++){
-        float curInterval = mix(interval.x, interval.y, float(i) / float(sampleCount));
-        vec4 curRadiance = sampleLightImage(probePos + ivec2(curInterval * dir));
-        
-        radiance = mergeIntervals(radiance, curRadiance);
+        //sample at the centre of each step segment
+        float curInterval = mix(interval.x, interval.y, (float(i) + 0.5) / float(sampleCount));
+        vec4 s = sampleLightImage(vec2(probePos) + curInterval * dir); //rgb = emission, a = density
+
+        //Gather light emitted here, attenuated by everything already in front of it.
+        radiance += s.rgb * transmittance;
+
+        //Beer-Lambert: transmittance across this step = exp(-opticalDepth).
+        transmittance *= exp(-s.a * extinction * dl);
+        if (transmittance < 0.001) break;
     }
 
-    imageStore(outputBuffer, rayCoord, radiance);
+    //Output accumulated radiance + transmittance left at the interval's end.
+    imageStore(outputBuffer, rayCoord, vec4(radiance, transmittance));
 }

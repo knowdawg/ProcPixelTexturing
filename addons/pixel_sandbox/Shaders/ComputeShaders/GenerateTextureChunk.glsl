@@ -140,7 +140,7 @@ void calculateColorAndNormal(out vec4 color, out vec4 normal, int type, ivec2 uv
 			break;
 		case 1:
 			c = vec4(0.0, 0.0, 0.0, 1.0);
-			n.rgb = vec3(0.5, 0.5, 1.0);
+			n = vec4(0.5, 0.5, 1.0, 1.0);
 			break;
 		case 2:
 			vec4 border = texture(borders, vec2(self, 0.0));
@@ -284,9 +284,9 @@ void main() {
 	emissionColor += texture(emissionColorsForeground, vec2(tileData.r, 0.0)); // foreground light
 	emissionColor += texture(emissionColorsBackground, vec2(tileData.g, 0.0)) * (1.0 - emissionColor.a); //background light
 	if(solids[getTileIndex(tileData.r)] == 0 && solids[getTileIndex(tileData.g)] == 0){
-		emissionColor = vec4(1.0);// * (1.0 - emissionColor.a); //sunlight
+		emissionColor = vec4(1.0, 1.0, 1.0, 0.0);//sunlight
 	}
-	emissionColor = clamp(emissionColor, vec4(0.0), vec4(1.0));
+	emissionColor = max(emissionColor, vec4(0.0));
 
 	//wrap the texture on itself
     chunkOffsetUV = chunkOffsetUV % size;

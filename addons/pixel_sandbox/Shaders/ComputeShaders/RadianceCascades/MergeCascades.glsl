@@ -31,7 +31,6 @@ vec4 bilinearWeights(vec2 ratio) {
     );
 }
 
-//outs the 
 void bilinearSamples(vec2 nProbePos, vec2 nextCascadeSize, out vec4 weights, out ivec2 baseIndex) {
     //position of n probe in n+1 probe space
     const vec2 baseCoord = (nProbePos / nextCascadeSize) - vec2(0.5, 0.5);

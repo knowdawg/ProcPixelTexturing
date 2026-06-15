@@ -28,14 +28,18 @@ var mergeCascadesPipeline : RID
 var integrateShaderFile = preload("uid://c2567w5h2vofu")
 var integrateShader : RID
 var integratePipeline : RID
+#Calculate Circular Harmonic Coefficients
+var harmonicShaderFile = preload("uid://q4cohqurebh6")
+var harmonicShader : RID
+var harmonicPipeline : RID
 
 #RIDs
 var mipImageRIDs : Array[RID] = []
 var cascadeImageRIDs : Array[RID] = []
 var integratedCascadeOutput : RID
+var harmonicImageRIDs : Array[RID] = []
 
 #Uniforms
-
 func setup():
 	rd = RenderingServer.get_rendering_device()
 	
@@ -62,6 +66,13 @@ func setup():
 		image.fill(Color.BLACK)
 		cascadeImageRIDs.append(TerrainRendering.getRIDImage(image, rd))
 	
+	#create the images that will store the harmonic coefficients
+	for i in range(5):#L2: 5 coefficients (DC, cos, sin, cos2, sin2), one texture each holding rgb
+		var imSize : Vector2 = initialCascadeResolution
+		var image := Image.create_empty(imSize.x, imSize.y, false, TerrainRendering.LIGHTING_IMAGE_FORMAT)
+		image.fill(Color.BLACK)
+		harmonicImageRIDs.append(TerrainRendering.getRIDImage(image, rd))
+	
 	#create the final output of the RC
 	var image := Image.create_empty(initialCascadeResolution.x, initialCascadeResolution.y, false, TerrainRendering.LIGHTING_IMAGE_FORMAT)
 	image.fill(Color.BLACK)
@@ -79,6 +90,18 @@ func setup():
 	
 	integrateShader = rd.shader_create_from_spirv(integrateShaderFile.get_spirv())
 	integratePipeline = rd.compute_pipeline_create(integrateShader)
+	
+	
+	var scProbe := RDPipelineSpecializationConstant.new()
+	scProbe.constant_id = 0
+	scProbe.value = initialCascadeRayCount
+
+	var scC1 := RDPipelineSpecializationConstant.new()
+	scC1.constant_id = 1
+	scC1.value = initialCascadeRayCount * 2
+	
+	harmonicShader = rd.shader_create_from_spirv(harmonicShaderFile.get_spirv())
+	harmonicPipeline = rd.compute_pipeline_create(harmonicShader, [scProbe, scC1])
 
 func _ready() -> void:
 	setup()
@@ -92,8 +115,30 @@ func _ready() -> void:
 	
 	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE", initialCascadeResolution.x)
 	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION", GI)
-	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA", dirGI)
 	RenderingServer.global_shader_parameter_set("PS_INITIAL_CASCADE_PROBE_SIZE", initialCascadeRayCount)
+	
+	var HC : Texture2DRD;
+	
+	HC = Texture2DRD.new()
+	HC.set_texture_rd_rid(harmonicImageRIDs[0])
+	RenderingServer.global_shader_parameter_set("PS_CH_L0", HC)
+
+	HC = Texture2DRD.new()
+	HC.set_texture_rd_rid(harmonicImageRIDs[1])
+	RenderingServer.global_shader_parameter_set("PS_CH_L1C", HC)
+
+	HC = Texture2DRD.new()
+	HC.set_texture_rd_rid(harmonicImageRIDs[2])
+	RenderingServer.global_shader_parameter_set("PS_CH_L1S", HC)
+
+	HC = Texture2DRD.new()
+	HC.set_texture_rd_rid(harmonicImageRIDs[3])
+	RenderingServer.global_shader_parameter_set("PS_CH_L2C", HC)
+
+	HC = Texture2DRD.new()
+	HC.set_texture_rd_rid(harmonicImageRIDs[4])
+	RenderingServer.global_shader_parameter_set("PS_CH_L2S", HC)
+
 
 func updateGlobalIllumination():
 	#Step 1: Generate Mipmaps
@@ -136,6 +181,9 @@ func updateGlobalIllumination():
 	
 	#Step 3: Merge Cascades
 	for i in range(cascadeCount - 1, 0, -1):
+		if i == 1: #Right before the final merge
+			calculateCircularHarmonics()
+		
 		var w : int = (TerrainRendering.renderSectionSize / 32) * initialCascadeRayCount
 		var workGroups : Vector3i = Vector3i(w, w, 1)
 		
@@ -172,6 +220,32 @@ func updateGlobalIllumination():
 	integrateWorkGroups.y = integrateWorkGroups.x
 	
 	TerrainRendering.executeComputeShader(integrateWorkGroups, rd, computeList, integratePipeline, [uniformSet])
+	
+	rd.free_rid(uniformSet)
+	rd.free_rid(params)
+
+#Uses the c1 rays ocluded by c0 to calculte circular harmonic coeficients for smooth directional lighting
+func calculateCircularHarmonics():
+	var w : int = (initialCascadeResolution.x / 32)
+	var workGroups : Vector3i = Vector3i(w, w, 1)
+	
+	var c1 : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[1], 0)
+	var c0 : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[0], 1)
+	
+	var CH_L0 : RDUniform = TerrainRendering.getUniformImage(harmonicImageRIDs[0], 2)
+	var CH_L1C : RDUniform = TerrainRendering.getUniformImage(harmonicImageRIDs[1], 3)
+	var CH_L1S : RDUniform = TerrainRendering.getUniformImage(harmonicImageRIDs[2], 4)
+	var CH_L2C : RDUniform = TerrainRendering.getUniformImage(harmonicImageRIDs[3], 5)
+	var CH_L2S : RDUniform = TerrainRendering.getUniformImage(harmonicImageRIDs[4], 6)
+
+	var paramsData := PackedInt32Array([initialCascadeResolution.x, 16, 2, 4])
+	var params := TerrainRendering.getRIDStorageBufferInt(paramsData, rd)
+	var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 7)
+
+	var uniformSet : RID = rd.uniform_set_create([c1, c0, CH_L0, CH_L1C, CH_L1S, CH_L2C, CH_L2S, paramUniform], harmonicShader, 0)
+	var computeList : int = rd.compute_list_begin()
+	
+	TerrainRendering.executeComputeShader(workGroups, rd, computeList, harmonicPipeline, [uniformSet])
 	
 	rd.free_rid(uniformSet)
 	rd.free_rid(params)

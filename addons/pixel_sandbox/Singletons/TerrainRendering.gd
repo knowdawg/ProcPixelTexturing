@@ -82,7 +82,7 @@ var persPipeline : RID
 
 #Constants
 const TERRAIN_IMAGE_FORMAT : int = Image.FORMAT_RGBA8
-const LIGHTING_IMAGE_FORMAT = Image.FORMAT_RGBAH
+const LIGHTING_IMAGE_FORMAT = Image.FORMAT_RGBAH #RGBA16f
 
 func dirtyAll():
 	var numOfChunks : Vector2i = Vector2i(chunks.size(), chunks[0].size())
@@ -253,7 +253,6 @@ func _ready() -> void:
 	RuntimeShaderGlobals.addGlobals()
 	
 	RenderingServer.global_shader_parameter_set("PS_RENDER_QUADRANT_SIZE", Vector2(renderSectionSize, renderSectionSize))
-	RenderingServer.global_shader_parameter_set("PS_UNIQUE_TILES", uniqueTiles)
 	
 	#Setup pipeline for calculate Enviermental Textures
 	renDev = RenderingServer.get_rendering_device()

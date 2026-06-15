@@ -5,7 +5,7 @@
 layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
 layout(set = 0, binding = 0, rgba32f) uniform readonly image2D sourceImage1;
-layout(set = 0, binding = 1, rgba8) uniform readonly image2D sourceImage2; //Dynamic Image
+layout(set = 0, binding = 1, rgba16f) uniform readonly image2D sourceImage2; //Dynamic Image
 layout(set = 0, binding = 2, rgba32f) uniform writeonly image2D outputImage;
 
 layout(set = 0, binding = 3, std430) readonly buffer Params {
@@ -22,9 +22,9 @@ void main(){
     vec4 sum = imageLoad(sourceImage1, uv);
 
     vec4 temp = imageLoad(sourceImage2, (uv - ivec2(camPosX, camPosY)) % size);
-    temp.a = floor(temp.a);
 
     sum += temp;
+    sum.a = clamp(sum.a, 0.0, 1.0);
 
     ivec2 wrappedUV = (uv - ivec2(wrapX, wrapY)) % size; //undo the offset
 

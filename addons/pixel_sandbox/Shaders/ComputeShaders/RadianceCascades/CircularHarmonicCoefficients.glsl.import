@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://q4cohqurebh6"
+path="res://.godot/imported/CircularHarmonicCoefficients.glsl-f11a8644b34932cae5586fd250b0e256.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/RadianceCascades/CircularHarmonicCoefficients.glsl"
+dest_files=["res://.godot/imported/CircularHarmonicCoefficients.glsl-f11a8644b34932cae5586fd250b0e256.res"]
+
+[params]
+

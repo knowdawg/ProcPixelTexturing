@@ -21,4 +21,5 @@ gradient = ExtResource("1_0kgy4")
 border = Color(0.7647059, 0.43137255, 0.33333334, 1)
 borderWeight = 1.0
 borderGradient = SubResource("GradientTexture1D_uuc14")
+lightEmission = Color(0, 0, 0, 1)
 metadata/_custom_type_script = "uid://di707vap5isgj"
