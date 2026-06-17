@@ -17,12 +17,9 @@ static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParame
 	
 	"PS_SCREEN_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
 	
-	#Circular Harmonics Coefficient Textures (direct current, cos, sin, cos2, sin2)
-	"PS_CH_L0" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
-	"PS_CH_L1C" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
-	"PS_CH_L1S" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
-	"PS_CH_L2C" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
-	"PS_CH_L2S" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
+	#Cosine-convolved directional diffuse: one array layer per facing direction, plus the fluence ambient
+	"PS_DIFFUSE_DIRECTIONS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
+	"PS_FLUENCE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 }
 
 func _ready() -> void:

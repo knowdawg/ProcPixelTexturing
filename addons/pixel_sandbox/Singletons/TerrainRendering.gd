@@ -696,5 +696,28 @@ func getRIDImage2DArray(imageArray : Texture2DArray, rd : RenderingDevice) -> RI
 		imageDataArray.append(curIm.get_data())
 	
 	var rid := rd.texture_create(textureFormat, textureView, imageDataArray)
-	
+
 	return rid
+
+#Creates a blank rgba16f 2D texture array usable as both a compute storage image and a sampler
+func getRIDBlankImage2DArray(width : int, height : int, layers : int, rd : RenderingDevice) -> RID:
+	var textureFormat := RDTextureFormat.new()
+	textureFormat.width = width
+	textureFormat.height = height
+	textureFormat.array_layers = layers
+	textureFormat.texture_type = RenderingDevice.TEXTURE_TYPE_2D_ARRAY
+	textureFormat.format = RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT
+	textureFormat.usage_bits = (
+		RenderingDevice.TEXTURE_USAGE_STORAGE_BIT +
+		RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT +
+		RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT +
+		RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
+	)
+
+	var blankLayer := Image.create_empty(width, height, false, LIGHTING_IMAGE_FORMAT)
+	blankLayer.fill(Color.BLACK)
+	var layerData : Array[PackedByteArray] = []
+	for i in range(layers):
+		layerData.append(blankLayer.get_data())
+
+	return rd.texture_create(textureFormat, RDTextureView.new(), layerData)

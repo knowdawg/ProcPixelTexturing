@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cb8v8u4i0f25e"
+path="res://.godot/imported/DiffuseDirectionConvolution.glsl-6675ca9833889a3b3162daee15d31ee7.res"
+
+[deps]
+
+source_file="res://addons/pixel_sandbox/Shaders/ComputeShaders/RadianceCascades/DiffuseDirectionConvolution.glsl"
+dest_files=["res://.godot/imported/DiffuseDirectionConvolution.glsl-6675ca9833889a3b3162daee15d31ee7.res"]
+
+[params]
+

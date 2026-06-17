@@ -120,7 +120,7 @@ color_ramp = SubResource("GradientTexture1D_xil5r")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4shtu"]
 shader = ExtResource("14_lpvph")
-shader_parameter/energy = 1.0
+shader_parameter/energy = 20.0
 shader_parameter/density = 0.0
 shader_parameter/override = false
 shader_parameter/emission = Color(1, 1, 1, 1)
@@ -279,7 +279,7 @@ process_material = SubResource("ParticleProcessMaterial_lpvph")
 script = ExtResource("13_mu78b")
 
 [node name="Sprite2D" type="Sprite2D" parent="World2D/FireParticles" unique_id=1953944105]
-visible = false
+modulate = Color(0.11372549, 1, 0.47843137, 1)
 visibility_layer = 512
 material = SubResource("ShaderMaterial_4shtu")
 scale = Vector2(0.3, 0.3)
@@ -298,13 +298,14 @@ mouse_filter = 2
 [node name="ColorRect" type="ColorRect" parent="World2D/FireParticles" unique_id=150558830]
 visible = false
 visibility_layer = 512
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 24.0
-offset_bottom = 24.0
+offset_left = -128.0
+offset_top = -128.0
+offset_right = 128.0
+offset_bottom = 128.0
 mouse_filter = 2
 
 [node name="Torch" parent="World2D/FireParticles" unique_id=324618839 instance=ExtResource("15_16l4g")]
+visible = false
 visibility_layer = 513
 
 [node name="RadianceCascadeVisualizer" type="ColorRect" parent="World2D" unique_id=79225966]
