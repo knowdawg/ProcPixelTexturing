@@ -4,7 +4,7 @@ extends Camera2D
 
 func _process(_delta: float) -> void:
 	var scaleFactor := get_viewport_rect().size / targetSize
-	zoom = scaleFactor
+	#zoom = scaleFactor
 	
 	var c : Camera2D = get_viewport().get_camera_2d()
 	if c == self:

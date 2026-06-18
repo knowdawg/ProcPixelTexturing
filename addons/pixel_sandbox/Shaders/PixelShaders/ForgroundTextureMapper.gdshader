@@ -20,25 +20,13 @@ void fragment() {
 	
 	float spec = 1.0 - normalAndSpecular.a;
 	
-	vec4 radiance = vec4(1.0);
-	radiance = getRadianceWithNormals(SCREEN_UV, norm, spec, 0.75);
+	vec3 specularGI;
+	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm, spec, 0.5, specularGI);
+	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 1.0, 1.0, 1.0); //brightness*exposure = gain, last arg = saturation
 	radiance.rgb = pow(radiance.rgb, vec3(1.0 / 2.2));
-	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 2.0, 2.0, 2.0);
-	radiance.rgb = clamp(radiance.rgb, vec3(0.0), vec3(1.0));
-	
-	//vec3 adjustedNormal = norm * 2.0 - 1.0;
-	//adjustedNormal.z = 0.0;
-	//float angleDif = dot(normalize(adjustedNormal), vec3(0.0, 1.0, 0.0));
-	
-	//angleDif = ceil(angleDif * 8.0) / 8.0;
-	//angleDif = 1.0 - angleDif;
-	//angleDif *= 0.3;
-	//angleDif = 1.0 - angleDif;
-	//self.rgb *= angleDif;
-	
-	
-	COLOR = self * radiance;
-	//COLOR.rgb = norm.rgb;
-	//COLOR.rgb += highlights * radiance.rgb;
-	//COLOR.rgb = mix(COLOR.rgb, highlights, highlights);
+
+	//Specular on top of the albedo with its own tonemap, so it isn't squashed by the diffuse correction
+	vec3 specularDisplay = pow(tonemapHDR(specularGI, 1.0), vec3(1.0 / 2.2));
+
+	COLOR = vec4(self.rgb * (radiance.rgb + specularDisplay), self.a);
 }

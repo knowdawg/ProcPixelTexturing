@@ -7,7 +7,6 @@ static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParame
 	
 	"PS_GLOBAL_ILLUMINATION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 	"PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_INT,
-	"PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 	"PS_INITIAL_CASCADE_PROBE_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_INT,
 	
 	"PS_RENDER_QUADRANT_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #Size of all active chunks / lighting area ect ect
@@ -15,11 +14,12 @@ static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParame
 	"PS_TOP_LEFT_CHUNK_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_IVEC2, #Position in World Space of the top left most active chunk
 	
 	"PS_CAMERA_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #Center Camera Position in World Space
-	"PS_CAMERA_ZOOM" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
 	
 	"PS_SCREEN_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
 	
-	"PS_UNIQUE_TILES" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_INT,
+	#Cosine-convolved directional diffuse: one array layer per facing direction, plus the fluence ambient
+	"PS_DIFFUSE_DIRECTIONS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
+	"PS_FLUENCE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 }
 
 func _ready() -> void:

@@ -1,136 +1,85 @@
 
 global uniform vec2 PS_CAMERA_POSITION;
-global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_nearest, repeat_enable;
+global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_linear, repeat_enable;
 global uniform int PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE;
-global uniform sampler2D PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA : filter_nearest, repeat_enable;
 global uniform int PS_INITIAL_CASCADE_PROBE_SIZE;
 global uniform ivec2 PS_TOP_LEFT_CHUNK_POSITION;
 global uniform vec2 PS_RENDER_QUADRANT_SIZE;
 global uniform vec2 PS_SCREEN_SIZE;
 
+//Cosine-convolved directional diffuse: one layer per facing direction
+//rgb = diffuse, a = raw ray luminance (for specular)
+global uniform sampler2DArray PS_DIFFUSE_DIRECTIONS : filter_linear, repeat_enable;
+global uniform sampler2D PS_FLUENCE : filter_linear, repeat_enable;
 
-vec3 sample_probe(vec2 base_uv, int probeSize, float dirGITexSize, vec3 normal, float specular, float lightHeight) {
-	vec3 result = vec3(0.0);
-	vec2 scalledUV = base_uv;
-	scalledUV *= dirGITexSize / PS_RENDER_QUADRANT_SIZE.x;
-	scalledUV = floor(scalledUV * float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE)) / float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE);
-	
-	for (int d = 0; d < probeSize; d++) {
-		for (int b = 0; b < probeSize; b++) {
-			vec2 texel = scalledUV + (vec2(float(d), float(b)) / dirGITexSize);
-			
-			vec3 radVal = texture(PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA, texel).rgb;
-			
-			ivec2 localRayCoord = ivec2(d, b);
-			int dirIndex = localRayCoord.x + (localRayCoord.y * probeSize);
-			float angle = 2.0 * PI * ((float(dirIndex) + 0.5) / float(probeSize * probeSize));
-			vec3 lightDir = normalize(vec3(cos(angle), -sin(angle), lightHeight)); //lightHeight should be from 0-1
-			
-			vec3 viewVector = vec3(0.0, 0.0, 1.0);//Front on camera view
-			vec3 H = normalize(lightDir + viewVector); //the halfway vector
-			float spec = pow(max(dot(normal, H), 0.0), 16.0); //16.0 is the shininess
-			spec = clamp(spec, 0.0, 1.0);
-			
-			float cNdotL = max(0.0, dot(normal, lightDir));
-			
-			result += radVal * clamp(cNdotL + spec * specular * 32.0, 0.0, 1.0);
-		}
-	}
+const float TWO_PI = 6.28318530718;
 
-	return result / float(probeSize * probeSize);
-}
+const float SPEC_STRENGTH = 10.0;  //overall specular intensity
+const float SPEC_RESPONSE = 5.0;  //spec map curve: higher = low spec stays subtle (wet), only high spec reflects
 
-vec4 getRadianceWithNormals(vec2 sUV, vec3 normal, float specular, float lightHeight){
-	vec3 adjustedNormal = normal * 2.0 - 1.0;
-	
-	int probeSize = PS_INITIAL_CASCADE_PROBE_SIZE;
+//Maps a screen UV to the radiance-cascade texture UV (shared by the diffuse array and fluence).
+vec2 getRadianceUV(vec2 sUV){
 	vec2 screenSize = PS_SCREEN_SIZE;
 	vec2 GITexSize = vec2(float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE));
-	float dirGITexSize = float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE * probeSize);
-	
-	vec2 camPos = (PS_CAMERA_POSITION - (GITexSize / 2.0));
-	vec2 sampleWorldPosition = (sUV * screenSize) + camPos;
-	
-	vec2 GIOrigin = vec2(PS_TOP_LEFT_CHUNK_POSITION) - (GITexSize - screenSize) * 0.5;
-	vec2 lightLocalPosition = sampleWorldPosition - GIOrigin;
-	
-	//Convert to probe space
-	vec2 probe_pos = lightLocalPosition / float(probeSize);
-	vec2 base = floor(probe_pos);
-	vec2 f = fract(probe_pos);
-	
-	//Convert probe coords → UV
-	vec2 uv00 = (probe_pos) / GITexSize;
-	
-	vec3 r00 = sample_probe(uv00, probeSize, dirGITexSize, adjustedNormal, specular, lightHeight);
-	vec3 finalRadiance = r00;
-	
-	return vec4(finalRadiance, 1.0);
-}
 
-//vec4 getRadianceWithNormals(vec2 sUV, vec3 normal){
-	//vec3 adjustedNormal = normal * 2.0 - 1.0;
-	//
-	//int GIProbeSize = PS_INITIAL_CASCADE_PROBE_SIZE;
-	//vec2 screenSize = PS_SCREEN_SIZE;
-	//vec2 GITexSize = vec2(float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE), float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE));
-	//float dirGITexSize = float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE * GIProbeSize);
-	//vec2 camPos = (PS_CAMERA_POSITION - (GITexSize / 2.0));
-	//
-	//vec2 sampleWorldPosition = (sUV * screenSize) + camPos; //position of the given screen UV in world space
-	//
-	//vec2 GIOrigin = vec2(PS_TOP_LEFT_CHUNK_POSITION) - (GITexSize - screenSize) * 0.5;
-	//vec2 lightLocalPosition = sampleWorldPosition - GIOrigin; //local postion of the light that wants to be sampled
-	//
-	//vec2 uv = lightLocalPosition / float(dirGITexSize);
-	//uv *= float(dirGITexSize) / PS_RENDER_QUADRANT_SIZE.x;
-	//float GIProbeCount = float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE);
-	//uv = floor(uv * GIProbeCount) / GIProbeCount;
-	//
-	////----Global Ilumination Lighting----\\
-	//vec4 radiance = vec4(0.0, 0.0, 0.0, 1.0);
-	//int probeSize = GIProbeSize;
-	////iteratate through each interval in the probe
-	//for (int d = 0; d < probeSize; d++) {
-		//for (int b = 0; b < probeSize; b++) {
-			////get the ray based on the loop
-			//vec2 texel = uv + (vec2(float(d), float(b)) / dirGITexSize);
-			//
-			////Bilinear Wieght This Value
-			//vec3 radVal = texture(PS_GLOBAL_ILLUMINATION_DIRECTIONAL_DATA, texel).rgb;
-			//
-			////Light Direction Calculations
-			//ivec2 localRayCoord = ivec2(d, b); //get the local rayCoord in my probe
-			//int dirIndex = localRayCoord.x + (localRayCoord.y * probeSize); // get the index so I can be turned into an angle
-			//float angle = 2.0 * PI * ((float(dirIndex) + 0.5) / float(probeSize * probeSize));
-			//vec3 lightDir = vec3(cos(angle), -sin(angle), 1.0);
-			//
-			//float cNdotL = max(0.0, dot(adjustedNormal, lightDir));
-			//radiance.rgb += radVal * cNdotL;
-		//}
-	//}
-	////Average out the radiance
-	//radiance.rgb /= float(probeSize) * float(probeSize);
-	//
-	//return radiance;
-//}
-
-vec3 getRadiance(vec2 sUV){
-	int GIProbeSize = PS_INITIAL_CASCADE_PROBE_SIZE;
-	vec2 screenSize = PS_SCREEN_SIZE;
-	vec2 GITexSize = vec2(float(PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE));
-	
 	vec2 camPos = (PS_CAMERA_POSITION - (GITexSize / 2.0));
-	
 	vec2 sampleWorldPosition = ((sUV * screenSize) + camPos); //position of the given screen UV in world space
-	
+
 	vec2 GIOrigin = vec2(PS_TOP_LEFT_CHUNK_POSITION) - (GITexSize - screenSize) * 0.5;
 	vec2 lightLocalPosition = sampleWorldPosition - GIOrigin; //local postion of the light that wants to be sampled
+
+	vec2 uvScale = GITexSize / PS_RENDER_QUADRANT_SIZE.x;
+	return (lightLocalPosition / GITexSize) * uvScale;
+}
+
+vec4 getRadianceWithNormals(vec2 sUV, vec3 normal, float specular, float lightHeight, out vec3 specularOut){
+	vec2 uv = getRadianceUV(sUV);
+
+	vec3 adjustedNormal = normal * 2.0 - 1.0;
+	adjustedNormal.y *= -1.0;
+
+	float angle = atan(adjustedNormal.y, adjustedNormal.x);
+	if(angle < 0.0) angle += TWO_PI;
+
+	//Angular position between the two bracketing direction layers
+	int dirCount = textureSize(PS_DIFFUSE_DIRECTIONS, 0).z;
+	float fLayer = (angle / TWO_PI) * float(dirCount);
+	int layer0 = int(floor(fLayer)) % dirCount;
+	int layer1 = (layer0 + 1) % dirCount;
+	//float t = smoothstep(0.0, 1.0, fract(fLayer)); //ease: zero slope at each layer boundary rounds off the crease
+
+	//smooth out creases
+	float f = fract(fLayer);
+	float t = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+
+	//Hardware bilinear handles the spatial probe blend; we lerp the 2 layers angularly
+	vec4 dir0 = texture(PS_DIFFUSE_DIRECTIONS, vec3(uv, float(layer0)));
+	vec4 dir1 = texture(PS_DIFFUSE_DIRECTIONS, vec3(uv, float(layer1)));
+	vec4 dir = mix(dir0, dir1, t); //rgb = directional diffuse, a = sharp raw luminance
+
+	vec3 fluence = texture(PS_FLUENCE, uv).rgb;
+
+	//normal.z blends light towards fluence
+	//lightHeight softens directionality for taller lights.
+	float directionalWeight = 1.0 / (1.0 + lightHeight * lightHeight);
+	float dirAmount = clamp(adjustedNormal.z * directionalWeight, 0.0, 1.0);
+	vec3 diffuse = max(vec3(0.0), mix(fluence, dir.rgb, dirAmount));
 	
-	vec2 uv = lightLocalPosition / GITexSize;
-	uv *= GITexSize / PS_RENDER_QUADRANT_SIZE.x;
+	//Specular: raw-luminance alpha shaped by a response curve (SPEC_FALLOFF = half-strength knee),
+	//tinted by the directional hue. Scalar intensity, so lights blend instead of fighting.
+	float maxC = max(dir.r, max(dir.g, dir.b));
+	vec3 specHue = dir.rgb / max(maxC, 0.0001);
 	
-	vec3 radiance = texture(PS_GLOBAL_ILLUMINATION, uv).rgb;
-	
-	return radiance;
+	//physically acurate:
+	//specularOut = dir.a * specHue * SPEC_STRENGTH * pow(specular, SPEC_RESPONSE);
+	//artistic overide (for more control for subtle and extreme surfaces):
+	specularOut = dir.a * specHue * SPEC_STRENGTH * specular * pow(specular, SPEC_RESPONSE - (specular * 4.0));
+
+	return vec4(diffuse, 1.0);
+}
+
+
+vec3 getRadiance(vec2 sUV){
+	vec2 uv = getRadianceUV(sUV);
+	return texture(PS_FLUENCE, uv).rgb;
 }
