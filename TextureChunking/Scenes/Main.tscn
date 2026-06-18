@@ -252,6 +252,7 @@ texture = SubResource("CanvasTexture_jpu7r")
 [node name="RadianceCascades" type="Node" parent="World2D" unique_id=1674210530]
 script = ExtResource("10_txt8w")
 cascadeCount = 5
+initialCascadeResolution = Vector2i(256, 256)
 
 [node name="MouseLight" type="PointLight2D" parent="World2D" unique_id=116512229]
 visible = false
@@ -279,10 +280,11 @@ process_material = SubResource("ParticleProcessMaterial_lpvph")
 script = ExtResource("13_mu78b")
 
 [node name="Sprite2D" type="Sprite2D" parent="World2D/FireParticles" unique_id=1953944105]
-modulate = Color(0.11372549, 1, 0.47843137, 1)
+visible = false
+modulate = Color(0.42352942, 1, 0.03529412, 1)
 visibility_layer = 512
 material = SubResource("ShaderMaterial_4shtu")
-scale = Vector2(0.3, 0.3)
+scale = Vector2(0.5, 0.5)
 texture = SubResource("GradientTexture2D_dvw3m")
 
 [node name="BlackHole" type="ColorRect" parent="World2D/FireParticles" unique_id=951435877]
@@ -305,7 +307,6 @@ offset_bottom = 128.0
 mouse_filter = 2
 
 [node name="Torch" parent="World2D/FireParticles" unique_id=324618839 instance=ExtResource("15_16l4g")]
-visible = false
 visibility_layer = 513
 
 [node name="RadianceCascadeVisualizer" type="ColorRect" parent="World2D" unique_id=79225966]

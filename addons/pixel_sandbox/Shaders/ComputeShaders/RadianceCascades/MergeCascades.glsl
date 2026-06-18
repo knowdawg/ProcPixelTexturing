@@ -3,8 +3,8 @@
 
 layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
-layout(set = 0, binding = 0, rgba32f) uniform readonly image2D bigCascade; //cascade that we are merging from. cascade N + 1
-layout(set = 0, binding = 1, rgba32f) uniform image2D mergeToCascade; //cascade that we are merging to. cascade N
+layout(set = 0, binding = 0, rgba16f) uniform readonly image2D bigCascade; //cascade that we are merging from. cascade N + 1
+layout(set = 0, binding = 1, rgba16f) uniform image2D mergeToCascade; //cascade that we are merging to. cascade N
 
 layout(set = 0, binding = 2, std430) readonly buffer Params {
     int mergeProbeSize; //TODO: TURN INTO A PUSH CONSTANT

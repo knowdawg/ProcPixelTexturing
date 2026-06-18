@@ -3,8 +3,8 @@
 
 layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
 
-layout(set = 0, binding = 0, rgba32f) uniform readonly image2D c1;
-layout(set = 0, binding = 1, rgba32f) uniform readonly image2D c0;
+layout(set = 0, binding = 0, rgba16f) uniform readonly image2D c1;
+layout(set = 0, binding = 1, rgba16f) uniform readonly image2D c0;
 
 //Output: the merged (bilinear c1 + c0) radiance per ray. One array layer per ray. Stored in a
 //texture (not a local array) so the convolution pass can re-read it cheaply from cache.
