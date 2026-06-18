@@ -3,12 +3,8 @@ extends Node
 class_name RuntimeShaderGlobals
 
 static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParameterType] = {
-	"PS_FOREGROUND_SDF" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
-	
-	"PS_GLOBAL_ILLUMINATION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 	"PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_INT,
-	"PS_INITIAL_CASCADE_PROBE_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_INT,
-	
+
 	"PS_RENDER_QUADRANT_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #Size of all active chunks / lighting area ect ect
 	"PS_TILE_TEXTURE_SCROLL" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2, #The amount from vec2(0.0) - vec2(1.0) of how much of the texture has scrolled based on camera position
 	"PS_TOP_LEFT_CHUNK_POSITION" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_IVEC2, #Position in World Space of the top left most active chunk

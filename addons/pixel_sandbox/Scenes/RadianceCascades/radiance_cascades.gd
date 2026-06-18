@@ -25,10 +25,6 @@ var gatherCascadePipeline : RID
 var mergeCascadesShaderFile = preload("uid://djqe87hqn7eo2")
 var mergeCascadesShader : RID
 var mergeCascadesPipeline : RID
-#Integrate Cascade Shader
-var integrateShaderFile = preload("uid://c2567w5h2vofu")
-var integrateShader : RID
-var integratePipeline : RID
 #Pass 1: merge c1+c0 rays -> mergedRays texture + fluence
 var mergeRaysShaderFile = preload("uid://bv4jleh8ak6d1")
 var mergeRaysShader : RID
@@ -41,7 +37,6 @@ var convolutionPipeline : RID
 #RIDs
 var mipImageRIDs : Array[RID] = []
 var cascadeImageRIDs : Array[RID] = []
-var integratedCascadeOutput : RID
 var mergedRaysRID : RID
 var diffuseDirectionsRID : RID
 var fluenceRID : RID
@@ -84,11 +79,6 @@ func setup():
 	fluenceImage.fill(Color.BLACK)
 	fluenceRID = TerrainRendering.getRIDImage(fluenceImage, rd)
 	
-	#create the final output of the RC
-	var image := Image.create_empty(initialCascadeResolution.x, initialCascadeResolution.y, false, TerrainRendering.LIGHTING_IMAGE_FORMAT)
-	image.fill(Color.BLACK)
-	integratedCascadeOutput = TerrainRendering.getRIDImage(image, rd)
-	
 	#Setup the compute shaders / pipelines
 	mipmapShader = rd.shader_create_from_spirv(mipmapShaderFile.get_spirv())
 	mipmapPipeline = rd.compute_pipeline_create(mipmapShader)
@@ -98,10 +88,6 @@ func setup():
 	
 	mergeCascadesShader = rd.shader_create_from_spirv(mergeCascadesShaderFile.get_spirv())
 	mergeCascadesPipeline = rd.compute_pipeline_create(mergeCascadesShader)
-	
-	integrateShader = rd.shader_create_from_spirv(integrateShaderFile.get_spirv())
-	integratePipeline = rd.compute_pipeline_create(integrateShader)
-	
 	
 	#spec constants: c0ProbeSize, c1ProbeSize, directionCount, c1RayCountPerProbe
 	var c1ProbeSize : int = initialCascadeRayCount * 2
@@ -134,16 +120,8 @@ func _ready() -> void:
 	setup()
 	TerrainRendering.radCasc = self
 	
-	'''Set the light sprite's texture equal to radiance cascade texture '''
-	var GI : Texture2DRD = Texture2DRD.new()
-	GI.set_texture_rd_rid(integratedCascadeOutput)
-	var dirGI : Texture2DRD = Texture2DRD.new()
-	dirGI.set_texture_rd_rid(cascadeImageRIDs[0])
-	
 	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE", initialCascadeResolution.x)
-	RenderingServer.global_shader_parameter_set("PS_GLOBAL_ILLUMINATION", GI)
-	RenderingServer.global_shader_parameter_set("PS_INITIAL_CASCADE_PROBE_SIZE", initialCascadeRayCount)
-	
+
 	var dirDiffuse : Texture2DArrayRD = Texture2DArrayRD.new()
 	dirDiffuse.set_texture_rd_rid(diffuseDirectionsRID)
 	RenderingServer.global_shader_parameter_set("PS_DIFFUSE_DIRECTIONS", dirDiffuse)
@@ -163,12 +141,14 @@ func updateGlobalIllumination():
 		
 		var source : RDUniform = TerrainRendering.getUniformImage(mipImageRIDs[i - 1], 0)
 		var outputBuffer : RDUniform = TerrainRendering.getUniformImage(mipImageRIDs[i], 1)
-		
+
 		var uniformSet : RID = rd.uniform_set_create([source, outputBuffer], mipmapShader, 0)
+		rd.draw_command_begin_label("RC/GenerateMipmap[%d]" % i, Color.CYAN)
 		var computeList : int = rd.compute_list_begin()
-		
+
 		TerrainRendering.executeComputeShader(workGroups, rd, computeList, mipmapPipeline, [uniformSet])
-		
+		rd.draw_command_end_label()
+
 		rd.free_rid(uniformSet)
 	
 	#Step 2: Gather Cascades
@@ -185,18 +165,17 @@ func updateGlobalIllumination():
 		var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 2)
 		
 		var uniformSet : RID = rd.uniform_set_create([lightImage, outputCascadeBuffer, paramUniform], gatherCascadeShader, 0)
+		rd.draw_command_begin_label("RC/GatherCascade[%d]" % i, Color.YELLOW)
 		var computeList : int = rd.compute_list_begin()
-		
+
 		TerrainRendering.executeComputeShader(workGroups, rd, computeList, gatherCascadePipeline, [uniformSet])
-		
+		rd.draw_command_end_label()
+
 		rd.free_rid(uniformSet)
 		rd.free_rid(params)
 	
-	#Step 3: Merge Cascades
-	for i in range(cascadeCount - 1, 0, -1):
-		if i == 1: #Right before the final merge
-			bakeDiffuseDirections()
-			continue
+	#Step 3: Merge Cascades, only down to cascade 1
+	for i in range(cascadeCount - 1, 1, -1):
 		
 		var w : int = (TerrainRendering.renderSectionSize / 32) * initialCascadeRayCount
 		var workGroups : Vector3i = Vector3i(w, w, 1)
@@ -211,33 +190,17 @@ func updateGlobalIllumination():
 		var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 2)
 		
 		var uniformSet : RID = rd.uniform_set_create([bigCascade, smaleCascade, paramUniform], mergeCascadesShader, 0)
+		rd.draw_command_begin_label("RC/MergeCascades[%d]" % i, Color.ORANGE)
 		var computeList : int = rd.compute_list_begin()
 		
 		TerrainRendering.executeComputeShader(workGroups, rd, computeList, mergeCascadesPipeline, [uniformSet])
+		rd.draw_command_end_label()
 		
 		rd.free_rid(uniformSet)
 		rd.free_rid(params)
 	
-	return #backDifuseDirections calculates fluence by default
-	#Step 4: Integrate Final Cascade
-	var paramsData := PackedInt32Array([initialCascadeRayCount])
-	var params := TerrainRendering.getRIDStorageBufferInt(paramsData, rd)
-	var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 2)
-	
-	var cascade0ImageUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[0], 0)
-	var integratedCascadeOutputUniform = TerrainRendering.getUniformImage(integratedCascadeOutput, 1)
-	
-	var uniformSet : RID = rd.uniform_set_create([cascade0ImageUniform, integratedCascadeOutputUniform, paramUniform], integrateShader, 0)
-	var computeList : int = rd.compute_list_begin()
-	
-	var integrateWorkGroups := Vector3i(1.0, 1.0, 1.0)
-	integrateWorkGroups.x = int(float(initialCascadeResolution.x) / float(TerrainRendering.renderSectionSize) * 16.0 * initialCascadeRayCount) # Remove * initialCascadeRayCount after
-	integrateWorkGroups.y = integrateWorkGroups.x
-	
-	TerrainRendering.executeComputeShader(integrateWorkGroups, rd, computeList, integratePipeline, [uniformSet])
-	
-	rd.free_rid(uniformSet)
-	rd.free_rid(params)
+	#produces the final fluence + directional diffuse
+	bakeDiffuseDirections()
 
 #Uses the c1 rays ocluded by c0 to bake cosine-convolved directional diffuse + fluence ambient
 func bakeDiffuseDirections():
@@ -251,8 +214,10 @@ func bakeDiffuseDirections():
 	var fluence : RDUniform = TerrainRendering.getUniformImage(fluenceRID, 3)
 
 	var mergeSet : RID = rd.uniform_set_create([c1, c0, mergedRays, fluence], mergeRaysShader, 0)
+	rd.draw_command_begin_label("RC/MergeRays", Color.GREEN)
 	var mergeList : int = rd.compute_list_begin()
 	TerrainRendering.executeComputeShader(workGroups, rd, mergeList, mergeRaysPipeline, [mergeSet])
+	rd.draw_command_end_label()
 	rd.free_rid(mergeSet)
 
 	#Pass 2: cosine-convolve mergedRays -> directional diffuse
@@ -260,6 +225,8 @@ func bakeDiffuseDirections():
 	var diffuseDirections : RDUniform = TerrainRendering.getUniformImage(diffuseDirectionsRID, 1)
 
 	var convSet : RID = rd.uniform_set_create([mergedRaysIn, diffuseDirections], convolutionShader, 0)
+	rd.draw_command_begin_label("RC/DiffuseDirectionConvolution", Color.MAGENTA)
 	var convList : int = rd.compute_list_begin()
 	TerrainRendering.executeComputeShader(workGroups, rd, convList, convolutionPipeline, [convSet])
+	rd.draw_command_end_label()
 	rd.free_rid(convSet)

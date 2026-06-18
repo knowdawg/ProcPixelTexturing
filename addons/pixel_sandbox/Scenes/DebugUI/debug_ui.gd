@@ -24,9 +24,7 @@ func _process(delta: float) -> void:
 		%Cascade2.texture = getTexture2dRID(TerrainRendering.radCasc.cascadeImageRIDs[2])
 		%Cascade3.texture = getTexture2dRID(TerrainRendering.radCasc.cascadeImageRIDs[3])
 		#%Cascade4.texture = getTexture2dRID(TerrainRendering.radCasc.cascadeImageRIDs[4])
-		
-		$Sprite2D.texture = getTexture2dRID(TerrainRendering.radCasc.integratedCascadeOutput)
-	
+
 	#Text
 	%TerrainRenderingValues.text = ""
 	%TerrainRenderingValues.text += "FPS: %s\n" % str(1.0 / delta)

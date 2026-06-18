@@ -1,8 +1,6 @@
 
 global uniform vec2 PS_CAMERA_POSITION;
-global uniform sampler2D PS_GLOBAL_ILLUMINATION : filter_linear, repeat_enable;
 global uniform int PS_GLOBAL_ILLUMINATION_TEXTURE_SIZE;
-global uniform int PS_INITIAL_CASCADE_PROBE_SIZE;
 global uniform ivec2 PS_TOP_LEFT_CHUNK_POSITION;
 global uniform vec2 PS_RENDER_QUADRANT_SIZE;
 global uniform vec2 PS_SCREEN_SIZE;

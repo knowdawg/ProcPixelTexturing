@@ -12,22 +12,21 @@ layout(set = 0, binding = 2, std430) readonly buffer Params {
     int cascadeIndex;
 };
 
-// Get the scale factor for a ray
+// Get the scale factor for a ray in probe space
 float ray_scale(int cIndex) {
+    if(cIndex < 0){
+        return 0;
+    }
     return float(1 << (2 * cIndex));//Four times the ray length per cascade: first (0 -> 1), secound (1 -> 4), third (4 -> 16) ect
 }
 
-// Get the start & end offset for a ray. It will sample the light image based on these values
+// Get the start & end offset for a ray in probe space.
 vec2 ray_interval() {
-    return c0RayLength * vec2(ray_scale(cascadeIndex), ray_scale(cascadeIndex + 1));
+    return c0RayLength * vec2(ray_scale(cascadeIndex - 1), ray_scale(cascadeIndex));
 }
 
-//Beer-Lambert extinction scale. Optical depth over a step = density * extinction * stepLength
-//(step length in cascade-texel units). Higher = harder/denser occlusion (less leak); lower =
-//softer / more translucent. This physically replaces the old per-mip occlusion amplification:
-//long steps (far cascades) now accumulate proportionally more occlusion, so light cannot skip
-//past walls, while partial densities stay translucent instead of being forced opaque.
-const float extinction = 2.0;
+//Beer-Lambert extinction scale.
+const float extinction = 4.0;
 
 //Returns the medium at a point: rgb = emitted radiance, a = occluder/medium density in [0,1].
 //No longer inverted to transmittance - the march integrates density via Beer-Lambert below.
@@ -44,7 +43,7 @@ void main(){
     int numOfRays = (c0ProbeSize * c0ProbeSize) << (2 * cascadeIndex); //Number of rays TOTAL in each probe. 4 times more pre cascade
     int probeSize = c0ProbeSize << cascadeIndex; //The WIDTH (and hieght) of each probe. 2 times the width per cascade
     ivec2 probeCoord = ivec2(floor(vec2(rayCoord) / float(probeSize))); //the x, y position of the probe I am apart of
-    ivec2 probePos = (probeCoord * probeSize) + ivec2(probeSize); //The probe position in probe space
+    ivec2 probePos = (probeCoord * probeSize) + ivec2(probeSize / 2); //The probe position in texture space
 
     //get the direction of the ray based on rayCoord
     ivec2 localRayCoord = rayCoord % ivec2(probeSize); //get the x,y position of my ray in local_probe space
@@ -63,7 +62,7 @@ void main(){
 
     for(int i = 0; i < sampleCount; i++){
         //sample at the centre of each step segment
-        float curInterval = mix(interval.x, interval.y, (float(i) + 0.5) / float(sampleCount));
+        float curInterval = mix(interval.x, interval.y, (float(i) + 0.5) / float(sampleCount)) * c0ProbeSize; //multiply by c0PorbeSize to go from probe space to texture space
         vec4 s = sampleLightImage(vec2(probePos) + curInterval * dir); //rgb = emission, a = density
 
         //Gather light emitted here, attenuated by everything already in front of it.
