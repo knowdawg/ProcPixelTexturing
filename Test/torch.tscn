@@ -83,12 +83,12 @@ color = Color(0.03529412, 0.039215688, 0.078431375, 1)
 light_mask = 0
 visibility_layer = 512
 material = SubResource("ShaderMaterial_l6v3y")
-points = PackedVector2Array(0, 1, 0, -31)
+points = PackedVector2Array(0, 2, 0, -30)
 width = 6.0
 texture_mode = 2
 
 [node name="Flame" type="Line2D" parent="." unique_id=1113064818]
 material = SubResource("ShaderMaterial_56a5u")
-points = PackedVector2Array(0, 1, 0, -31)
+points = PackedVector2Array(0, 2, 0, -30)
 width = 6.0
 texture_mode = 2

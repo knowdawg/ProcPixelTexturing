@@ -8,8 +8,6 @@ class_name RadianceCascades
 @export var initialCascadeResolution : Vector2i = Vector2i(512, 512)
 @export var directionCount : int = 16 #cosine-convolved diffuse layers baked; cannot exceed c1 ray count
 
-var mipScale : float = 0.5
-
 """----------Compute Shaders----------"""
 var rd : RenderingDevice
 var sampler : RID
@@ -52,10 +50,10 @@ func setup():
 	samplerState.repeat_v = RenderingDevice.SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE
 	sampler = rd.sampler_create(samplerState)
 	
-	#create a mipmap for each cascade, cascade 0 just has the base light image
+	#create the ÷2 mip pyramid. The 1-sample gather needs ÷4 per cascade, so cascade i samples level 2i.
 	mipImageRIDs.append(TerrainRendering.finalLightImageRID)
-	for i in range(1, cascadeCount):
-		var imSize : int = TerrainRendering.renderSectionSize / pow(2, float(i)) #Halve each cascade
+	for i in range(1, (2 * (cascadeCount - 1)) + 1):
+		var imSize : int = max(1, int(TerrainRendering.renderSectionSize / pow(2, float(i)))) #Halve each level
 		var image := Image.create_empty(imSize, imSize, false, TerrainRendering.LIGHTING_IMAGE_FORMAT);
 		image.fill(Color.BLACK)
 		mipImageRIDs.append(TerrainRendering.getRIDImage(image, rd))

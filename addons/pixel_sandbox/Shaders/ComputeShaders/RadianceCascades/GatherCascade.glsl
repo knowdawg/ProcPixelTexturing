@@ -18,6 +18,7 @@ float ray_scale(int cIndex) {
         return 0;
     }
     return float(1 << (2 * cIndex));//Four times the ray length per cascade: first (0 -> 1), secound (1 -> 4), third (4 -> 16) ect
+    return float((1 << (2 * (cIndex + 1))) - 1) / 3.0;//Cumulative ray length: (4^c - 1) / 3, giving 0, 1, 5, 21, 85 ect
 }
 
 // Get the start & end offset for a ray in probe space.
@@ -26,7 +27,7 @@ vec2 ray_interval() {
 }
 
 //Beer-Lambert extinction scale.
-const float extinction = 4.0;
+const float extinction = 1.0;
 
 //Returns the medium at a point: rgb = emitted radiance, a = occluder/medium density in [0,1].
 //No longer inverted to transmittance - the march integrates density via Beer-Lambert below.
@@ -58,9 +59,10 @@ void main(){
     vec2 interval = ray_interval();
     float mipTexels = (interval.y - interval.x) / float(1 << cascadeIndex);
     int sampleCount = max(2, int(ceil(mipTexels))) * c0RayLength;
-    float dl = (interval.y - interval.x) / float(sampleCount); //step length, cascade-texel units
+    float stepSize = (interval.y - interval.x) / float(sampleCount); //step length, cascade-texel units
 
-    for(int i = 0; i < sampleCount; i++){
+    //start at -1 at cascade 4 to prevent leaking. Note, this will intensify ringing, thus it is limmtied to only cascade 4+
+    for(int i = cascadeIndex > 3 ? -1 : 0; i < sampleCount; i++){
         //sample at the centre of each step segment
         float curInterval = mix(interval.x, interval.y, (float(i) + 0.5) / float(sampleCount)) * c0ProbeSize; //multiply by c0PorbeSize to go from probe space to texture space
         vec4 s = sampleLightImage(vec2(probePos) + curInterval * dir); //rgb = emission, a = density
@@ -69,7 +71,7 @@ void main(){
         radiance += s.rgb * transmittance;
 
         //Beer-Lambert: transmittance across this step = exp(-opticalDepth).
-        transmittance *= exp(-s.a * extinction * dl);
+        transmittance *= exp(-s.a * extinction * stepSize);
         if (transmittance < 0.001) break;
     }
 

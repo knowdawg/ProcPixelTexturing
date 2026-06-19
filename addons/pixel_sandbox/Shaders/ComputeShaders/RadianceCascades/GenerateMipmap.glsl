@@ -6,7 +6,7 @@ layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout(set = 0, binding = 0, rgba16f) uniform readonly image2D source;
 layout(set = 0, binding = 1, rgba16f) uniform writeonly image2D outputBuffer;
 
-const float occlusionGain = 1.0;
+const float occlusionGain = 2.0;
 
 void main(){
     ivec2 fragCoord = ivec2(gl_GlobalInvocationID.xy);

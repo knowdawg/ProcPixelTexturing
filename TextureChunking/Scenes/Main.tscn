@@ -306,7 +306,6 @@ offset_bottom = 128.0
 mouse_filter = 2
 
 [node name="Torch" parent="World2D/FireParticles" unique_id=324618839 instance=ExtResource("15_16l4g")]
-visible = false
 visibility_layer = 513
 
 [node name="RadianceCascadeVisualizer" type="ColorRect" parent="World2D" unique_id=79225966]
