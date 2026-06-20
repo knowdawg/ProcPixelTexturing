@@ -284,7 +284,7 @@ void main() {
 	emissionColor += texture(emissionColorsForeground, vec2(tileData.r, 0.0)); // foreground light
 	emissionColor += texture(emissionColorsBackground, vec2(tileData.g, 0.0)) * (1.0 - emissionColor.a); //background light
 	if(solids[getTileIndex(tileData.r)] == 0 && solids[getTileIndex(tileData.g)] == 0){
-		emissionColor = vec4(1.0, 1.0, 1.0, 0.0);//sunlight
+		emissionColor = vec4(0.1, 0.1, 0.1, 0.0);//vec4(1.0, 1.0, 1.0, 0.0);//sunlight
 	}
 	emissionColor = max(emissionColor, vec4(0.0));
 

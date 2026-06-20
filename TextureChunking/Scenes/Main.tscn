@@ -251,7 +251,7 @@ texture = SubResource("CanvasTexture_jpu7r")
 
 [node name="RadianceCascades" type="Node" parent="World2D" unique_id=1674210530]
 script = ExtResource("10_txt8w")
-cascadeCount = 5
+initialCascadeResolution = Vector2i(256, 256)
 
 [node name="MouseLight" type="PointLight2D" parent="World2D" unique_id=116512229]
 visible = false

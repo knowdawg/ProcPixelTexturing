@@ -2,11 +2,13 @@ extends Node
 class_name RadianceCascades
 
 @export_group("Radiance Cascades Parameters")
-@export var cascadeCount : int = 6
+@export var cascadeCount : int = 5
 @export var initialCascadeRayCount : int = 2
 @export var initailCascadeRayLength : int = 1
 @export var initialCascadeResolution : Vector2i = Vector2i(512, 512)
 @export var directionCount : int = 16 #cosine-convolved diffuse layers baked; cannot exceed c1 ray count
+
+const MIP_LEVELS : int = 8
 
 """----------Compute Shaders----------"""
 var rd : RenderingDevice
@@ -39,6 +41,15 @@ var mergedRaysRID : RID
 var diffuseDirectionsRID : RID
 var fluenceRID : RID
 
+#Scale Cascade's mips to thier resolution
+#A 256-probe cascade reading a 512 light map should sample 1 level deeper: log2(512/256) = 1.
+func resolutionMipOffset() -> int:
+	var ratio : float = float(TerrainRendering.renderSectionSize) / float(initialCascadeResolution.x)
+	return max(0, int(round(log(ratio) / log(2.0))))
+
+func cascadeMip(i : int) -> int:
+	return min(i + resolutionMipOffset(), MIP_LEVELS - 1)
+
 #Uniforms
 func setup():
 	rd = RenderingServer.get_rendering_device()
@@ -50,9 +61,9 @@ func setup():
 	samplerState.repeat_v = RenderingDevice.SAMPLER_REPEAT_MODE_CLAMP_TO_EDGE
 	sampler = rd.sampler_create(samplerState)
 	
-	#create the ÷2 mip pyramid. The 1-sample gather needs ÷4 per cascade, so cascade i samples level 2i.
+	#create the mips
 	mipImageRIDs.append(TerrainRendering.finalLightImageRID)
-	for i in range(1, (2 * (cascadeCount - 1)) + 1):
+	for i in range(1, MIP_LEVELS):
 		var imSize : int = max(1, int(TerrainRendering.renderSectionSize / pow(2, float(i)))) #Halve each level
 		var image := Image.create_empty(imSize, imSize, false, TerrainRendering.LIGHTING_IMAGE_FORMAT);
 		image.fill(Color.BLACK)
@@ -131,10 +142,8 @@ func _ready() -> void:
 
 func updateGlobalIllumination():
 	#Step 1: Generate Mipmaps
-	for i in range(1, cascadeCount):
-		if i > 5:
-			continue
-		var w : int = (TerrainRendering.renderSectionSize / int(pow(2, float(i)))) / 16
+	for i in range(1, MIP_LEVELS):
+		var w : int = max(1, (TerrainRendering.renderSectionSize / int(pow(2, float(i)))) / 16)
 		var workGroups : Vector3i = Vector3i(w, w, 1)
 		
 		var source : RDUniform = TerrainRendering.getUniformImage(mipImageRIDs[i - 1], 0)
@@ -154,11 +163,11 @@ func updateGlobalIllumination():
 		var w : int = (TerrainRendering.renderSectionSize / 32) * initialCascadeRayCount
 		var workGroups : Vector3i = Vector3i(w, w, 1)
 		
-		var lightmapMip = mipImageRIDs[i]
+		var lightmapMip = mipImageRIDs[cascadeMip(i)]
 		var lightImage : RDUniform = TerrainRendering.getUniformSampler(lightmapMip, sampler, 0)
 		var outputCascadeBuffer : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[i], 1)
 		
-		var paramsData := PackedInt32Array([initialCascadeRayCount, initailCascadeRayLength, i])
+		var paramsData := PackedInt32Array([initialCascadeRayCount, initailCascadeRayLength, i, initialCascadeResolution.x, TerrainRendering.renderSectionSize])
 		var params := TerrainRendering.getRIDStorageBufferInt(paramsData, rd)
 		var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 2)
 		

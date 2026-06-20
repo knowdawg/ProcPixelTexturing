@@ -10,6 +10,8 @@ layout(set = 0, binding = 2, std430) readonly buffer Params {
     int c0ProbeSize; //how wide (and tall) the first cascade's raycasts take up on the output texture
     int c0RayLength;
     int cascadeIndex;
+    int probeResolution; //c0 probes per axis (initialCascadeResolution)
+    int renderQuadrantSize; //Render quadrant size in texels
 };
 
 // Get the scale factor for a ray in probe space
@@ -26,7 +28,7 @@ vec2 ray_interval() {
     return c0RayLength * vec2(ray_scale(cascadeIndex - 1), ray_scale(cascadeIndex));
 }
 
-//Beer-Lambert extinction scale.
+//Beer-Lambert extinction scale, tuned at REFERENCE_RESOLUTION. resScale (below) compensates for other resolutions.
 const float extinction = 1.0;
 
 //Returns the medium at a point: rgb = emitted radiance, a = occluder/medium density in [0,1].
@@ -52,19 +54,22 @@ void main(){
     float angle = 2.0 * PI * ((float(dirIndex) + 0.5) / float(numOfRays));
     vec2 dir = vec2(cos(angle), sin(angle));
 
-
     vec3 radiance = vec3(0.0);
     float transmittance = 1.0; //1 = fully clear; decays via Beer-Lambert as the ray crosses density
+
+    //Convert probe-space interval to cascade-texture texels while keeping the WORLD reach constant across
+    float worldScale = float(c0ProbeSize) * float(probeResolution) / float(renderQuadrantSize);
 
     vec2 interval = ray_interval();
     float mipTexels = (interval.y - interval.x) / float(1 << cascadeIndex);
     int sampleCount = max(2, int(ceil(mipTexels))) * c0RayLength;
     float stepSize = (interval.y - interval.x) / float(sampleCount); //step length, cascade-texel units
 
+
     //start at -1 at cascade 4 to prevent leaking. Note, this will intensify ringing, thus it is limmtied to only cascade 4+
     for(int i = cascadeIndex > 3 ? -1 : 0; i < sampleCount; i++){
         //sample at the centre of each step segment
-        float curInterval = mix(interval.x, interval.y, (float(i) + 0.5) / float(sampleCount)) * c0ProbeSize; //multiply by c0PorbeSize to go from probe space to texture space
+        float curInterval = mix(interval.x, interval.y, (float(i) + 0.5) / float(sampleCount)) * worldScale; //probe space to texture space, resolution-consistent
         vec4 s = sampleLightImage(vec2(probePos) + curInterval * dir); //rgb = emission, a = density
 
         //Gather light emitted here, attenuated by everything already in front of it.
