@@ -32,6 +32,7 @@ void main(){
             vec3 ray = imageLoad(mergedRays, ivec3(probeCoord, i)).rgb;
 
             float rayAngle = (float(i) / float(c1RayCountPerProbe)) * 2.0 * PI;
+
             diffuse += ray * max(0.0, cos(rayAngle - dirAngle));
 
             //center ray (k==0) is the nearest to dirAngle. Store its raw luminance for sharp specular

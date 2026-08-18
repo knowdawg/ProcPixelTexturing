@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://dowf508x1b2fj"]
 
-[ext_resource type="Texture2D" uid="uid://p3gsj24x2bqh" path="res://Textures/MaterialMakerTextures/KyoraRockyBackgroundDirtNormal.png" id="1_en05r"]
+[ext_resource type="Texture2D" uid="uid://bqst53jvy7w8d" path="res://Textures/MaterialMakerTextures/KyoraRockyDirtBackgroundNormal.png" id="1_en05r"]
 [ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="2_wvktt"]
 [ext_resource type="Texture2D" uid="uid://b2sbuq7xkr41s" path="res://Textures/MaterialMakerTextures/KyoraRockyBackgroundDirt.png" id="3_wvktt"]
 

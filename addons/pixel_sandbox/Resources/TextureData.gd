@@ -78,6 +78,13 @@ func getBorderParamArray(numOfTextures : int) -> PackedVector2Array:
 	
 	return PackedVector2Array(borderParams)
 
+func getReflectivenessArray(numOfTextures : int) -> PackedFloat32Array:
+	var reflectivenessArray : Array[float] = []
+	for i in range(numOfTextures):
+		reflectivenessArray.append(getIndexReflectiveness(i))
+	
+	return PackedFloat32Array(reflectivenessArray)
+
 func getSolidArray(numOfTextures : int) -> PackedInt32Array:
 	var solidArray : Array[bool] = []
 	for i in range(numOfTextures):
@@ -97,38 +104,50 @@ func getLightEmissionTexture(numOfTextures : int) -> Image:
 
 func getTexture(index : int) -> Texture2D:
 	if index < materials.size():
-		return materials[index].texture
+		if materials[index]:
+			return materials[index].texture
 	return errorTexture
 
 
 func getNormal(index : int) -> Texture2D:
 	if index < materials.size():
-		return materials[index].normal
+		if materials[index]:
+			return materials[index].normal
 	return errorTexture
 
 
 func getGradient(index : int) -> Texture2D:
 	if index < materials.size():
-		return materials[index].gradient
+		if materials[index]:
+			return materials[index].gradient
 	return errorGrad
 
 func getBorderGradient(index : int) -> Texture2D:
 	if index < materials.size():
-		var g : GradientTexture1D = materials[index].borderGradient
-		if g:
-			return g
+		if materials[index]:
+			var g : GradientTexture1D = materials[index].borderGradient
+			if g:
+				return g
 	return errorGrad
 
 
 func getBorder(index : int) -> Color:
 	if index < materials.size():
-		return materials[index].border
+		if materials[index]:
+			return materials[index].border
 	return Color.DEEP_PINK
 
 func getBorderParams(index : int) -> Vector2:
 	if index < materials.size():
-		return Vector2(materials[index].borderSize, materials[index].borderWeight)
+		if materials[index]:
+			return Vector2(materials[index].borderSize, materials[index].borderWeight)
 	return Vector2(4.0, 0.2)
+
+func getIndexReflectiveness(index : int) -> float:
+	if index < materials.size():
+		if materials[index]:
+			return materials[index].reflectiveness
+	return 0.0
 
 func isIndexSolid(index : int) -> bool:
 	if index < materials.size():
@@ -137,5 +156,6 @@ func isIndexSolid(index : int) -> bool:
 
 func getLightEmission(index : int) -> Color:
 	if index < materials.size():
-		return materials[index].lightEmission
+		if materials[index]:
+			return materials[index].lightEmission
 	return Color(0.0, 0.0, 0.0, 0.0)

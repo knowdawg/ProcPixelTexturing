@@ -22,6 +22,10 @@ func _ready() -> void:
 		foregroundNormal2DRD.set_texture_rd_rid(TerrainRendering.worldNormalImageForegroundRID)
 		t.normal_texture = foregroundNormal2DRD
 		
+		var foregroundCustom2DRD : Texture2DRD = Texture2DRD.new()
+		foregroundCustom2DRD.set_texture_rd_rid(TerrainRendering.worldCustomImageForegroundRID)
+		t.specular_texture = foregroundCustom2DRD
+		
 		TerrainRendering.spriteForeground = self
 		m.shader = load(foregroundShader)
 	
@@ -33,6 +37,10 @@ func _ready() -> void:
 		var backgroundNormal2DRD : Texture2DRD = Texture2DRD.new()
 		backgroundNormal2DRD.set_texture_rd_rid(TerrainRendering.worldNormalImageBackgroundRID)
 		t.normal_texture = backgroundNormal2DRD
+		
+		var backgroundCustom2DRD : Texture2DRD = Texture2DRD.new()
+		backgroundCustom2DRD.set_texture_rd_rid(TerrainRendering.worldCustomImageBackgroundRID)
+		t.specular_texture = backgroundCustom2DRD
 		
 		TerrainRendering.spriteBackground = self
 		m.shader = load(backgroundShader)

@@ -12,7 +12,7 @@ void main(){
     ivec2 fragCoord = ivec2(gl_GlobalInvocationID.xy);
     ivec2 base = fragCoord * 2;
 
-    const float w[4] = float[4](1.0, 3.0, 3.0, 1.0); //per-axis weights, sum 8
+    const float w[4] = float[4](1.0, 3.0, 3.0, 1.0); //per-axis weights
     vec4 sum = vec4(0.0);
     for(int y = 0; y < 4; y++){
         for(int x = 0; x < 4; x++){
@@ -20,9 +20,9 @@ void main(){
         }
     }
 
-    vec4 val;
-    val.rgb = sum.rgb / 64.0;                                 //energy-preserving tent (total weight 8 * 8 = 64)
-    val.a = clamp((sum.a / 64.0) * occlusionGain, 0.0, 1.0);  //averaged occlusion density, amplified per mip
+    sum.rgb /= 64.0;//64.0;
+    sum.a /= 64.0;//64.0;
+    sum.a *= occlusionGain;
 
-    imageStore(outputBuffer, fragCoord, val);
+    imageStore(outputBuffer, fragCoord, sum);
 }

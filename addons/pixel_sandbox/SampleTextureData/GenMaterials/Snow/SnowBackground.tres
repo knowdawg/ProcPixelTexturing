@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="GenMaterial" format=3 uid="uid://cs8aypee0ol1r"]
+
+[ext_resource type="Script" uid="uid://di707vap5isgj" path="res://addons/pixel_sandbox/Resources/GenMaterial.gd" id="1_cbo5j"]
+[ext_resource type="Texture2D" uid="uid://crljs4d0la15y" path="res://Textures/MaterialMakerTextures/Snow/SnowNormal.png" id="1_nq1pj"]
+[ext_resource type="Texture2D" uid="uid://bk388usat1odl" path="res://Textures/MaterialMakerTextures/Snow/Snow.png" id="3_6bs20"]
+
+[sub_resource type="Gradient" id="Gradient_imi4p"]
+colors = PackedColorArray(0.45560002, 0.5449334, 0.67, 1, 0.65999997, 0.696, 0.75, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_xhga4"]
+gradient = SubResource("Gradient_imi4p")
+
+[sub_resource type="Gradient" id="Gradient_g100d"]
+colors = PackedColorArray(0.45560002, 0.5449334, 0.67, 1, 0.65999997, 0.696, 0.75, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_h311h"]
+gradient = SubResource("Gradient_g100d")
+
+[resource]
+script = ExtResource("1_cbo5j")
+texture = ExtResource("3_6bs20")
+normal = ExtResource("1_nq1pj")
+gradient = SubResource("GradientTexture1D_h311h")
+border = Color(0.65882355, 0.69411767, 0.7490196, 1)
+borderGradient = SubResource("GradientTexture1D_xhga4")
+lightEmission = Color(0, 0, 0, 0)
+isSolid = false
+metadata/_custom_type_script = "uid://di707vap5isgj"

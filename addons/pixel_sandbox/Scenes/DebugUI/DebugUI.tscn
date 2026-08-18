@@ -493,10 +493,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
+theme_override_constants/margin_left = 1
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 1
+theme_override_constants/margin_bottom = 1
 
 [node name="TerrainRenderingValues" type="RichTextLabel" parent="MarginContainer" unique_id=1032767750]
 unique_name_in_owner = true
@@ -504,7 +504,8 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_colors/default_color = Color(0.4627451, 1, 0.34117648, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 5
+theme_override_constants/outline_size = 1
+theme_override_font_sizes/normal_font_size = 3
 bbcode_enabled = true
 fit_content = true
 scroll_active = false

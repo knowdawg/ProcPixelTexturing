@@ -8,7 +8,7 @@ class_name RadianceCascades
 @export var initialCascadeResolution : Vector2i = Vector2i(512, 512)
 @export var directionCount : int = 16 #cosine-convolved diffuse layers baked; cannot exceed c1 ray count
 
-const MIP_LEVELS : int = 8
+const MIP_LEVELS : int = 10
 
 """----------Compute Shaders----------"""
 var rd : RenderingDevice
@@ -48,6 +48,7 @@ func resolutionMipOffset() -> int:
 	return max(0, int(round(log(ratio) / log(2.0))))
 
 func cascadeMip(i : int) -> int:
+	return i
 	return min(i + resolutionMipOffset(), MIP_LEVELS - 1)
 
 #Uniforms

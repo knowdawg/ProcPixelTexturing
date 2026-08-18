@@ -33,8 +33,10 @@ const float extinction = 1.0;
 
 //Returns the medium at a point: rgb = emitted radiance, a = occluder/medium density in [0,1].
 //No longer inverted to transmittance - the march integrates density via Beer-Lambert below.
-vec4 sampleLightImage(vec2 fragCoord){
+vec4 sampleLightImage(vec2 fragCoord, vec2 offset){
     vec2 uv = fragCoord / vec2(imageSize(outputBuffer));
+    vec2 uvOffset = offset / vec2(renderQuadrantSize);
+    uv += uvOffset;
     return texture(lightImage, uv);
 }
 
@@ -67,16 +69,17 @@ void main(){
 
 
     //start at -1 at cascade 4 to prevent leaking. Note, this will intensify ringing, thus it is limmtied to only cascade 4+
-    for(int i = cascadeIndex > 3 ? -1 : 0; i < sampleCount; i++){
+    // cascadeIndex > 3 ? -1 : 0
+    for(int i = 0; i < sampleCount; i++){
         //sample at the centre of each step segment
-        float curInterval = mix(interval.x, interval.y, (float(i) + 0.5) / float(sampleCount)) * worldScale; //probe space to texture space, resolution-consistent
-        vec4 s = sampleLightImage(vec2(probePos) + curInterval * dir); //rgb = emission, a = density
+        float curInterval = mix(interval.x, interval.y, (float(i) + 0.5) / float(sampleCount)); //probe space to texture space, resolution-consistent
+        vec4 s = sampleLightImage(vec2(probePos), curInterval * dir); //rgb = emission, a = density
 
         //Gather light emitted here, attenuated by everything already in front of it.
         radiance += s.rgb * transmittance;
 
         //Beer-Lambert: transmittance across this step = exp(-opticalDepth).
-        transmittance *= exp(-s.a * extinction * stepSize);
+        transmittance *= exp(-s.a * extinction);// * stepSize);
         if (transmittance < 0.001) break;
     }
 

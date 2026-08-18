@@ -24,6 +24,12 @@ layout(set = 0, binding = 11) uniform sampler2D emissionColorsBackground;
 layout(set = 1, binding = 0, std430) readonly buffer BorderParamsForeground { vec2 borderParamsForeground[]; };
 layout(set = 1, binding = 1, std430) readonly buffer BorderParamsBackground { vec2 borderParamsBackground[]; }; //Curently Does Nothing, The shader curently only used the foreground border params. Need to change this
 layout(set = 1, binding = 2, std430) readonly buffer SolidBuffer { uint solids[]; }; //Only for foreground. Background will assume the same solidity as thier foreground counterpart
+layout(set = 1, binding = 3, std430) readonly buffer ReflectivenessForeground {
+    float reflectivenessForeground[];
+};
+layout(set = 1, binding = 4, std430) readonly buffer ReflectivenessBackground {
+    float reflectivenessBackground[];
+};
 
 //Set 2: Variable Uniforms
 layout(set = 2, binding = 0, std430) readonly buffer ChunkData {
@@ -39,6 +45,8 @@ layout(set = 2, binding = 3, rgba8) uniform writeonly image2D OutputBufferBackgr
 layout(set = 2, binding = 4, rgba32f) uniform writeonly image2D LightMap;
 layout(set = 2, binding = 5, rgba8) uniform writeonly image2D OutputBufferForegroundNormal;
 layout(set = 2, binding = 6, rgba8) uniform writeonly image2D OutputBufferBackgroundNormal;
+layout(set = 2, binding = 7, rgba16f) uniform writeonly image2D OutputBufferForegroundCustom;
+layout(set = 2, binding = 8, rgba16f) uniform writeonly image2D OutputBufferBackgroundCustom;
 
 
 
@@ -103,8 +111,8 @@ vec4 getNormal(ivec2 uv, float self, in sampler2DArray normalTextures){
 vec4 modifyNormalBasedOnEdgeDirection(vec4 normal, int disToEdge, float maxDisToEdge, vec2 dirToEdge, float disToEdgeRatio, float density){
 	vec4 newNormal = normal;
 	if(disToEdge <= int(maxDisToEdge.x)){ //if you are near a border
-		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, clamp(disToEdgeRatio - 0.25, 0.0, 1.0));
-		newNormal.rgb = mix(vec3(0.5, 0.5, newNormal.b), newNormal.rgb, density);
+		newNormal.rgb = mix(vec3(dirToEdge.x * 0.5 + 0.5, -dirToEdge.y * 0.5 + 0.5, normal.b), normal.rgb, clamp(disToEdgeRatio - 0.0, 0.0, 1.0));
+		newNormal.rgb = mix(vec3(0.5, 0.5, newNormal.b), newNormal.rgb, density); //if not many tiles nearby (like a 4x4 square), lower normals
 	}
 	return newNormal;
 }
@@ -214,7 +222,7 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 		}else{
 			pixelType.x = 2;
 		}
-		pixelType.x = 3;
+		//pixelType.x = 3;
 		
 	}
 
@@ -247,7 +255,7 @@ ivec2 getPixelType(ivec2 uv, vec2 tileTexVal){
 		}else{
 			pixelType.y = 2;
 		}
-		pixelType.y = 3;
+		//pixelType.y = 3;
 	}
 	
 	
@@ -273,6 +281,7 @@ void main() {
 	
 	ivec2 pixelType = getPixelType(TILE_IMAGE_UV, tileData.rg);
 	
+	//Color and Normal
 	vec4 foregroundColor;
 	vec4 backgroundColor;
 	vec4 foregroundNormal;
@@ -280,21 +289,38 @@ void main() {
 	calculateColorAndNormal(foregroundColor, foregroundNormal, pixelType.x, chunkOffsetUV, TILE_IMAGE_UV, tileData.r, tex2dArrayForeground, gradient2dArrayForeground, borderGradient2dArrayForeground, borderColorsForeground, normal2dArrayForeground, true); //foreground
 	calculateColorAndNormal(backgroundColor, backgroundNormal, pixelType.y, chunkOffsetUV, TILE_IMAGE_UV, tileData.g, tex2dArrayBackground, gradient2dArrayBackground, borderGradient2dArrayBackground, borderColorsBackground, normal2dArrayBackground, false); //background
 
+	//Emission Color
 	vec4 emissionColor = vec4(0.0);
 	emissionColor += texture(emissionColorsForeground, vec2(tileData.r, 0.0)); // foreground light
 	emissionColor += texture(emissionColorsBackground, vec2(tileData.g, 0.0)) * (1.0 - emissionColor.a); //background light
 	if(solids[getTileIndex(tileData.r)] == 0 && solids[getTileIndex(tileData.g)] == 0){
-		emissionColor = vec4(0.1, 0.1, 0.1, 0.0);//vec4(1.0, 1.0, 1.0, 0.0);//sunlight
+		emissionColor = vec4(0.3, 0.3, 0.3, 0.0) * 0.1;//vec4(1.0, 1.0, 1.0, 0.0);//sunlight
 	}
 	emissionColor = max(emissionColor, vec4(0.0));
 
+	//Custom pixel properties
+	vec4 customPropertiesForeground = vec4(0.0);
+	vec4 customPropertiesBackground = vec4(0.0);
+	//	Reflectiveness
+	customPropertiesForeground.r = reflectivenessForeground[getTileIndex(tileData.r)];
+	customPropertiesBackground.r = reflectivenessBackground[getTileIndex(tileData.g)];
+
+
 	//wrap the texture on itself
     chunkOffsetUV = chunkOffsetUV % size;
-	imageStore(LightMap, chunkOffsetUV, emissionColor);
 
+	//Store Difuse
     imageStore(OutputBufferForeground, chunkOffsetUV, foregroundColor);
 	imageStore(OutputBufferBackground, chunkOffsetUV, backgroundColor);
 
+	//Store Normal
 	imageStore(OutputBufferForegroundNormal, chunkOffsetUV, foregroundNormal);
 	imageStore(OutputBufferBackgroundNormal, chunkOffsetUV, backgroundNormal);
+
+	//Store Emission
+	imageStore(LightMap, chunkOffsetUV, emissionColor);
+
+	//Store Custom
+	imageStore(OutputBufferForegroundCustom, chunkOffsetUV, customPropertiesForeground);
+	imageStore(OutputBufferBackgroundCustom, chunkOffsetUV, customPropertiesBackground);
 }

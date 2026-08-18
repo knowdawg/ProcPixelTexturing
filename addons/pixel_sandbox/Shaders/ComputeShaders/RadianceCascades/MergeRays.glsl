@@ -89,6 +89,7 @@ void main(){
         vec4 merged = mergeIntervals(textureC0RayAtIndex(probeCoord, i / 4), c1Ray);
         imageStore(mergedRays, ivec3(probeCoord, i), merged);
         fluence += merged.rgb;
+        //break; //reduce to one cone
     }
     fluence *= rayScalar;
     imageStore(fluenceBuffer, probeCoord, vec4(fluence, 1.0));

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://p3gsj24x2bqh"
-path="res://.godot/imported/KyoraRockyBackgroundDirtNormal.png-07db313da695789477d5741ff34f3aa2.ctex"
+uid="uid://ccmm7ln6et5l2"
+path="res://.godot/imported/SandstoneBricksNormal.png-90db061bb5353b2c33f948d105817fa4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Textures/MaterialMakerTextures/KyoraRockyBackgroundDirtNormal.png"
-dest_files=["res://.godot/imported/KyoraRockyBackgroundDirtNormal.png-07db313da695789477d5741ff34f3aa2.ctex"]
+source_file="res://Textures/MaterialMakerTextures/SandstoneBricksNormal.png"
+dest_files=["res://.godot/imported/SandstoneBricksNormal.png-90db061bb5353b2c33f948d105817fa4.ctex"]
 
 [params]
 

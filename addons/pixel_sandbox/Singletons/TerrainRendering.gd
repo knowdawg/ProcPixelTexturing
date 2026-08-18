@@ -33,7 +33,16 @@ var worldNormalImageForegroundRID : RID
 var worldNormalImageBackgroundRID : RID
 """
 worldNormalImage:
-	the image that normals are writen to as an output of generateTextureChunk shader
+	the image that normals are writen to as an output of generateTextureChunk shader.
+	Alpha channel stores specular
+"""
+
+var worldCustomImageForegroundRID : RID
+var worldCustomImageBackgroundRID : RID
+"""
+worldCustomImage:
+	Stores unique properties for custom post processing for certain pixels.
+	Example: Pixels that reflect the screen texture
 """
 
 """---LIGHTING IMAGES---"""
@@ -116,6 +125,7 @@ func constructTextureArrays():
 	var borderGradient2dArray : Texture2DArray = foregroundTextureData.getBorderGradientArray(uniqueTiles)
 	var borderColors := foregroundTextureData.getBorderTexture(uniqueTiles)
 	var emissionColors := foregroundTextureData.getLightEmissionTexture(uniqueTiles)
+	
 	
 	var samplerUniformType = RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE
 	
@@ -223,20 +233,35 @@ func constructTextureArrays():
 	var foregroundBorderParams : PackedVector2Array = foregroundTextureData.getBorderParamArray(uniqueTiles)
 	var backgroundBorderParams : PackedVector2Array = backgroundTextureData.getBorderParamArray(uniqueTiles)
 	var solidArray : PackedInt32Array = foregroundTextureData.getSolidArray(uniqueTiles)
+	var foregroundReflectivenessArray : PackedFloat32Array = foregroundTextureData.getReflectivenessArray(uniqueTiles)
+	var backgroundReflectivenessArray : PackedFloat32Array = backgroundTextureData.getReflectivenessArray(uniqueTiles)
+	
 	
 	var borderParamsBufferForeground : RID = renDev.storage_buffer_create(foregroundBorderParams.size() * 8, foregroundBorderParams.to_byte_array())
 	var borderParamsBufferBackground : RID = renDev.storage_buffer_create(backgroundBorderParams.size() * 8, backgroundBorderParams.to_byte_array())
 	var solidBuffer : RID = renDev.storage_buffer_create(solidArray.size() * 4, solidArray.to_byte_array())
+	var foregroundReflectivenessArrayBuffer : RID = renDev.storage_buffer_create(
+		foregroundReflectivenessArray.size() * 4,
+		foregroundReflectivenessArray.to_byte_array()
+	)
+	var backgroundReflectivenessArrayBuffer : RID = renDev.storage_buffer_create(
+		backgroundReflectivenessArray.size() * 4,
+		backgroundReflectivenessArray.to_byte_array()
+	)
 	
-	for i in range(3):
+	var buffers: Array[RID] = [
+		borderParamsBufferForeground,
+		borderParamsBufferBackground,
+		solidBuffer,
+		foregroundReflectivenessArrayBuffer,
+		backgroundReflectivenessArrayBuffer
+	]
+	
+	for i in range(5):
 		u = RDUniform.new()
 		u.binding = i
 		u.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-		u.add_id([
-			borderParamsBufferForeground,
-			borderParamsBufferBackground,
-			solidBuffer
-			][i])
+		u.add_id(buffers[i])
 		bufferUniforms.append(u)
 	
 	buffferUniformSet = renDev.uniform_set_create(bufferUniforms, textureChunkShader, 1)
@@ -297,21 +322,30 @@ func _process(_delta: float) -> void:
 
 func setupEnviromentObjects() -> void:
 	#Create an image on the GPU for each of the world images
+	#Difuse:
 	var worldImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, TERRAIN_IMAGE_FORMAT);
 	worldImageForeground.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldVisualImageForegroundRID = TerrainRendering.getRIDImage(worldImageForeground, renDev)
-	
 	var worldImageBackground = Image.create_empty(renderSectionSize, renderSectionSize, false, TERRAIN_IMAGE_FORMAT);
 	worldImageBackground.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldVisualImageBackgroundRID = TerrainRendering.getRIDImage(worldImageBackground, renDev)
 	
+	#Normal:
 	var worldNormalImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, TERRAIN_IMAGE_FORMAT);
 	worldNormalImageForeground.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldNormalImageForegroundRID = TerrainRendering.getRIDImage(worldNormalImageForeground, renDev)
-	
 	var worldNormalImageBackground = Image.create_empty(renderSectionSize, renderSectionSize, false, TERRAIN_IMAGE_FORMAT);
 	worldNormalImageBackground.fill(Color(0.0, 0.0, 0.0, 0.0))
 	worldNormalImageBackgroundRID = TerrainRendering.getRIDImage(worldNormalImageBackground, renDev)
+	
+	#Custom:
+	var worldCustomImageForeground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAH);
+	worldCustomImageForeground.fill(Color(0.0, 0.0, 0.0, 0.0))
+	worldCustomImageForegroundRID = TerrainRendering.getRIDImage(worldCustomImageForeground, renDev)
+	var worldCustomImageBackground = Image.create_empty(renderSectionSize, renderSectionSize, false, Image.FORMAT_RGBAH);
+	worldCustomImageBackground.fill(Color(0.0, 0.0, 0.0, 0.0))
+	worldCustomImageBackgroundRID = TerrainRendering.getRIDImage(worldCustomImageBackground, renDev)
+	
 	
 	#Create an image on the GPU for the lightmap, the one the chunks write to
 	var lightmapImage = Image.create_empty(renderSectionSize, renderSectionSize, false, LIGHTING_IMAGE_FORMAT);
@@ -504,9 +538,21 @@ func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	var lightMap : RDUniform = TerrainRendering.getUniformImage(lightMapRID, 4)
 	var outputNormalForeground : RDUniform = TerrainRendering.getUniformImage(worldNormalImageForegroundRID, 5)
 	var outputNormalBackground : RDUniform = TerrainRendering.getUniformImage(worldNormalImageBackgroundRID, 6)
+	var outputCustomForeground : RDUniform = TerrainRendering.getUniformImage(worldCustomImageForegroundRID, 7)
+	var outputCustomBackground : RDUniform = TerrainRendering.getUniformImage(worldCustomImageBackgroundRID, 8)
 	
 	
-	var uniformSet : RID = renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputForeground, outputBackground, lightMap, outputNormalForeground, outputNormalBackground], textureChunkShader, 2)
+	var uniformSet : RID = renDev.uniform_set_create([
+		chunkDataUniform,
+		tileImageUniform,
+		outputForeground,
+		outputBackground,
+		lightMap,
+		outputNormalForeground,
+		outputNormalBackground,
+		outputCustomForeground,
+		outputCustomBackground
+	], textureChunkShader, 2)
 	
 	var computeList: int = renDev.compute_list_begin()
 	
@@ -514,7 +560,13 @@ func executeTextureChunkShader(chunkCoord : Vector2i, tileImage : Image):
 	var workgroups := Vector3i(int(w), int(w), 1)
 	
 	
-	TerrainRendering.executeComputeShader(workgroups, renDev, computeList, persPipeline, [textureUniformSet, buffferUniformSet, uniformSet])
+	TerrainRendering.executeComputeShader(
+		workgroups,
+		renDev,
+		computeList,
+		persPipeline,
+		[textureUniformSet, buffferUniformSet, uniformSet]
+	)
 	
 	renDev.free_rid(chunkDataRID)
 	renDev.free_rid(tileImageRID)
@@ -577,8 +629,10 @@ func calculateEnviermentalTexture(calculateRect : Rect2i, tileImage : Image, out
 	
 	var dummyNormal1 := getUniformImage(dummyLightmapRID, 5)
 	var dummyNormal2 := getUniformImage(dummyLightmapRID, 6)
+	var dummyCustom1 := getUniformImage(dummyLightmapRID, 7)
+	var dummyCustom2 := getUniformImage(dummyLightmapRID, 8)
 	
-	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniformForeground, outputUniformBackground, dummyLightmapUniform, dummyNormal1, dummyNormal2], textureChunkShader, 2)
+	var uniformSet := renDev.uniform_set_create([chunkDataUniform, tileImageUniform, outputUniformForeground, outputUniformBackground, dummyLightmapUniform, dummyNormal1, dummyNormal2, dummyCustom1, dummyCustom2], textureChunkShader, 2)
 	var computeList: int = renDev.compute_list_begin()
 	
 	var w : int = int(ceil(float(TerrainRendering.chunkSize) / 8.0))

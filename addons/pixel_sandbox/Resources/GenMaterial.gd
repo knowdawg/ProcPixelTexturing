@@ -12,7 +12,15 @@ class_name GenMaterial
 @export var borderGradient : GradientTexture1D
 
 #Light Emission is the color of the tile. If you want the tile to give off light, set its color ocordingly
-#If you want if to block light, set its color to (0.0, 0.0, 0.0, 1.0). This should be the default for foreground genMaterials
-#If you dont wannt it to block light and not give off light, its color should be (0.0, 0.0, 0.0, 0.0). This should be the default for background genMaterials
-@export var lightEmission : Color = Color(0.0, 0.0, 0.0, 0.08) #0.08
+#If you want if to block light compleetly, set its color to (0.0, 0.0, 0.0, 1.0).
+#If you dont wannt it to block light and not give off light, its color should be (0.0, 0.0, 0.0, 0.0).
+@export var lightEmission : Color = Color(0.0, 0.0, 0.0, 0.235)
+
+#Blends the screen with the output color of the pixel:
+#   0.0 is pure pixel texture, 1.0 is pure screen teture
+@export_range(0.0, 1.0) var reflectiveness : float = 0.0
+
 @export var isSolid : bool = true
+
+@export_group("Custom Functionality")
+@export var falling : bool = false    #currently does nothing

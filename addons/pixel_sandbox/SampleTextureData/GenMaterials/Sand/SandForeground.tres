@@ -5,8 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://b0n8cuor7vv77" path="res://Textures/MaterialMakerTextures/SimpleDirt.png" id="3_dsgbi"]
 
 [sub_resource type="Gradient" id="Gradient_dsgbi"]
-offsets = PackedFloat32Array(0, 0.6)
-colors = PackedColorArray(0.82, 0.6601, 0.451, 1, 0.9098039, 0.75686276, 0.4392157, 1)
+colors = PackedColorArray(0.9098039, 0.75686276, 0.4392157, 1, 0.91, 0.78320664, 0.50960004, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 5
 
@@ -14,7 +13,7 @@ metadata/_snap_count = 5
 gradient = SubResource("Gradient_dsgbi")
 
 [sub_resource type="Gradient" id="Gradient_uixn7"]
-colors = PackedColorArray(0.71, 0.5377067, 0.31239998, 1, 0.9098039, 0.75686276, 0.4392157, 1)
+colors = PackedColorArray(0.7899216, 0.62536913, 0.36312628, 1, 0.9098039, 0.75686276, 0.4392157, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 5
 
@@ -27,6 +26,5 @@ texture = ExtResource("3_dsgbi")
 normal = ExtResource("1_uixn7")
 gradient = SubResource("GradientTexture1D_dsgbi")
 border = Color(0.9098039, 0.75686276, 0.4392157, 1)
-borderWeight = 0.6
 borderGradient = SubResource("GradientTexture1D_y4ari")
 metadata/_custom_type_script = "uid://di707vap5isgj"

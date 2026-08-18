@@ -13,10 +13,11 @@
 [ext_resource type="Resource" uid="uid://b1josu377mgpb" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Crystal/CrystalBackground.tres" id="9_g5dqk"]
 [ext_resource type="Resource" uid="uid://dowf508x1b2fj" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Dirt/DirtBackground.tres" id="11_mkqmg"]
 [ext_resource type="Resource" uid="uid://bokbs6032yqeg" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Stone/StoneBackground.tres" id="12_mkqmg"]
+[ext_resource type="Resource" uid="uid://cs8aypee0ol1r" path="res://addons/pixel_sandbox/SampleTextureData/GenMaterials/Snow/SnowBackground.tres" id="13_s6s3o"]
 
 [resource]
 script = ExtResource("1_gjqv8")
-materials = Array[ExtResource("3_qtl88")]([ExtResource("4_v2v6w"), ExtResource("12_mkqmg"), ExtResource("6_mkqmg"), ExtResource("11_mkqmg"), ExtResource("4_jgj6a"), ExtResource("5_3d0kk"), ExtResource("6_3d0kk"), ExtResource("7_hy46j"), ExtResource("9_g5dqk")])
+materials = Array[ExtResource("3_qtl88")]([ExtResource("4_v2v6w"), ExtResource("12_mkqmg"), ExtResource("6_mkqmg"), ExtResource("11_mkqmg"), ExtResource("4_jgj6a"), ExtResource("5_3d0kk"), ExtResource("6_3d0kk"), ExtResource("7_hy46j"), ExtResource("9_g5dqk"), null, null, null, ExtResource("13_s6s3o")])
 errorTexture = ExtResource("2_57raw")
 errorGrad = ExtResource("1_dlnrt")
 metadata/_custom_type_script = "uid://bykil1fb2qabg"
