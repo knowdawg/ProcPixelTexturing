@@ -1,8 +1,9 @@
-[gd_scene format=4 uid="uid://c726gqd04n3yb"]
+[gd_scene format=4 uid="uid://dsfupwvekoo3a"]
 
 [ext_resource type="Script" uid="uid://c4eeak2ynu8a3" path="res://TextureChunking/Scripts/world_2d.gd" id="1_aboe0"]
 [ext_resource type="Script" uid="uid://b1381eapkmqjg" path="res://Test/FPSLabel.gd" id="1_dvw3m"]
-[ext_resource type="Script" uid="uid://ceaidkdwsfai8" path="res://LightBuffer/light_buffer.gd" id="1_txt8w"]
+[ext_resource type="Shader" uid="uid://cjdpetw85xidl" path="res://Test/ReflectionTest.gdshader" id="1_r3kwa"]
+[ext_resource type="Script" uid="uid://ceaidkdwsfai8" path="res://LightBuffer/custom_buffer.gd" id="1_txt8w"]
 [ext_resource type="PackedScene" uid="uid://bycg6xbjbc4tm" path="res://addons/pixel_sandbox/Scenes/TerrainTileMap/terrain_tile_map.tscn" id="4_gug2e"]
 [ext_resource type="PackedScene" uid="uid://b5mwxvmfxtn33" path="res://addons/pixel_sandbox/Scenes/TerrainTexture/terrain_texture.tscn" id="5_hcy24"]
 [ext_resource type="Script" uid="uid://omh8kxwg61bx" path="res://camera_2d.gd" id="6_bnr5j"]
@@ -28,16 +29,19 @@
 
 [sub_resource type="Gradient" id="Gradient_aboe0"]
 interpolation_mode = 2
-offsets = PackedFloat32Array(0, 0.33333334, 0.6666667, 1)
-colors = PackedColorArray(0.78, 0.91566664, 1, 1, 0.5307, 0.739935, 0.87, 1, 0.28440002, 0.5961866, 0.79, 1, 0.1525, 0.43462497, 0.61, 1)
+offsets = PackedFloat32Array(0, 0.6666667, 1)
+colors = PackedColorArray(0.5307, 0.739935, 0.87, 1, 0.28440002, 0.5961866, 0.79, 1, 0.1525, 0.43462497, 0.61, 1)
 metadata/_snap_enabled = true
 metadata/_snap_count = 3
 
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_16l4g"]
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_r3kwa"]
 gradient = SubResource("Gradient_aboe0")
 width = 320
 height = 180
 fill_from = Vector2(1, 1)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hyfd3"]
+shader = ExtResource("1_r3kwa")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_r3kwa"]
 resource_local_to_scene = true
@@ -214,15 +218,13 @@ shader_parameter/haloColor = SubResource("GradientTexture2D_aboe0")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_dvw3m"]
 shader = ExtResource("7_mu78b")
 
-[sub_resource type="ViewportTexture" id="ViewportTexture_txt8w"]
-viewport_path = NodePath("LightBuffer")
-
 [node name="GameController" type="Node" unique_id=1605255413]
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=2002266228]
 layer = -1
 
 [node name="BrightSky" type="ColorRect" parent="CanvasLayer" unique_id=1214369552]
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -233,6 +235,7 @@ color = Color(0.57254905, 0.7019608, 1, 1)
 metadata/_edit_use_anchors_ = true
 
 [node name="DarkSky" type="ColorRect" parent="CanvasLayer" unique_id=1747334659]
+visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -243,10 +246,16 @@ color = Color(0, 0.031499993, 0.09, 1)
 metadata/_edit_use_anchors_ = true
 
 [node name="GradientSky" type="Sprite2D" parent="CanvasLayer" unique_id=1247195629]
+visibility_layer = 257
 texture_filter = 1
-position = Vector2(960, 540)
-scale = Vector2(6, 6)
-texture = SubResource("GradientTexture2D_16l4g")
+position = Vector2(160, 90)
+texture = SubResource("GradientTexture2D_r3kwa")
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=1703412455]
+visible = false
+material = SubResource("ShaderMaterial_hyfd3")
+offset_right = 100.0
+offset_bottom = 100.0
 
 [node name="World2D" type="Node2D" parent="." unique_id=1965994211]
 visibility_layer = 1048575
@@ -275,7 +284,6 @@ texture = SubResource("CanvasTexture_jpu7r")
 layer = 1
 
 [node name="ForegroundTerrainTexture" parent="World2D" unique_id=982178323 instance=ExtResource("5_hcy24")]
-z_index = 1
 material = SubResource("ShaderMaterial_trqt3")
 texture = SubResource("CanvasTexture_tw8fg")
 
@@ -296,6 +304,7 @@ script = ExtResource("11_yxens")
 environment = SubResource("Environment_bnr5j")
 
 [node name="SilentPixelArt" type="Sprite2D" parent="World2D" unique_id=1101289117]
+visibility_layer = 257
 texture_filter = 1
 material = ExtResource("14_xil5r")
 position = Vector2(327, 411)
@@ -303,10 +312,10 @@ texture = SubResource("CanvasTexture_16l4g")
 
 [node name="Fire" parent="World2D" unique_id=320553082 instance=ExtResource("13_4shtu")]
 material = SubResource("ShaderMaterial_yxk02")
-position = Vector2(259, 395)
+position = Vector2(270, 395)
 
 [node name="FireParticles" type="GPUParticles2D" parent="World2D" unique_id=2016531515]
-visibility_layer = 513
+visibility_layer = 769
 position = Vector2(299, 390)
 emitting = false
 amount = 64
@@ -323,7 +332,6 @@ texture = SubResource("GradientTexture2D_dvw3m")
 
 [node name="BlackHole" type="ColorRect" parent="World2D/FireParticles" unique_id=951435877]
 visible = false
-visibility_layer = 513
 material = SubResource("ShaderMaterial_aboe0")
 offset_left = -31.0
 offset_top = -32.0
@@ -341,7 +349,6 @@ offset_bottom = 128.0
 mouse_filter = 2
 
 [node name="Torch" parent="World2D/FireParticles" unique_id=324618839 instance=ExtResource("15_16l4g")]
-visibility_layer = 513
 
 [node name="RadianceCascadeVisualizer" type="ColorRect" parent="World2D" unique_id=79225966]
 visible = false
@@ -376,6 +383,22 @@ visible = false
 
 [node name="BlueprintUI" parent="GUI" unique_id=1356098208 instance=ExtResource("13_u2jdx")]
 
+[node name="ReflectionBuffer" type="SubViewport" parent="." unique_id=225119228 node_paths=PackedStringArray("world2D", "camera")]
+disable_3d = true
+transparent_bg = true
+handle_input_locally = false
+snap_2d_transforms_to_pixel = true
+snap_2d_vertices_to_pixel = true
+gui_disable_input = true
+canvas_cull_mask = 4294966528
+render_target_update_mode = 4
+script = ExtResource("1_txt8w")
+world2D = NodePath("../World2D")
+camera = NodePath("ReflectionCamera")
+visibilityLayer = 9
+
+[node name="ReflectionCamera" type="Camera2D" parent="ReflectionBuffer" unique_id=953444951]
+
 [node name="LightBuffer" type="SubViewport" parent="." unique_id=2101872339 node_paths=PackedStringArray("world2D", "camera")]
 disable_3d = true
 transparent_bg = true
@@ -389,13 +412,6 @@ render_target_update_mode = 4
 script = ExtResource("1_txt8w")
 world2D = NodePath("../World2D")
 camera = NodePath("LightCamera")
+visibilityLayer = 10
 
 [node name="LightCamera" type="Camera2D" parent="LightBuffer" unique_id=1846271326]
-
-[node name="CanvasLayer2" type="CanvasLayer" parent="." unique_id=1153802545]
-visible = false
-
-[node name="Sprite2D" type="Sprite2D" parent="CanvasLayer2" unique_id=457657088]
-texture_filter = 1
-position = Vector2(256, 256)
-texture = SubResource("ViewportTexture_txt8w")

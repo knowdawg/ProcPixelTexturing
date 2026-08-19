@@ -9,6 +9,7 @@ global uniform vec2 PS_SCREEN_SIZE;
 //rgb = diffuse, a = raw ray luminance (for specular)
 global uniform sampler2DArray PS_DIFFUSE_DIRECTIONS : filter_linear, repeat_enable;
 global uniform sampler2D PS_FLUENCE : filter_linear, repeat_enable;
+global uniform vec2 PS_TILE_TEXTURE_SCROLL;
 
 const float TWO_PI = 6.28318530718;
 
@@ -28,6 +29,14 @@ vec2 getRadianceUV(vec2 sUV){
 
 	vec2 uvScale = GITexSize / PS_RENDER_QUADRANT_SIZE.x;
 	return (lightLocalPosition / GITexSize) * uvScale;
+}
+
+vec2 getReflectionUV(vec2 uv){
+	vec2 camPos = (round(PS_CAMERA_POSITION) - (PS_RENDER_QUADRANT_SIZE / 2.0)) / PS_RENDER_QUADRANT_SIZE;
+	vec2 qUV = floor(uv * PS_RENDER_QUADRANT_SIZE) / PS_RENDER_QUADRANT_SIZE;
+	vec2 offsetUV = qUV + PS_TILE_TEXTURE_SCROLL - camPos;
+	
+	return offsetUV;
 }
 
 vec4 getRadianceWithNormals(vec2 sUV, vec3 normal, float specular, float lightHeight, float normalOffsetMix, out vec3 specularOut){

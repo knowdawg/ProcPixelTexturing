@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Kyora_Like_Texure_System"
-run/main_scene="uid://c726gqd04n3yb"
+run/main_scene="uid://doynnfxjjekoo"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
@@ -112,6 +112,8 @@ ShowDebugUI={
 2d_render/layer_1="Background"
 2d_render/layer_2="Foreground"
 2d_render/layer_3="Directional"
+2d_render/layer_9="Reflections"
+2d_render/layer_10="Lights"
 
 [rendering]
 

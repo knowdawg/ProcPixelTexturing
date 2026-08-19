@@ -16,6 +16,8 @@ static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParame
 	#Cosine-convolved directional diffuse: one array layer per facing direction, plus the fluence ambient
 	"PS_DIFFUSE_DIRECTIONS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
 	"PS_FLUENCE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
+	
+	"PS_REFLECTION_BUFFER" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 }
 
 func _ready() -> void:

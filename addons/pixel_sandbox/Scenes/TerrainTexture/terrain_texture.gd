@@ -13,9 +13,12 @@ func _ready() -> void:
 	var m : ShaderMaterial = ShaderMaterial.new()
 	m.resource_local_to_scene = true
 	
+	var foregroundTex2DRD : Texture2DRD = Texture2DRD.new()
+	foregroundTex2DRD.set_texture_rd_rid(TerrainRendering.worldVisualImageForegroundRID)
+	var backgroundTex2DRD : Texture2DRD = Texture2DRD.new()
+	backgroundTex2DRD.set_texture_rd_rid(TerrainRendering.worldVisualImageBackgroundRID)
+	
 	if layer == TerrainRendering.LAYER_TYPE.FOREGROUND:
-		var foregroundTex2DRD : Texture2DRD = Texture2DRD.new()
-		foregroundTex2DRD.set_texture_rd_rid(TerrainRendering.worldVisualImageForegroundRID)
 		t.diffuse_texture = foregroundTex2DRD
 		
 		var foregroundNormal2DRD : Texture2DRD = Texture2DRD.new()
@@ -28,10 +31,9 @@ func _ready() -> void:
 		
 		TerrainRendering.spriteForeground = self
 		m.shader = load(foregroundShader)
+		m.set_shader_parameter("backgroundTexture", backgroundTex2DRD)
 	
 	if layer == TerrainRendering.LAYER_TYPE.BACKGROUND:
-		var backgroundTex2DRD : Texture2DRD = Texture2DRD.new()
-		backgroundTex2DRD.set_texture_rd_rid(TerrainRendering.worldVisualImageBackgroundRID)
 		t.diffuse_texture = backgroundTex2DRD
 		
 		var backgroundNormal2DRD : Texture2DRD = Texture2DRD.new()
@@ -44,6 +46,8 @@ func _ready() -> void:
 		
 		TerrainRendering.spriteBackground = self
 		m.shader = load(backgroundShader)
+		
+		m.set_shader_parameter("foregroundTexture", foregroundTex2DRD)
 	
 	material = m
 	

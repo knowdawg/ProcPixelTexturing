@@ -54,7 +54,8 @@ Light Map:
 	For blocks that want to block light and cast shadows, thier emission color should be (0.0, 0.0, 0.0, 1.0)
 	For blocks that want dont want to block light, thier emission color should be (0.0, 0.0, 0.0, 0.0)
 """
-var lightBuffer : LightBuffer
+
+var lightBuffer : CustomBuffer
 var lightBufferRID : RID
 """
 Light Buffer:
@@ -64,6 +65,12 @@ Light Buffer:
 var additiveBlendShaderFile
 var additiveBlendShader
 var additiveBlendPipeline
+
+var reflectionBuffer : CustomBuffer
+"""
+Reflection Buffer:
+	A subviewport that renders all things that will be reflected by the terrain.
+"""
 
 var spriteForeground : Sprite2D
 var spriteBackground : Sprite2D
@@ -311,12 +318,10 @@ func _process(_delta: float) -> void:
 		sdfGen.createSDF(finalLightImageRID, lightmapSDF, 0.0, true)
 		
 	#Combine the LightBuffer with the lightMapRID
-	if is_instance_valid(lightBuffer):
-		lightBufferRID = lightBuffer.getViewportTextureRID()
+	if is_instance_valid(lightBuffer) and lightBufferRID.is_valid():
 		executeAdditiveBlendShader(lightMapRID, lightBufferRID, finalLightImageRID)
-	
 		radCasc.updateGlobalIllumination()
-		
+	
 	if Input.is_action_just_pressed("ReloadTexture"):
 		constructTextureArrays()
 
@@ -431,7 +436,7 @@ func updateChunks() -> void:
 	dirtyChunkQueue.clear()
 	
 
-func getTile(pos : Vector2i, layer : LAYER_TYPE) -> int:
+func getTile(pos : Vector2i, layer : int) -> int:
 	if pos.x < 0 or pos.x > mapSize.x - 1:
 		return 0
 	if pos.y < 0 or pos.y > mapSize.y - 1:

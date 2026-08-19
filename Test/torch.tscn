@@ -49,38 +49,9 @@ shader_parameter/speed = 1.0
 shader_parameter/outlineColor = Color(0, 0, 0, 1)
 
 [node name="Torch" type="Node2D" unique_id=482982112]
-
-[node name="ColorRect" type="ColorRect" parent="." unique_id=1389414569]
-visible = false
-offset_left = -1.0
-offset_right = 1.0
-offset_bottom = 10.0
-color = Color(0.3764706, 0.17254902, 0.17254902, 1)
-
-[node name="ColorRect2" type="ColorRect" parent="." unique_id=2088785534]
-visible = false
-offset_left = 1.0
-offset_right = 2.0
-offset_bottom = 10.0
-color = Color(0.03529412, 0.039215688, 0.078431375, 1)
-
-[node name="ColorRect3" type="ColorRect" parent="." unique_id=1253770188]
-visible = false
-offset_left = -2.0
-offset_right = -1.0
-offset_bottom = 10.0
-color = Color(0.03529412, 0.039215688, 0.078431375, 1)
-
-[node name="ColorRect4" type="ColorRect" parent="." unique_id=696338575]
-visible = false
-offset_left = -1.0
-offset_top = 10.0
-offset_right = 1.0
-offset_bottom = 11.0
-color = Color(0.03529412, 0.039215688, 0.078431375, 1)
+visibility_layer = 769
 
 [node name="FlameEmissive" type="Line2D" parent="." unique_id=1177540467]
-light_mask = 0
 visibility_layer = 512
 material = SubResource("ShaderMaterial_l6v3y")
 points = PackedVector2Array(0, 2, 0, -30)
@@ -88,6 +59,7 @@ width = 6.0
 texture_mode = 2
 
 [node name="Flame" type="Line2D" parent="." unique_id=1113064818]
+visibility_layer = 257
 material = SubResource("ShaderMaterial_56a5u")
 points = PackedVector2Array(0, 2, 0, -30)
 width = 6.0

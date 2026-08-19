@@ -29,7 +29,7 @@ shader_parameter/noiseTex = SubResource("NoiseTexture2D_ak3ko")
 shader_parameter/colorGrad = SubResource("GradientTexture1D_jpu7r")
 shader_parameter/resolution = Vector2(32, 64)
 shader_parameter/flameSpeed = 1.0
-shader_parameter/flameIntensity = 0.40000001341108005
+shader_parameter/flameIntensity = 0.4000000134110801
 
 [sub_resource type="Gradient" id="Gradient_4shtu"]
 offsets = PackedFloat32Array(1)
@@ -60,9 +60,10 @@ shader_parameter/flameSpeed = 1.0
 shader_parameter/flameIntensity = 0.5000000149012
 
 [node name="Fire" type="Node2D" unique_id=1773146235]
-visibility_layer = 513
+visibility_layer = 769
 
 [node name="Fire" type="Sprite2D" parent="." unique_id=320553082]
+visibility_layer = 257
 material = SubResource("ShaderMaterial_vqcsj")
 texture = SubResource("GradientTexture2D_hyfd3")
 
