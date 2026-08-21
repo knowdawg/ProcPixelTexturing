@@ -1,4 +1,7 @@
-### Resource That Stores All GenMaterial Resources and Stores Them all in an array
+"""
+Stores All GenMaterial Resources.
+Contains functions for fetching GenMaterial data.
+"""
 
 extends Resource
 class_name TextureData
@@ -9,10 +12,10 @@ class_name TextureData
 @export var errorTexture : Texture2D
 @export var errorGrad : GradientTexture1D
 
-func getTextureArray(numOfTextures : int) -> Texture2DArray:
+func getTextureArray() -> Texture2DArray:
 	var tex2dArray := Texture2DArray.new()
 	var imageArray : Array[Image] = []
-	for i in range(numOfTextures):
+	for i in range(PixelSandbox.tilesInGame):
 		var im : Image
 		im = getTexture(i).get_image()
 		im.convert(Image.FORMAT_RGBA8)
@@ -23,10 +26,10 @@ func getTextureArray(numOfTextures : int) -> Texture2DArray:
 	
 	return tex2dArray
 
-func getNormalArray(numOfTextures : int) -> Texture2DArray:
+func getNormalArray() -> Texture2DArray:
 	var tex2dArray := Texture2DArray.new()
 	var imageArray : Array[Image] = []
-	for i in range(numOfTextures):
+	for i in range(PixelSandbox.tilesInGame):
 		var im : Image
 		im = getNormal(i).get_image()
 		im.convert(Image.FORMAT_RGBA8)
@@ -36,10 +39,10 @@ func getNormalArray(numOfTextures : int) -> Texture2DArray:
 	
 	return tex2dArray
 
-func getGradientArray(numOfTextures : int) -> Texture2DArray:
+func getGradientArray() -> Texture2DArray:
 	var tex2dArray := Texture2DArray.new()
 	var imageArray : Array[Image] = []
-	for i in range(numOfTextures):
+	for i in range(PixelSandbox.tilesInGame):
 		var im : Image
 		im = getGradient(i).get_image()
 		im.convert(Image.FORMAT_RGBA8)
@@ -49,10 +52,10 @@ func getGradientArray(numOfTextures : int) -> Texture2DArray:
 	
 	return tex2dArray
 
-func getBorderGradientArray(numOfTextures : int) -> Texture2DArray:
+func getBorderGradientArray() -> Texture2DArray:
 	var tex2dArray := Texture2DArray.new()
 	var imageArray : Array[Image] = []
-	for i in range(numOfTextures):
+	for i in range(PixelSandbox.tilesInGame):
 		var im : Image
 		im = getBorderGradient(i).get_image()
 		im.convert(Image.FORMAT_RGBA8)
@@ -62,39 +65,39 @@ func getBorderGradientArray(numOfTextures : int) -> Texture2DArray:
 	
 	return tex2dArray
 
-func getBorderTexture(numOfTextures : int) -> Image:
-	var borderColors : Image = Image.create_empty(numOfTextures, 1, false, Image.FORMAT_RGBA8)
-	for i in range(numOfTextures):
+func getBorderTexture() -> Image:
+	var borderColors : Image = Image.create_empty(PixelSandbox.tilesInGame, 1, false, Image.FORMAT_RGBA8)
+	for i in range(PixelSandbox.tilesInGame):
 		borderColors.set_pixel(i, 0, getBorder(i))
 	
 	#var bcTex : ImageTexture = ImageTexture.create_from_image(borderColors)
 	
 	return borderColors
 
-func getBorderParamArray(numOfTextures : int) -> PackedVector2Array:
+func getBorderParamArray() -> PackedVector2Array:
 	var borderParams : Array[Vector2] = []
-	for i in range(numOfTextures):
+	for i in range(PixelSandbox.tilesInGame):
 		borderParams.append(getBorderParams(i))
 	
 	return PackedVector2Array(borderParams)
 
-func getReflectivenessArray(numOfTextures : int) -> PackedFloat32Array:
+func getReflectivenessArray() -> PackedFloat32Array:
 	var reflectivenessArray : Array[float] = []
-	for i in range(numOfTextures):
+	for i in range(PixelSandbox.tilesInGame):
 		reflectivenessArray.append(getIndexReflectiveness(i))
 	
 	return PackedFloat32Array(reflectivenessArray)
 
-func getSolidArray(numOfTextures : int) -> PackedInt32Array:
+func getSolidArray() -> PackedInt32Array:
 	var solidArray : Array[bool] = []
-	for i in range(numOfTextures):
+	for i in range(PixelSandbox.tilesInGame):
 		solidArray.append(isIndexSolid(i))
 	
 	return PackedInt32Array(solidArray)
 
-func getLightEmissionTexture(numOfTextures : int) -> Image:
-	var emissionColors : Image = Image.create_empty(numOfTextures, 1, false, Image.FORMAT_RGBAF)
-	for i in range(numOfTextures):
+func getLightEmissionTexture() -> Image:
+	var emissionColors : Image = Image.create_empty(PixelSandbox.tilesInGame, 1, false, Image.FORMAT_RGBAF)
+	for i in range(PixelSandbox.tilesInGame):
 		emissionColors.set_pixel(i, 0, getLightEmission(i))
 	
 	return emissionColors

@@ -44,7 +44,7 @@ var fluenceRID : RID
 #Scale Cascade's mips to thier resolution
 #A 256-probe cascade reading a 512 light map should sample 1 level deeper: log2(512/256) = 1.
 func resolutionMipOffset() -> int:
-	var ratio : float = float(TerrainRendering.renderSectionSize) / float(initialCascadeResolution.x)
+	var ratio : float = float(PixelSandbox.renderSectionSize) / float(initialCascadeResolution.x)
 	return max(0, int(round(log(ratio) / log(2.0))))
 
 func cascadeMip(i : int) -> int:
@@ -65,7 +65,7 @@ func setup():
 	#create the mips
 	mipImageRIDs.append(TerrainRendering.finalLightImageRID)
 	for i in range(1, MIP_LEVELS):
-		var imSize : int = max(1, int(TerrainRendering.renderSectionSize / pow(2, float(i)))) #Halve each level
+		var imSize : int = max(1, int(PixelSandbox.renderSectionSize / pow(2, float(i)))) #Halve each level
 		var image := Image.create_empty(imSize, imSize, false, TerrainRendering.LIGHTING_IMAGE_FORMAT);
 		image.fill(Color.BLACK)
 		mipImageRIDs.append(TerrainRendering.getRIDImage(image, rd))
@@ -144,7 +144,7 @@ func _ready() -> void:
 func updateGlobalIllumination():
 	#Step 1: Generate Mipmaps
 	for i in range(1, MIP_LEVELS):
-		var w : int = max(1, (TerrainRendering.renderSectionSize / int(pow(2, float(i)))) / 16)
+		var w : int = max(1, (PixelSandbox.renderSectionSize / int(pow(2, float(i)))) / 16)
 		var workGroups : Vector3i = Vector3i(w, w, 1)
 		
 		var source : RDUniform = TerrainRendering.getUniformImage(mipImageRIDs[i - 1], 0)
@@ -161,14 +161,14 @@ func updateGlobalIllumination():
 	
 	#Step 2: Gather Cascades
 	for i in range(cascadeCount):
-		var w : int = (TerrainRendering.renderSectionSize / 32) * initialCascadeRayCount
+		var w : int = (PixelSandbox.renderSectionSize / 32) * initialCascadeRayCount
 		var workGroups : Vector3i = Vector3i(w, w, 1)
 		
 		var lightmapMip = mipImageRIDs[cascadeMip(i)]
 		var lightImage : RDUniform = TerrainRendering.getUniformSampler(lightmapMip, sampler, 0)
 		var outputCascadeBuffer : RDUniform = TerrainRendering.getUniformImage(cascadeImageRIDs[i], 1)
 		
-		var paramsData := PackedInt32Array([initialCascadeRayCount, initailCascadeRayLength, i, initialCascadeResolution.x, TerrainRendering.renderSectionSize])
+		var paramsData := PackedInt32Array([initialCascadeRayCount, initailCascadeRayLength, i, initialCascadeResolution.x, PixelSandbox.renderSectionSize])
 		var params := TerrainRendering.getRIDStorageBufferInt(paramsData, rd)
 		var paramUniform := TerrainRendering.getUniformStorageBuffer(params, 2)
 		
@@ -185,7 +185,7 @@ func updateGlobalIllumination():
 	#Step 3: Merge Cascades, only down to cascade 1
 	for i in range(cascadeCount - 1, 1, -1):
 		
-		var w : int = (TerrainRendering.renderSectionSize / 32) * initialCascadeRayCount
+		var w : int = (PixelSandbox.renderSectionSize / 32) * initialCascadeRayCount
 		var workGroups : Vector3i = Vector3i(w, w, 1)
 		
 		var mergeProbeSize : int = initialCascadeRayCount * pow(2, i - 1)

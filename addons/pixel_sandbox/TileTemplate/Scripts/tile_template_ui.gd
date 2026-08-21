@@ -40,7 +40,7 @@ func _ready() -> void:
 	call_deferred("setupSamples")
 
 func setupSamples():
-	for i in TerrainRendering.uniqueTiles:
+	for i in PixelSandbox.tilesInGame:
 		var im = TerrainRendering.generateSampleImage(i, sampleSize)
 		
 		var bp : Blueprint = Blueprint.new()

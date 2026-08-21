@@ -73,9 +73,9 @@ func use():
 		#var mousePos := Game.camera.get_global_mouse_position()
 		
 		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.FOREGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
-			TerrainDestruction.addTileImage(mousePos, forIm, TerrainDestruction.FOREGROUND)
+			TerrainServer.addTileImage(mousePos, forIm, PixelSandbox.LAYER.FOREGROUND)
 		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BACKGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
-			TerrainDestruction.addTileImage(mousePos, backIm, TerrainDestruction.BACKGROUND)
+			TerrainServer.addTileImage(mousePos, backIm, PixelSandbox.LAYER.BACKGROUND)
 		
 		if useContinous == false:
 			$AnimationPlayer.stop()
@@ -100,11 +100,11 @@ func altUse():
 		var mousePos := get_viewport().get_camera_2d().get_global_mouse_position()
 		#var mousePos := Game.camera.get_global_mouse_position()
 		
-
+		
 		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.FOREGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
-			TerrainDestruction.addTileBitmap(mousePos, -1, forBitmap, TerrainDestruction.FOREGROUND)
+			TerrainServer.addTileBitmap(mousePos, -1, forBitmap, PixelSandbox.LAYER.FOREGROUND)
 		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BACKGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
-			TerrainDestruction.addTileBitmap(mousePos, -1, backBitmap, TerrainDestruction.BACKGROUND)
+			TerrainServer.addTileBitmap(mousePos, -1, backBitmap, PixelSandbox.LAYER.BACKGROUND)
 		
 		
 		if altUseContinous == false:

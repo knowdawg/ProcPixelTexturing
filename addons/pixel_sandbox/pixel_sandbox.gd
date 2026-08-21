@@ -4,7 +4,9 @@ extends EditorPlugin
 
 var autoloads : Dictionary[String, String] = {
 	"TerrainRendering" : "res://addons/pixel_sandbox/Singletons/TerrainRendering.gd",
-	"TerrainDestruction" : "res://addons/pixel_sandbox/Singletons/TerrainDestruction.gd",
+	"TerrainServer" : "res://addons/pixel_sandbox/Singletons/TerrainServer.gd",
+	"PixelSandbox" : "res://addons/pixel_sandbox/Singletons/PixelSandbox.gd",
+	
 	"WorldManager" : "res://addons/pixel_sandbox/Singletons/WorldManager.gd",
 	"BlueprintManager" : "res://addons/pixel_sandbox/Singletons/BlueprintManager.gd",
 }

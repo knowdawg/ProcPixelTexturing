@@ -1,31 +1,27 @@
 extends Node2D
-class_name TextureChunk
+class_name WorldChunk
+
+#Debug
+var visualizeChunk : bool = false
 
 """
-Texture Chunk is given a coordinate upon creation. When it becomes dirty (usualy via TerrainDestruction), it get the new texture data from the TerrainRendering's world data image
-and preforms it's responsibilities. Its responsibilities include:
-	-Update the world visual image based on tile data
-	-Update collision
-	-Update the light map based on tile data
+Contains the tile data for a section of the world
 """
 
-var chunkSize : int
-
-var dirty : bool = true
-var chunkCoord : Vector2i
+var chunkSize : int #size of chunk in pixels (square)
+var chunkCoord : Vector2i #Location fo the chunk in chunk space
+var isActive : bool = false #Is this chunk in the loaded rect?
 
 """
 tileData is the data (in bytes) of the tiles for this chunk.
 tileData is converted into an rgba8 image before being passed into the shader. This means a few things:
-	-Seting / geting tiles is not as simple as an index. TileData is a 1d array thus some conversions neec to happen. See the worldToArray function
+	-Seting / geting tiles is not as simple as an index. TileData is a 1d array thus some conversions need to happen. See the worldToArray function
 	-Each pixel in the rgba8 texture is 1 byte. Thus, 4 bytes in the array need to be traversed to get to the next pixel
 	-tileData stores both foreground and background, the r channel is foreground and g channel is background
 """
 var tileData : PackedByteArray
 
-@export var visualizeChunk : bool = false
-var active : bool = false
-
+"""Collision"""
 var bitmap : BitMap
 var polygons : Array[PackedVector2Array]
 var collPolys : Array[CollisionPolygon2D] = []
@@ -42,23 +38,22 @@ func setup(chunk_size : int, chunk_coord : Vector2i):
 	
 	global_position = (chunkSize * chunkCoord)
 	
-	tileData.resize(chunkSize * chunkSize * 4) #times 4 for each collor channel
+	tileData.resize(chunkSize * chunkSize * 4) #4 bytes for 4 color channels
 	bitmap = BitMap.new()
-	
 
-func makeDirty():
-	dirty = true
 
-func updateBuffer():
-	#Approach: create the image from data based on your chunk and the sourounding 8 chunks
-	var chunkImage : Image = Image.create_empty(chunkSize * 3, chunkSize * 3, false, Image.FORMAT_RGBA8)
-	for i in range(-1, 2): #get chunk -1 to 1, range is exclusive in the secound parameter
-		for j in range(-1, 2):
-			var d : PackedByteArray = TerrainRendering.getChunkTileData(chunkCoord + Vector2i(i, j))
-			var im : Image = Image.create_from_data(chunkSize, chunkSize, false, Image.FORMAT_RGBA8, d)
-			chunkImage.blit_rect(im, Rect2i(0, 0, chunkSize, chunkSize), Vector2i(i + 1, j + 1) * chunkSize)
+"""Applies all queued TerrainEdits. Returns true if changes were made, false if not"""
+func updateChunk() -> bool:
+	if edits.size() == 0:
+		return false
 	
-	TerrainRendering.executeTextureChunkShader(chunkCoord, chunkImage)
+	#Update data
+	for e : TerrainEdit in edits:
+		applyTerrainEdit(e)
+	edits.clear()
+	
+	#Update collision
+	var chunkImage : Image = Image.create_from_data(chunkSize, chunkSize, false, Image.FORMAT_RGBA8, tileData)
 	
 	bitmap.create_from_image_alpha(chunkImage, 0.5)
 	var rect := Rect2i(Vector2i(chunkSize, chunkSize), Vector2i(chunkSize, chunkSize))
@@ -73,58 +68,56 @@ func updateBuffer():
 		colPoly.polygon = p
 		collPolys.append(colPoly)
 		$StaticBody2D.add_child(colPoly)
+	
+	return true
 
-func updateChunk():
-	if edits.size() == 0:
-		return
-		#makeDirty()
-	#if !dirty:
-		#return
-	
-	TerrainRendering.addChunkGroupToDirtyChunkQueue(chunkCoord)
-	for e : TerrainEdit in edits:
-		applyTerrainEdit(e)
-	edits.clear()
-	#updateBuffer()
-	#dirty = false
-	
-	
-
-func localToArray(localTilePos : Vector2i, layer : TerrainRendering.LAYER_TYPE) -> int:
+"""Given a coord in chunk space, return the tile data byte for that location"""
+func localToArray(localTilePos : Vector2i, layer : PixelSandbox.LAYER) -> int:
 	var tileArrayIndex = localTilePos.x + (localTilePos.y * chunkSize)
 	tileArrayIndex *= 4 #times 4 because there is 4 channels
 	
 	match layer:
-		TerrainRendering.LAYER_TYPE.FOREGROUND:
-			tileArrayIndex += 0 #red
-		TerrainRendering.LAYER_TYPE.BACKGROUND:
-			tileArrayIndex += 1 #green
+		PixelSandbox.LAYER.FOREGROUND:
+			tileArrayIndex += 0 #red channel
+		PixelSandbox.LAYER.BACKGROUND:
+			tileArrayIndex += 1 #green channel
 		
 	return tileArrayIndex
 
-func worldToArray(tilePos : Vector2i, layer : TerrainRendering.LAYER_TYPE) -> int:
+"""Given a coord in world space, return the tile data byte for that location"""
+func worldToArray(tilePos : Vector2i, layer : PixelSandbox.LAYER) -> int:
 	var expectedChunkCoord : Vector2i = tilePos / chunkSize
 	if expectedChunkCoord != chunkCoord:
-		#printerr("Atempting to set tile with world position %d in chunk %d. It should be in chunk %d", tilePos, chunkCoord, expectedChunkCoord)
 		return -1
-	var localTilePos : Vector2i = tilePos % chunkSize
 	
-	return localToArray(localTilePos, layer)
+	var localX : int = tilePos.x & (chunkSize - 1)
+	var localY : int = tilePos.y & (chunkSize - 1)
+	
+	var arrayIndex: int = (localX + (localY * chunkSize)) * 4
+	match layer:
+		PixelSandbox.LAYER.FOREGROUND:
+			arrayIndex += 0 #red channel
+		PixelSandbox.LAYER.BACKGROUND:
+			arrayIndex += 1 #green channel
+	
+	return arrayIndex
 
 func applyTerrainEdit(tEdit : TerrainEdit) -> int:
 	for i in range(tEdit.layers.size()):
 		var arrayIndex = localToArray(tEdit.localPositions[i], tEdit.layers[i])
 		tileData[arrayIndex] = clamp(tEdit.tileIndexs[i], 0, 255)
-		
+	
 	return 0
 
-func getTile(tilePos : Vector2i, layer : TerrainRendering.LAYER_TYPE) -> int:
+"""Outward facing tile query function"""
+func getTile(tilePos : Vector2i, layer : PixelSandbox.LAYER) -> int:
 	var arrayIndex = worldToArray(tilePos, layer)
 	if arrayIndex == -1: #error in the world to array function
 		return 0
 	var tile : int = tileData[arrayIndex]
 	return tile
 
+"""Draw Chunk Borders"""
 func _draw() -> void:
 	if visualizeChunk:
 		var c : Color = Color.LIME_GREEN
@@ -133,9 +126,9 @@ func _draw() -> void:
 		draw_rect(Rect2(Vector2(1.0, 1.0), Vector2(chunkSize - 1, chunkSize - 1)), c, false, 1.0, false)
 
 func activate():
-	active = true
+	isActive = true
 	$StaticBody2D.process_mode = ProcessMode.PROCESS_MODE_INHERIT
 
 func deActivate():
-	active = false
+	isActive = false
 	$StaticBody2D.process_mode = ProcessMode.PROCESS_MODE_DISABLED

@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://bnwh18w01rigl"]
+
+[ext_resource type="Script" uid="uid://d3esgvd0lg8bs" path="res://addons/pixel_sandbox/Scenes/WorldChunk/world_chunk.gd" id="1_kpu5o"]
+
+[node name="WorldChunk" type="Node2D" unique_id=228118592]
+script = ExtResource("1_kpu5o")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1126076616]
