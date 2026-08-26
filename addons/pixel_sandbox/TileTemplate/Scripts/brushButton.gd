@@ -9,8 +9,13 @@ var forActiveTex : ImageTexture
 var backActiveIm : Image
 var backActiveTex : ImageTexture
 
+var useContinousTime : float = 0.0
 func _process(delta: float) -> void:
 	updatePreview()
+	
+	useContinousTime += delta
+	if useContinousTime < 0.05: return
+	useContinousTime -= 0.05
 	
 	if useContinous:
 		use()

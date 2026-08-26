@@ -20,7 +20,7 @@ static func create(chunkCoord : Vector2i, chunkHash : int, mostRecentTerrainEdit
 	
 	packet.chunkCoord = chunkCoord
 	packet.chunkHash = chunkHash
-	packet.mostRecentTerrainEdit = mostRecentTerrainEdit
+	packet.mostRecentTerrainEdit = max(0, mostRecentTerrainEdit)
 	
 	return packet
 

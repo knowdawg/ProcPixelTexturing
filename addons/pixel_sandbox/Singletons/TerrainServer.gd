@@ -155,7 +155,7 @@ func updateChunks(delta : float) -> void:
 		if (chunk.timeSinceLastEdit > 1.0 and chunk.verificationSent == false) and NetworkManager.isServer:
 			var packet := ChunkHash.create(
 				chunk.chunkCoord,
-				chunk.tileDataHash,
+				chunk.chunkHash,
 				chunk.mostRecentGraduatedEdit.applyOrder if chunk.mostRecentGraduatedEdit else 0
 			)
 			for id in activeWorldViews.keys():
@@ -325,8 +325,8 @@ func receivePlayerViewPosition(id : int, packet : PlayerViewPosition):
 
 # -> Server
 func receiveTerrainChangeFromClient(id : int, packet : TerrainChange):
-	_makeTerrainChangeFromPacket(packet)
 	packet.setOrder()
+	_makeTerrainChangeFromPacket(packet)
 	packet.broadcast(NetworkManager.connection)
 
 # -> Client

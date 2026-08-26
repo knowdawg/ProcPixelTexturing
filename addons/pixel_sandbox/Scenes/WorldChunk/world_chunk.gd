@@ -20,11 +20,7 @@ tileData is converted into an rgba8 image before being passed into the shader. T
 	-tileData stores both foreground and background, the r channel is foreground and g channel is background
 """
 var tileData : PackedByteArray
-
-"""
-Hash
-"""
-var tileDataHash : int = 0
+var chunkHash : int = 0
 
 """Collision"""
 var bitmap : BitMap
@@ -44,7 +40,6 @@ Rollback
 """
 const EDIT_BUFFER_MAX_SIZE  : int = 32
 var tileDataRollback        : PackedByteArray
-var tileDataHashRollback    : int = 0
 var editRollbackBuffer      : Array[TerrainEdit] = [] #Stores the 64 most recent terrain edits
 
 var mostRecentGraduatedEdit : TerrainEdit
@@ -65,12 +60,17 @@ var timeUntilChunkStreamRequest : float = 0.0
 var desync : bool = false
 var forceDirty : bool = false
 
-func _process(delta: float) -> void:
+func updateDebug() -> void:
 	visible = visualizeChunk
+	
+	$Label.text = ""
+	$Label.text += "Coord: " + str(chunkCoord) + "\n"
+	$Label.text += "Hash: " + str(chunkHash) + "\n"
+	
 	if desync:
-		modulate.a = 0.5
+		modulate.a = 0.6
 	else:
-		modulate.a = 0.1
+		modulate.a = 0.3
 
 func setup(chunk_size : int, chunk_coord : Vector2i):
 	chunkSize = chunk_size
@@ -79,7 +79,7 @@ func setup(chunk_size : int, chunk_coord : Vector2i):
 	global_position = (chunkSize * chunkCoord)
 	
 	tileData.resize(chunkSize * chunkSize * 4) #4 bytes for 4 color channels
-	recalculateHash()
+	chunkHash = getHash(tileData)
 	
 	bitmap = BitMap.new()
 	
@@ -92,6 +92,7 @@ func addTerrainEditToQueue(tEdit : TerrainEdit):
 	
 	if mostRecentGraduatedEdit:
 		if tEdit.applyOrder < mostRecentGraduatedEdit.applyOrder:
+			print("Recieved Expired Packed")
 			desync = true
 			return
 	
@@ -113,12 +114,16 @@ func addTerrainEditToQueue(tEdit : TerrainEdit):
 
 """Applies all queued TerrainEdits. Returns true if changes were made, false if not"""
 func updateChunk(delta : float) -> bool:
+	updateDebug()
+	#Timers
 	timeSinceLastEdit += delta
 	timeUntilChunkStreamRequest -= delta
 	
+	#Check for timed out local edits (Edits that did not get a confirmation from the server)
 	for tEdit : TerrainEdit in localEdits:
 		if tEdit.isTimedOut():
 			forceDirty = true
+	
 	
 	if edits.size() == 0 and newLocalEdits.size() == 0 and !forceDirty:
 		return false
@@ -131,6 +136,7 @@ func updateChunk(delta : float) -> bool:
 	
 	if verificationPacket:
 		if isChunkInSyncWith(verificationPacket) == false:
+			print("Failed Chunk Sync")
 			desync = true
 		verificationPacket = null
 	
@@ -151,8 +157,6 @@ func updateChunk(delta : float) -> bool:
 		collPolys.append(colPoly)
 		$StaticBody2D.add_child(colPoly)
 	
-	$Label.text = "Hash: \n" + str(tileDataHash)
-	
 	return true
 
 
@@ -166,10 +170,10 @@ func applyTerrainEdits():
 				var oldTile : int = tileData[idx]
 				if oldTile == newTile: continue
 				
-				tileDataHash ^= _getByteHash(idx, oldTile) ^ _getByteHash(idx, newTile)
 				tileData[idx] = newTile
 			mostRecentGraduatedEdit = tEdit
 		edits.clear()
+		chunkHash = getHash(tileData)
 		return
 	
 	#Insert newLocalEdits into localEdits
@@ -183,7 +187,6 @@ func applyTerrainEdits():
 			func(a : TerrainEdit, b : TerrainEdit) -> bool:
 				return a.applyOrder < b.applyOrder
 		)
-		
 		editRollbackBuffer.insert(insertIdx, newEdit)
 	edits.clear()
 	
@@ -201,8 +204,6 @@ func applyTerrainEdits():
 			var oldTile : int = tileDataRollback[idx]
 			if oldTile == newTile: continue
 			
-			#Undo Old Byte Hash and apply the new one
-			tileDataHashRollback ^= _getByteHash(idx, oldTile) ^ _getByteHash(idx, newTile)
 			#Apply the actualy data change
 			tileDataRollback[idx] = newTile
 		mostRecentGraduatedEdit = tEdit
@@ -211,12 +212,11 @@ func applyTerrainEdits():
 	if graduatingEditCount > 0:
 		editRollbackBuffer = editRollbackBuffer.slice(graduatingEditCount)
 	
-	"""Apply Rollback Edits"""
+	"""Rollback"""
 	#Reset to rollback state
-	tileDataHash = tileDataHashRollback
 	tileData = tileDataRollback.duplicate()
 	
-	#Replay rollback edits
+	#Replay confirmed rollback edits
 	for tEdit : TerrainEdit in editRollbackBuffer:
 		for j in range(tEdit.layers.size()):
 			var idx = localToArray(tEdit.localPositions[j], tEdit.layers[j])
@@ -224,21 +224,21 @@ func applyTerrainEdits():
 			var oldTile : int = tileData[idx]
 			if oldTile == newTile: continue
 			
-			tileDataHash ^= _getByteHash(idx, oldTile) ^ _getByteHash(idx, newTile)
 			tileData[idx] = newTile
 	
 	
-	"""Apply local edits"""
+	"""Apply Local Edits"""
 	#Clear all timed out Local Terrain Edits
 	var localEditsPruned : Array[TerrainEdit] = []
 	for tEdit : TerrainEdit in localEdits:
 		if tEdit.isTimedOut():
+			print("LocalEditTimedOut")
 			desync = true
 			continue
 		localEditsPruned.append(tEdit)
 	localEdits = localEditsPruned
 	
-	#Replay Local Edits
+	#Replay Unconfirmed Local Edits
 	for tEdit : TerrainEdit in localEdits:
 		for j in range(tEdit.layers.size()):
 			var idx = localToArray(tEdit.localPositions[j], tEdit.layers[j])
@@ -246,8 +246,11 @@ func applyTerrainEdits():
 			var oldTile : int = tileData[idx]
 			if oldTile == newTile: continue
 			
-			tileDataHash ^= _getByteHash(idx, oldTile) ^ _getByteHash(idx, newTile)
+			#tileDataHash ^= _getByteHash(idx, oldTile) ^ _getByteHash(idx, newTile)
 			tileData[idx] = newTile
+	
+	#Update Hash
+	chunkHash = getHash(tileData)
 
 
 """
@@ -255,34 +258,33 @@ Verifies Chunk against a chunkhash packet.
 Return true if the hashes match, false if they do not
 """
 func isChunkInSyncWith(packet : ChunkHash) -> bool:
+	
 	if mostRecentGraduatedEdit:
 		if packet.mostRecentTerrainEdit < mostRecentGraduatedEdit.applyOrder: #Outdated verification
 			return true
 		
-		if packet.mostRecentTerrainEdit == mostRecentGraduatedEdit.applyOrder:
-			if packet.chunkHash == tileDataHashRollback:
-				return true
+	if packet.chunkHash == getHash(tileDataRollback):
+		return true
 	
-	var checkHash = tileDataHashRollback
 	var checkData = tileDataRollback.duplicate()
-	for tEdit : TerrainEdit in editRollbackBuffer:
+	var uncomfirmedEdits : Array[TerrainEdit] = editRollbackBuffer
+	uncomfirmedEdits.append_array(localEdits)
+	
+	for tEdit : TerrainEdit in uncomfirmedEdits:
 		for j in range(tEdit.layers.size()):
 			var idx = localToArray(tEdit.localPositions[j], tEdit.layers[j])
 			var newTile = clamp(tEdit.tileIndexs[j], 0, 255)
 			var oldTile : int = checkData[idx]
 			if oldTile == newTile: continue
 			
-			checkHash ^= _getByteHash(idx, oldTile) ^ _getByteHash(idx, newTile)
 			checkData[idx] = newTile
 		if tEdit.applyOrder == packet.mostRecentTerrainEdit:
-			if checkHash == packet.chunkHash:
+			if packet.chunkHash == getHash(checkData):
 				return true
+			print("Server Hash: " + str(packet.chunkHash) + " | Client Chunk At Same Packet Hash: " + str(getHash(checkData)))
 			return false
 	
-	if tileDataHash == packet.chunkHash:
-		return true
-	
-	
+	print("Server Hash: " + str(packet.chunkHash) + " | Client Rollback Chunk Hash: " + str(getHash(tileDataRollback)))
 	return false
 
 
@@ -348,22 +350,16 @@ func deActivate():
 	isActive = false
 	$StaticBody2D.process_mode = ProcessMode.PROCESS_MODE_DISABLED
 	queue_redraw()
-
-
-#Calculates a unique hash for a value at a specific array index
-func _getByteHash(index : int, val : int) -> int:
-	var h : int = (index * 0x45d9f3b) ^ ((val + 1) * 0x119de1f3)
-	h = ((h >> 16) ^ h) * 0x45d9f3b
-	h = ((h >> 16) ^ h) * 0x45d9f3b
-	h = (h >> 16) ^ h
-	return h & 0x7FFFFFFF # Mask to positive 32-bit int
+	
 
 #Use only after a chunk stream
-func recalculateHash() -> void:
-	tileDataHash = 0
-	for i in range(tileData.size()):
-		var val = tileData[i]
-		tileDataHash ^= _getByteHash(i, val)
+func getHash(data : PackedByteArray) -> int:
+	var ctx := HashingContext.new()
+	ctx.start(HashingContext.HASH_MD5)
+	ctx.update(data)
+	var raw_hash : PackedByteArray = ctx.finish()
+	
+	return raw_hash.decode_s64(0)
 
 
 func getSnapshot() -> PackedByteArray:
@@ -371,11 +367,11 @@ func getSnapshot() -> PackedByteArray:
 
 func applySnapshot(packet : ChunkStream) -> void:
 	tileData = packet.chunkDataCompressed.decompress(tileData.size(), FileAccess.COMPRESSION_ZSTD)
-	recalculateHash()
+	chunkHash = getHash(tileData)
+	
+	"""Rollback"""
 	#set rollback (confirmed) state to the snapshot
 	tileDataRollback = tileData.duplicate()
-	tileDataHashRollback = tileDataHash
-	
 	#Clear all edits that come before the snapshot
 	var prunedEdits : Array[TerrainEdit] = []
 	for tEdit : TerrainEdit in edits:

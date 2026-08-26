@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://d3esgvd0lg8bs" path="res://addons/pixel_sandbox/Scenes/WorldChunk/world_chunk.gd" id="1_kpu5o"]
 
 [node name="WorldChunk" type="Node2D" unique_id=228118592]
-modulate = Color(1, 1, 1, 0.19607843)
 z_index = 1
 script = ExtResource("1_kpu5o")
 
@@ -11,8 +10,11 @@ script = ExtResource("1_kpu5o")
 
 [node name="Label" type="Label" parent="." unique_id=1147338031]
 z_index = 1
+offset_top = 4.0
 offset_right = 64.0
-offset_bottom = 23.0
-theme_override_font_sizes/font_size = 4
-text = "Hash: "
+offset_bottom = 27.0
+theme_override_constants/line_spacing = 0
+theme_override_font_sizes/font_size = 3
+text = "Coord
+Hash: "
 horizontal_alignment = 1
