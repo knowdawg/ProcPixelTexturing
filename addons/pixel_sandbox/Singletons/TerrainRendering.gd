@@ -4,7 +4,6 @@ extends Node
 Manages Rendering Terrain Data
 """
 
-
 var sdfGen : SDFGenerator
 var lightmapSDF : RID
 
@@ -254,6 +253,9 @@ func constructTextureArrays():
 
 
 func _ready() -> void:
+	setupPipeline()
+
+func setupPipeline():
 	#Setup pipeline for calculate Enviermental Textures
 	renDev = RenderingServer.get_rendering_device()
 	#Texture Chunk Shader Settup
@@ -272,8 +274,14 @@ func _ready() -> void:
 	var image = Image.create_empty(PixelSandbox.renderSectionSize, PixelSandbox.renderSectionSize, false, Image.FORMAT_RGBAF);
 	image.fill(Color.BLACK)
 	lightmapSDF = getRIDImage(image, renDev)
+	
+	#Connect to Terrain Server's dirty chunk signal
+	TerrainServer.dirtyChunkBroadcast.connect(reRenderChunks)
 
 func _process(_delta: float) -> void:
+	#Dont update if you are a server or not connected to a server
+	if ClientNetworkGlobals.id == -1: return
+	
 	updateTileTextureScrollAndSpritePosition()
 	
 	if is_instance_valid(sdfGen) and is_instance_valid(radCasc):
@@ -332,6 +340,9 @@ func setupEnviromentObjects() -> void:
 
 
 func reRenderChunks(dirtyChunks : Array[WorldChunk]):
+	#Dont update if you are a server or not connected to a server
+	if ClientNetworkGlobals.id == -1: return
+	
 	for c in dirtyChunks:
 		#Approach: create the image from data based on your chunk and the sourounding 8 chunks
 		var chunkImage : Image = Image.create_empty(c.chunkSize * 3, c.chunkSize * 3, false, TERRAIN_IMAGE_FORMAT)

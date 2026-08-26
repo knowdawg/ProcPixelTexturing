@@ -9,8 +9,9 @@ var forActiveTex : ImageTexture
 var backActiveIm : Image
 var backActiveTex : ImageTexture
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	updatePreview()
+	
 	if useContinous:
 		use()
 	if altUseContinous:
@@ -66,16 +67,29 @@ func use():
 			useContinous = true
 		else:
 			useContinous = false
-		
-		var forIm : Image = getActiveElementImage(true)
-		var backIm : Image = getActiveElementImage(false)
-		var mousePos := get_viewport().get_camera_2d().get_global_mouse_position()
-		#var mousePos := Game.camera.get_global_mouse_position()
+			
+		var tile : int = tt.activeElement.blueprint.imageForground.get_pixel(16, 16).r * 255.0
+		var mousePos := Vector2i(get_viewport().get_camera_2d().get_global_mouse_position())
+		var radius : int = ceil(float(tt.brushSize.x) / 2.0)
 		
 		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.FOREGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
-			TerrainServer.addTileImage(mousePos, forIm, PixelSandbox.LAYER.FOREGROUND)
+			TerrainServer.makeTerrainChange(
+				mousePos,
+				tile,
+				radius,
+				PixelSandbox.LAYER.FOREGROUND,
+				TerrainChange.SHAPE.CIRCLE,
+				true
+			)
 		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BACKGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
-			TerrainServer.addTileImage(mousePos, backIm, PixelSandbox.LAYER.BACKGROUND)
+			TerrainServer.makeTerrainChange(
+				mousePos,
+				tile,
+				radius,
+				PixelSandbox.LAYER.BACKGROUND,
+				TerrainChange.SHAPE.CIRCLE,
+				true
+			)
 		
 		if useContinous == false:
 			$AnimationPlayer.stop()
@@ -89,23 +103,29 @@ func altUse():
 		else:
 			altUseContinous = false
 		
-		var forIm : Image = getActiveElementImage(true)
-		var forBitmap : BitMap = BitMap.new()
-		forBitmap.create_from_image_alpha(forIm, 0.5)
-		
-		var backIm : Image = getActiveElementImage(false)
-		var backBitmap : BitMap = BitMap.new()
-		backBitmap.create_from_image_alpha(backIm, 0.5)
-		
+		var tile : int = 0
 		var mousePos := get_viewport().get_camera_2d().get_global_mouse_position()
-		#var mousePos := Game.camera.get_global_mouse_position()
-		
+		var radius : int = ceil(float(tt.brushSize.x) / 2.0)
 		
 		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.FOREGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
-			TerrainServer.addTileBitmap(mousePos, -1, forBitmap, PixelSandbox.LAYER.FOREGROUND)
-		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BACKGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
-			TerrainServer.addTileBitmap(mousePos, -1, backBitmap, PixelSandbox.LAYER.BACKGROUND)
+			TerrainServer.makeTerrainChange(
+				mousePos,
+				tile,
+				radius,
+				PixelSandbox.LAYER.FOREGROUND,
+				TerrainChange.SHAPE.CIRCLE,
+				true
+			)
 		
+		if tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BACKGROUND or tt.activeElement.drawLayer == Blueprint.DRAWLAYER.BOTH:
+			TerrainServer.makeTerrainChange(
+				mousePos,
+				tile,
+				radius,
+				PixelSandbox.LAYER.BACKGROUND,
+				TerrainChange.SHAPE.CIRCLE,
+				true
+			)
 		
 		if altUseContinous == false:
 			$AnimationPlayer.stop()

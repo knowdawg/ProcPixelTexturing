@@ -6,6 +6,10 @@ class_name TerrainTileMap
 @export var active : bool = true
 
 func _ready() -> void:
+	var arguments = OS.get_cmdline_args()
+	
+	if "--client" in arguments: return
+	
 	if !active:
 		return
 	var tilemapSize : Vector2i = get_used_rect().size
@@ -21,13 +25,13 @@ func _ready() -> void:
 			
 			var pChunkCoord : Vector2i = TerrainServer.worldToChunk(p)
 			if tEdits.has(pChunkCoord):
-				tEdits[pChunkCoord].appendTerrainChange(p, tileIndex, layer)
+				tEdits[pChunkCoord].appendTerrainChange(p, tileIndex, layer, true)
 			else:
-				tEdits[pChunkCoord] = TerrainEdit.new(pChunkCoord)
-				tEdits[pChunkCoord].appendTerrainChange(p, tileIndex, layer)
+				tEdits[pChunkCoord] = TerrainEdit.new(pChunkCoord, -99, -1, -1)
+				tEdits[pChunkCoord].appendTerrainChange(p, tileIndex, layer, true)
 			
 	for k : Vector2i in tEdits.keys():
-		TerrainServer.distributeTerrainEdit(tEdits[k])
+		TerrainServer.applyTerrainEdit(tEdits[k])
 	
 	#Clear the tilemap
 	for x in tilemapSize.x:

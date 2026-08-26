@@ -7,6 +7,10 @@ var autoloads : Dictionary[String, String] = {
 	"TerrainServer" : "res://addons/pixel_sandbox/Singletons/TerrainServer.gd",
 	"PixelSandbox" : "res://addons/pixel_sandbox/Singletons/PixelSandbox.gd",
 	
+	"NetworkManager" : "res://addons/pixel_sandbox/Singletons/NetworkManager.gd",
+	"ClientNetworkGlobals" : "res://addons/pixel_sandbox/Singletons/ClientNetworkGlobals.gd",
+	"ServerNetworkGlobals" : "res://addons/pixel_sandbox/Singletons/ServerNetworkGlobals.gd",
+	
 	"WorldManager" : "res://addons/pixel_sandbox/Singletons/WorldManager.gd",
 	"BlueprintManager" : "res://addons/pixel_sandbox/Singletons/BlueprintManager.gd",
 }

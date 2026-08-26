@@ -32,6 +32,8 @@ func _process(delta: float) -> void:
 	%TerrainRenderingValues.text += "TextureWrapPixelOffset: %.0v\n" % TerrainRendering.textureWrapPixelOffset
 	%TerrainRenderingValues.text += "CameraPosition: %.3v\n" % TerrainRendering.cameraPosition
 	%TerrainRenderingValues.text += "CameraChunkPixelProgress: %.0v\n" % TerrainRendering.cameraChunkPixelProgress
+	%TerrainRenderingValues.text += "isServer?: " + ("True" if NetworkManager.isServer else "False") + "\n"
+	
 
 
 func getTexture2dRID(imageRID : RID) -> Texture2DRD:

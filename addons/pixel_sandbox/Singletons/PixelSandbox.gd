@@ -9,12 +9,13 @@ To constant data across Pixel Sandbox
 """
 
 """--- SETTINGS ---"""
+var terrainServerTicksPerSecond : float = 30.0
+
 var chunkSize : int = 64
 #Amount of the world (in pixels) that is rendered at once
 var renderSectionSize : int = 1024
 #Size of the world (in pixels)
 var mapSize : Vector2i = Vector2i(2048, 2048)
-#
 var tilesInGame : int = 256
 
 

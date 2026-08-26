@@ -27,9 +27,9 @@ func _ready() -> void:
 static func addGlobals():
 	for s : String in shaderGlobals.keys():
 		RenderingServer.global_shader_parameter_add(s, shaderGlobals[s], null)
-		print("Shader Global : ", s, " Added")
+		#print("Shader Global : ", s, " Added")
 
 static func removeGlobals():
 	for s : String in shaderGlobals.keys():
 		RenderingServer.global_shader_parameter_remove(s)
-		print("Shader Global : ", s, " Removed")
+		#print("Shader Global : ", s, " Removed")
