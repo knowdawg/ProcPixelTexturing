@@ -292,56 +292,6 @@ func applyTerrainEdit(tEdit : TerrainEdit):
 	ownerChunk.addTerrainEditToQueue(tEdit)
 
 
-"""--- Packet Creation ---"""
-#Server ->
-func sendChunkToClient(clientID : int, chunk : WorldChunk) -> int:
-	var snapshot : PackedByteArray = chunk.getSnapshot()
-	ChunkStream.create(
-		chunk.chunkCoord, snapshot
-	).send(NetworkManager.clients[clientID])
-	
-	return snapshot.size()
-
-#Client ->
-func sendPlayerViewPostionToServer(newPos : Vector2):
-	PlayerViewPosition.create(
-		newPos
-	).send(NetworkManager.server)
-
-func sendChunkStreamRequest(chunkCoord : Vector2i):
-	ChunkStreamRequest.create(
-		chunkCoord
-	).send(NetworkManager.server)
-
-"""--- Packet Recieption ---"""
-# -> Client
-func receiveChunkPacket(packet : ChunkStream):
-	var recievedChunk : WorldChunk = chunks[packet.chunkCoord]
-	recievedChunk.applySnapshot(packet)
-
-# -> Server
-func receivePlayerViewPosition(id : int, packet : PlayerViewPosition):
-	activeWorldViews[id].position = packet.pos
-
-# -> Server
-func receiveTerrainChangeFromClient(id : int, packet : TerrainChange):
-	packet.setOrder()
-	_makeTerrainChangeFromPacket(packet)
-	packet.broadcast(NetworkManager.connection)
-
-# -> Client
-func receiveTerrainChangeFromServer(packet : TerrainChange):
-	_makeTerrainChangeFromPacket(packet)
-
-# -> Client
-func receiveChunkHashPacket(packet : ChunkHash):
-	var chunkToCheck : WorldChunk = chunks[packet.chunkCoord]
-	chunkToCheck.verificationPacket = packet #The chunk will run verification on it on its next update
-	chunkToCheck.forceDirty = true
-
-# -> Server
-func recieveChunkStreamRequest(id : int, packet : ChunkStreamRequest):
-	sendChunkToClient(id, chunks[packet.chunkCoord])
 
 
 """--- All Terrain Changes go through here ---"""
@@ -395,3 +345,55 @@ func _isInCircle(offset : Vector2i, radius : int) -> bool:
 	if offset.length() <= float(radius) + 0.5:
 		return true
 	return false
+
+
+"""--- Packet Creation ---"""
+#Server ->
+func sendChunkToClient(clientID : int, chunk : WorldChunk) -> int:
+	var snapshot : PackedByteArray = chunk.getSnapshot()
+	ChunkStream.create(
+		chunk.chunkCoord, snapshot
+	).send(NetworkManager.clients[clientID])
+	
+	return snapshot.size()
+
+#Client ->
+func sendPlayerViewPostionToServer(newPos : Vector2):
+	PlayerViewPosition.create(
+		newPos
+	).send(NetworkManager.server)
+
+func sendChunkStreamRequest(chunkCoord : Vector2i):
+	ChunkStreamRequest.create(
+		chunkCoord
+	).send(NetworkManager.server)
+
+"""--- Packet Recieption ---"""
+# -> Client
+func receiveChunkPacket(packet : ChunkStream):
+	var recievedChunk : WorldChunk = chunks[packet.chunkCoord]
+	recievedChunk.applySnapshot(packet)
+
+# -> Server
+func receivePlayerViewPosition(id : int, packet : PlayerViewPosition):
+	activeWorldViews[id].position = packet.pos
+
+# -> Server
+func receiveTerrainChangeFromClient(id : int, packet : TerrainChange):
+	packet.setOrder()
+	_makeTerrainChangeFromPacket(packet)
+	packet.broadcast(NetworkManager.connection)
+
+# -> Client
+func receiveTerrainChangeFromServer(packet : TerrainChange):
+	_makeTerrainChangeFromPacket(packet)
+
+# -> Client
+func receiveChunkHashPacket(packet : ChunkHash):
+	var chunkToCheck : WorldChunk = chunks[packet.chunkCoord]
+	chunkToCheck.verificationPacket = packet #The chunk will run verification on it on its next update
+	chunkToCheck.forceDirty = true
+
+# -> Server
+func recieveChunkStreamRequest(id : int, packet : ChunkStreamRequest):
+	sendChunkToClient(id, chunks[packet.chunkCoord])

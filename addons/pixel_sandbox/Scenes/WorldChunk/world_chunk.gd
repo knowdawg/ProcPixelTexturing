@@ -96,13 +96,18 @@ func addTerrainEditToQueue(tEdit : TerrainEdit):
 			desync = true
 			return
 	
+	if tEdit.applyOrder == TerrainChange.UNSET_ORDER: #local edit
+		if tEdit.authorID != ClientNetworkGlobals.id:
+			print("Recieved Packet with unset order that is not my own!")
+			desync = true
+			return
+		newLocalEdits.append(tEdit)
+		return
+	
 	if tEdit.authorID != ClientNetworkGlobals.id:
 		edits.append(tEdit)
 		return
 	
-	if tEdit.applyOrder == TerrainChange.UNSET_ORDER: #local edit
-		newLocalEdits.append(tEdit)
-		return
 	
 	#If this is my terrain edit coming back from the server then it is confirmed. Remove it from local edits and add it to edits
 	for i : int in range(localEdits.size()):
@@ -267,7 +272,7 @@ func isChunkInSyncWith(packet : ChunkHash) -> bool:
 		return true
 	
 	var checkData = tileDataRollback.duplicate()
-	var uncomfirmedEdits : Array[TerrainEdit] = editRollbackBuffer
+	var uncomfirmedEdits : Array[TerrainEdit] = editRollbackBuffer.duplicate()
 	uncomfirmedEdits.append_array(localEdits)
 	
 	for tEdit : TerrainEdit in uncomfirmedEdits:
