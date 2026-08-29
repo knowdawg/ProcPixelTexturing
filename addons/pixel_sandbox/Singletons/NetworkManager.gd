@@ -1,11 +1,13 @@
 extends Node
 
 #Server Signals
+signal onServerStarted()
 signal onClientConnected(client_id : int)
 signal onClientDisconnected(client_id : int)
 signal onServerPacketRecieved(client_id : int, packet : PackedByteArray)
 
 #Client Signals
+signal onClientStarted()
 signal onConnectedToServer()
 signal onDisconnectedFromServer()
 signal onClientPacketRecieved(packet : PackedByteArray)
@@ -22,26 +24,33 @@ var server : ENetPacketPeer
 var connection : ENetConnection
 var isServer : bool = false
 
+#Debug
+var bytesDownloaded : int = 0
+var bytesUploaded : int = 0 #ticked up in the BasePacket class
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if connection == null: return #Server / client not started
 	
 	handleEvents()
+
 
 
 func handleEvents():
 	var packetEvent : Array = connection.service()
 	var eventType : ENetConnection.EventType = packetEvent[0]
 	
+	#Fetch all the raw packets
+	var packets : Array[PackedByteArray] = []
+	var peers : Array[ENetPacketPeer] = []
 	while eventType != ENetConnection.EVENT_NONE:
 		var peer : ENetPacketPeer = packetEvent[1]
 		
 		match eventType:
 			ENetConnection.EVENT_RECEIVE:
-				if isServer:
-					onServerPacketRecieved.emit(peer.get_meta("id"), peer.get_packet())
-				else:
-					onClientPacketRecieved.emit(peer.get_packet())
+				var packet := peer.get_packet()
+				bytesDownloaded += packet.size()
+				packets.append(packet)
+				peers.append(peer)
 				
 			ENetConnection.EVENT_CONNECT:
 				if isServer:
@@ -62,21 +71,39 @@ func handleEvents():
 				
 		packetEvent = connection.service()
 		eventType = packetEvent[0]
+	
+	#Resolve all the packets
+	for i in range(packets.size()):
+		var packet := packets[i]
+		var peer := peers[i]
+		if isServer:
+			onServerPacketRecieved.emit(peer.get_meta("id"), packet)
+		else:
+			onClientPacketRecieved.emit(packet)
 
-func startServer(ipAddress : String = "127.0.0.1", port : int = 6776) -> void:
+func startServer(ipAddress : String = "127.0.0.1", port : int = 6776) -> Error:
 	connection = ENetConnection.new()
 	var error := connection.create_host_bound(ipAddress, port)
 	if error:
 		print("Server Failed to Start: ", error_string(error))
 		connection = null
-		return
+		return error
 	
 	print("Server Started!")
 	isServer = true
+	onServerStarted.emit()
+	
+	return Error.OK
 
 func clientConnected(client : ENetPacketPeer):
 	var clientID = availableClientIds.pop_back()
 	client.set_meta("id", clientID)
+	
+	#Prevent ENet's Adaptive Throttle
+	client.throttle_configure(0, 0, 0)
+	#Retry sending packets in 150ms - 500ms after a congestion
+	client.set_timeout(0, 150, 500)
+	
 	clients[clientID] = client
 	
 	print("Client connected with ID: ", clientID)
@@ -92,18 +119,22 @@ func clientDisconnected(client : ENetPacketPeer):
 
 
 
-func startClient(ipAddress : String = "127.0.0.1", port : int = 6776) -> void:
+func startClient(ipAddress : String = "127.0.0.1", port : int = 6776) -> Error:
 	connection = ENetConnection.new()
 	var error := connection.create_host(1)
 	if error:
 		print("Client Failed to Start: ", error_string(error))
 		connection = null
-		return
+		return error
 	
 	print("Client Started!")
 	isServer = false
 	
 	server = connection.connect_to_host(ipAddress, port)
+	
+	onClientStarted.emit()
+	
+	return Error.OK
 
 func connectedToServer():
 	print("Connected To Server!")

@@ -39,8 +39,12 @@ func decode(data : PackedByteArray) -> StreamPeerBuffer:
 
 #Overide for different channel
 func send(target : ENetPacketPeer, channel : CHANNELS = CHANNELS.CRITICAL):
-	target.send(channel, encode(), flag)
+	var packet := encode()
+	NetworkManager.bytesUploaded += packet.size()
+	target.send(channel, packet, flag)
 
 #Overide for different channel
 func broadcast(server : ENetConnection, channel : CHANNELS = CHANNELS.CRITICAL):
-	server.broadcast(channel, encode(), flag)
+	var packet := encode()
+	NetworkManager.bytesUploaded += packet.size()
+	server.broadcast(channel, packet, flag)

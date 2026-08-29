@@ -1,0 +1,81 @@
+[gd_scene format=3 uid="uid://bw1ik7w1vw3we"]
+
+[ext_resource type="Script" uid="uid://j2ps0r647kkn" path="res://Test/HostOrJoinUI/host_or_join_ui.gd" id="1_absj4"]
+[ext_resource type="Theme" uid="uid://bb14in7hrmlly" path="res://Test/HostOrJoinUI/HostOrJoinTheme.tres" id="2_33ocx"]
+
+[node name="HostOrJoinUI" type="CanvasLayer" unique_id=1495963338]
+script = ExtResource("1_absj4")
+
+[node name="JoinOrHost" type="MarginContainer" parent="." unique_id=1839019353]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -8.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+theme_override_constants/margin_top = 64
+theme_override_constants/margin_right = 64
+theme_override_constants/margin_bottom = 64
+
+[node name="VBoxContainer" type="VBoxContainer" parent="JoinOrHost" unique_id=1872555545]
+layout_mode = 2
+
+[node name="IPLineEdit" type="LineEdit" parent="JoinOrHost/VBoxContainer" unique_id=850649767]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_33ocx")
+placeholder_text = "IP Address"
+
+[node name="PortLineEdit" type="LineEdit" parent="JoinOrHost/VBoxContainer" unique_id=874274555]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_33ocx")
+placeholder_text = "Port"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="JoinOrHost/VBoxContainer" unique_id=1760762449]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="JoinButton" type="Button" parent="JoinOrHost/VBoxContainer/HBoxContainer2" unique_id=286620831]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_33ocx")
+text = "Join"
+
+[node name="HostButton" type="Button" parent="JoinOrHost/VBoxContainer/HBoxContainer2" unique_id=387390971]
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("2_33ocx")
+text = "Host"
+
+[node name="ErrorContainer" type="MarginContainer" parent="." unique_id=635574140]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="ErrorLabel" type="Label" parent="ErrorContainer" unique_id=1360077853]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 50)
+layout_mode = 2
+size_flags_vertical = 8
+theme = ExtResource("2_33ocx")
+theme_override_colors/font_color = Color(0.9, 0.2895, 0.23399998, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 1
+text = "TEST ERROR"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[connection signal="button_up" from="JoinOrHost/VBoxContainer/HBoxContainer2/JoinButton" to="." method="_on_join_button_button_up"]
+[connection signal="button_up" from="JoinOrHost/VBoxContainer/HBoxContainer2/HostButton" to="." method="_on_host_button_button_up"]

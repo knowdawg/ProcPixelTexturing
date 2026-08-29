@@ -15,7 +15,7 @@ class_name TerrainEdit
 
 
 """Rollback"""
-const TIMEOUT_TIME_MS : int = 1000 #1 sec
+const TIMEOUT_TIME_MS : int = 2000 #2 sec
 var authorID       : int #Client that made the original change
 var packetID       : int
 var applyOrder     : int #The order in which the changes need to be applied, or INT64_MAX if local

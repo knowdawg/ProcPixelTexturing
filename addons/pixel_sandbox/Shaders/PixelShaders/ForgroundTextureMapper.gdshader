@@ -28,10 +28,13 @@ void fragment() {
 	
 	vec3 specularGI;
 	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm, spec, 0.0, dirOffsetBlend, specularGI);
-	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 1.0, 1.0, 1.0); //brightness*exposure = gain, last arg = saturation
+	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 2.0, 2.0, 2.0); //brightness*exposure = gain, last arg = saturation
 	radiance.rgb = pow(radiance.rgb, vec3(1.0 / 2.2));
 	//Specular on top of the albedo with its own tonemap, so it isn't squashed by the diffuse correction
-	vec3 specularDisplay = pow(tonemapHDR(specularGI, 1.0), vec3(1.0 / 2.2));
+	vec3 specularDisplay = pow(
+		brightnessExposureLuminance(specularGI, 1.0, 1.0, 2.0),
+		vec3(1.0 / 2.2)
+	);
 	
 	//Calculating Reflection
 	if(reflectiveness > 0.0){

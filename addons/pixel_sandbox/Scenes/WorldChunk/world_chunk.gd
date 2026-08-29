@@ -1,9 +1,6 @@
 extends Node2D
 class_name WorldChunk
 
-#Debug
-var visualizeChunk : bool = true
-
 """
 Contains the tile data for a section of the world
 """
@@ -38,7 +35,7 @@ var localEdits : Array[TerrainEdit] = [] #local edits live here after being appl
 """
 Rollback
 """
-const EDIT_BUFFER_MAX_SIZE  : int = 32
+const EDIT_BUFFER_MAX_SIZE  : int = 16
 var tileDataRollback        : PackedByteArray
 var editRollbackBuffer      : Array[TerrainEdit] = [] #Stores the 64 most recent terrain edits
 
@@ -60,17 +57,28 @@ var timeUntilChunkStreamRequest : float = 0.0
 var desync : bool = false
 var forceDirty : bool = false
 
+func _ready() -> void:
+	visible = false
+
 func updateDebug() -> void:
-	visible = visualizeChunk
+	visible = PixelSandbox.debugState == PixelSandbox.DEBUG_STATES.CHUNK
+	
+	if desync:
+		queue_redraw()
 	
 	$Label.text = ""
 	$Label.text += "Coord: " + str(chunkCoord) + "\n"
 	$Label.text += "Hash: " + str(chunkHash) + "\n"
-	
-	if desync:
-		modulate.a = 0.6
+	$Label.text += "Most Recent Confirmed Edit: \n"
+	if editRollbackBuffer.size() == 0:
+		$Label.text += "    N/A"
 	else:
-		modulate.a = 0.3
+		var tEdit := editRollbackBuffer[editRollbackBuffer.size() - 1]
+		$Label.text += "    Author ID: " + str(tEdit.authorID) + "\n"
+		$Label.text += "    Packet ID: " + str(tEdit.packetID) + "\n"
+		$Label.text += "    Apply Order: " + str(tEdit.applyOrder) + "\n"
+		$Label.text += "    Time of Creation: " + str(tEdit.creationTime) + "\n"
+	
 
 func setup(chunk_size : int, chunk_coord : Vector2i):
 	chunkSize = chunk_size
@@ -115,6 +123,14 @@ func addTerrainEditToQueue(tEdit : TerrainEdit):
 		if e.packetID == tEdit.packetID:
 			localEdits.remove_at(i)
 			break
+	
+	#Also check newLocalEdits in case the server got back before new local edits got applied
+	for i : int in range(newLocalEdits.size()):
+		var e : TerrainEdit = newLocalEdits[i]
+		if e.packetID == tEdit.packetID:
+			newLocalEdits.remove_at(i)
+			break
+	
 	edits.append(tEdit)
 
 """Applies all queued TerrainEdits. Returns true if changes were made, false if not"""
@@ -237,7 +253,7 @@ func applyTerrainEdits():
 	var localEditsPruned : Array[TerrainEdit] = []
 	for tEdit : TerrainEdit in localEdits:
 		if tEdit.isTimedOut():
-			print("LocalEditTimedOut")
+			print("LocalEditTimedOut: " + str(tEdit.packetID))
 			desync = true
 			continue
 		localEditsPruned.append(tEdit)
@@ -251,7 +267,6 @@ func applyTerrainEdits():
 			var oldTile : int = tileData[idx]
 			if oldTile == newTile: continue
 			
-			#tileDataHash ^= _getByteHash(idx, oldTile) ^ _getByteHash(idx, newTile)
 			tileData[idx] = newTile
 	
 	#Update Hash
@@ -263,19 +278,24 @@ Verifies Chunk against a chunkhash packet.
 Return true if the hashes match, false if they do not
 """
 func isChunkInSyncWith(packet : ChunkHash) -> bool:
-	
+	#Check if chunk sync is out of date
 	if mostRecentGraduatedEdit:
-		if packet.mostRecentTerrainEdit < mostRecentGraduatedEdit.applyOrder: #Outdated verification
+		if packet.mostRecentTerrainEdit < mostRecentGraduatedEdit.applyOrder: #Outdated
 			return true
-		
-	if packet.chunkHash == getHash(tileDataRollback):
+	
+	if packet.chunkHash == chunkHash:
 		return true
 	
+	#Applying rollbox and local edits
 	var checkData = tileDataRollback.duplicate()
 	var uncomfirmedEdits : Array[TerrainEdit] = editRollbackBuffer.duplicate()
 	uncomfirmedEdits.append_array(localEdits)
+	uncomfirmedEdits.append_array(newLocalEdits)
 	
+	#Apply edits until you are up to date with server
 	for tEdit : TerrainEdit in uncomfirmedEdits:
+		if tEdit.applyOrder > packet.mostRecentTerrainEdit: #up to date!
+			break
 		for j in range(tEdit.layers.size()):
 			var idx = localToArray(tEdit.localPositions[j], tEdit.layers[j])
 			var newTile = clamp(tEdit.tileIndexs[j], 0, 255)
@@ -283,13 +303,13 @@ func isChunkInSyncWith(packet : ChunkHash) -> bool:
 			if oldTile == newTile: continue
 			
 			checkData[idx] = newTile
-		if tEdit.applyOrder == packet.mostRecentTerrainEdit:
-			if packet.chunkHash == getHash(checkData):
-				return true
-			print("Server Hash: " + str(packet.chunkHash) + " | Client Chunk At Same Packet Hash: " + str(getHash(checkData)))
-			return false
+	
+	#Check if up to date hash matches
+	if packet.chunkHash == getHash(checkData):
+		return true
 	
 	print("Server Hash: " + str(packet.chunkHash) + " | Client Rollback Chunk Hash: " + str(getHash(tileDataRollback)))
+	print("Local Edits Size: " + str(localEdits.size()) + " | New Local Edits Size: " + str(newLocalEdits.size()))
 	return false
 
 
@@ -340,7 +360,7 @@ func _draw() -> void:
 		c = Color.LIME_GREEN
 		if (chunkCoord.x + chunkCoord.y) % 2 == 0:
 			c = Color.DARK_GREEN
-	if !isActive:
+	if !isActive or desync == true:
 		c = Color.RED
 		if (chunkCoord.x + chunkCoord.y) % 2 == 0:
 			c = Color.DARK_RED
@@ -355,7 +375,6 @@ func deActivate():
 	isActive = false
 	$StaticBody2D.process_mode = ProcessMode.PROCESS_MODE_DISABLED
 	queue_redraw()
-	
 
 #Use only after a chunk stream
 func getHash(data : PackedByteArray) -> int:

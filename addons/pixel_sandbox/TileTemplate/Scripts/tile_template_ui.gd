@@ -38,6 +38,12 @@ func _ready() -> void:
 	
 	call_deferred("hideUI")
 	call_deferred("setupSamples")
+	
+	#Server Selection Test Code
+	visible = false
+	NetworkManager.onClientStarted.connect(func() -> void:
+		visible = true
+	)
 
 func setupSamples():
 	for i in PixelSandbox.tilesInGame:

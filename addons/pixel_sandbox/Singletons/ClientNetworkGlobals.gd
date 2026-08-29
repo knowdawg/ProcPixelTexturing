@@ -46,3 +46,7 @@ func manageIDs(packet : IDAssignment):
 	else: #New ID incoming, add it to remoteIDs
 		remoteIDs.append(packet.id)
 		onRemoteIDAdded.emit(packet.id)
+
+func flushToServer():
+	if NetworkManager.connection:
+		NetworkManager.connection.flush()

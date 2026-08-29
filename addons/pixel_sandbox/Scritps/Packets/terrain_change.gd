@@ -7,7 +7,7 @@ enum SHAPE{
 }
 static var curPacketID : int = 0 #repeats every 2^16
 
-var pos           : Vector2i
+#var pos           : Vector2i
 var tile          : int
 var radius        : int #min: 0, max: 255 (2^8)
 #Layer, Shape, isDestructive are all packed into 1 byte
@@ -16,13 +16,29 @@ var shape         : SHAPE
 var isDestructive : bool #Whether the edit only applies to empty tiles or to all tiles
 
 var authorID      : int #Client that made the original change
-var packetID      : int
 var applyOrder    : int #The order in which the changes were applied. UNSET_ORDER if not yet set by server
 
+#The change happens at EACH of these points
+var points        : Array[Vector2i] #int32
+var packetIDs     : Array[int]
 
 func setOrder():
 	applyOrder = TerrainPacket.getNextTilePacketOrder()
 
+func canMerge(packet : TerrainChange) -> bool:
+	if tile != packet.tile: return false
+	if radius != packet.radius: return false
+	if layer != packet.layer: return false
+	if shape != packet.shape: return false
+	if isDestructive != packet.isDestructive: return false
+	
+	return true
+
+#Only call is canMerge is true
+func mergeWith(packet : TerrainChange) -> void:
+	#print("[" + ", ".join(PackedStringArray(packetIDs)) + "] | [" + ", ".join(PackedStringArray(packet.packetIDs)) + "]")
+	points.append_array(packet.points.duplicate())
+	packetIDs.append_array(packet.packetIDs.duplicate())
 
 static func create(
 	pos : Vector2i,
@@ -34,7 +50,7 @@ static func create(
 	) -> TerrainChange:
 	var packet := TerrainChange.new()
 	
-	packet.pos = pos.clamp(Vector2i(-2147483648, -2147483648), Vector2i(2147483647, 2147483647))
+	packet.points.append(pos.clamp(Vector2i(-2147483648, -2147483648), Vector2i(2147483647, 2147483647)))
 	packet.packetType = PACKET_TYPE.TERRAIN_CHANGE
 	packet.flag = ENetPacketPeer.FLAG_RELIABLE
 	
@@ -46,7 +62,7 @@ static func create(
 	packet.isDestructive = isDestructive
 	
 	packet.authorID = ClientNetworkGlobals.id
-	packet.packetID = curPacketID
+	packet.packetIDs.append(curPacketID)
 	curPacketID = (curPacketID + 1) % 65536 #(2^16)
 	
 	packet.applyOrder = UNSET_ORDER
@@ -62,8 +78,8 @@ func encode() -> PackedByteArray:
 	var buffer := StreamPeerBuffer.new()
 	buffer.put_data(super.encode())
 	
-	buffer.put_32(pos.x)
-	buffer.put_32(pos.y)
+	#buffer.put_32(pos.x)
+	#buffer.put_32(pos.y)
 	buffer.put_u8(tile)
 	buffer.put_u8(radius)
 	
@@ -74,21 +90,28 @@ func encode() -> PackedByteArray:
 	buffer.put_u8(packedVars)
 	
 	buffer.put_u8(authorID)
-	buffer.put_u16(packetID)
+	#buffer.put_u16(packetID)
 	
 	buffer.put_u32(
 		clamp(applyOrder, 0, UNSET_ORDER)
 		)
+	
+	for i in range(points.size()):
+		var p := points[i]
+		var pID := packetIDs[i]
+		buffer.put_32(p.x)
+		buffer.put_32(p.y)
+		buffer.put_u16(pID)
 	
 	return buffer.data_array
 
 func decode(data : PackedByteArray) -> StreamPeerBuffer:
 	var buffer : StreamPeerBuffer = super.decode(data)
 	
-	pos = Vector2i(
-		buffer.get_32(),
-		buffer.get_32()
-	)
+	#pos = Vector2i(
+		#buffer.get_32(),
+		#buffer.get_32()
+	#)
 	tile = buffer.get_u8()
 	radius = buffer.get_u8()
 	
@@ -98,9 +121,16 @@ func decode(data : PackedByteArray) -> StreamPeerBuffer:
 	isDestructive = bool((packedVars) & 0x1)
 	
 	authorID = buffer.get_u8()
-	packetID = buffer.get_u16()
+	#packetID = buffer.get_u16()
 	
 	applyOrder = buffer.get_u32()
+	
+	while buffer.get_available_bytes() >= 10: #2 int32's + 1 int16
+		points.append(Vector2i(
+			buffer.get_32(),
+			buffer.get_32()
+		))
+		packetIDs.append(buffer.get_u16())
 	
 	return null #No bytes remaining
 

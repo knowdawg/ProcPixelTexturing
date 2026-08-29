@@ -20,16 +20,15 @@ var activeWorldViews : Dictionary[int, WorldView]
 #clientID to Chunks that need to be streamed to them
 var clientChunkStreamQueue : Dictionary[int, Array] = {}
 
+"""Client Variables"""
+#Group together similar terrain changes and only send them at server tick rate
+var queuedTerrainChanges : Array[TerrainChange]
+
 func _ready() -> void:
 	createChunks()
 	
-	var arguments = OS.get_cmdline_args()
-	
-	# Check for a simple flag like --server
-	if "--server" in arguments:
-		startServer()
-	elif "--client" in arguments:
-		startClient()
+	NetworkManager.onServerStarted.connect(startServer)
+	NetworkManager.onClientStarted.connect(startClient)
 	
 
 """START SERVER"""
@@ -41,10 +40,11 @@ func startServer():
 	ServerNetworkGlobals.onPlayerViewPositionRecieved.connect(receivePlayerViewPosition)
 	ServerNetworkGlobals.onPlayerTerrainChangeRecieved.connect(receiveTerrainChangeFromClient)
 	ServerNetworkGlobals.onChunkStreamRequest.connect(recieveChunkStreamRequest)
-	NetworkManager.startServer()
+	
 func newClient(newID : int):
 	activeWorldViews[newID] = WorldView.new()
 	clientChunkStreamQueue[newID] = []
+	
 func clientDisconect(clientID : int):
 	activeWorldViews.erase(clientID)
 	clientChunkStreamQueue.erase(clientID)
@@ -57,11 +57,11 @@ func startClient():
 	ClientNetworkGlobals.onChunkStreamRevieved.connect(receiveChunkPacket)
 	ClientNetworkGlobals.onTerrainChangeRecieved.connect(receiveTerrainChangeFromServer)
 	ClientNetworkGlobals.onChunkHashRevieved.connect(receiveChunkHashPacket)
-	NetworkManager.startClient()
+	
 func IDRecieved(id : int):
 	activeWorldViews[id] = WorldView.new()
 
-func _process(delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	updateWorld(delta)
 
 """
@@ -72,21 +72,21 @@ UPDATE PIPELINE:
 
 var t := 0.0
 func updateWorld(delta):
+	t += delta
 	if NetworkManager.isServer: #Server TerrainServer runs on a set tick rate
 		var tickThreshold : float = 1.0 / PixelSandbox.terrainServerTicksPerSecond
-		t += delta
 		if t < tickThreshold:
 			return
 		t -= tickThreshold
-		
+	
+	#Send Client Data To Server
 	if !NetworkManager.isServer:
-		if !activeWorldViews.has(ClientNetworkGlobals.id): return #No Worldview yet
-		if !is_instance_valid(get_viewport().get_camera_2d()): return
-		#Update the client worldview to be on the camera
-		activeWorldViews[ClientNetworkGlobals.id].position = (
-			get_viewport().get_camera_2d().get_screen_center_position()
-		)
-		sendPlayerViewPostionToServer(activeWorldViews[ClientNetworkGlobals.id].position)
+		var tickThreshold : float = 1.0 / PixelSandbox.clientFlushesPerSecond
+		if t > tickThreshold:
+			t -= tickThreshold
+			_sendQueuedTerrainChanges()
+			sendPlayerViewPostionToServer()
+			ClientNetworkGlobals.flushToServer()
 	
 	#Update World Views
 	for view : WorldView in activeWorldViews.values():
@@ -109,6 +109,7 @@ func updateWorld(delta):
 				#Limmit the number of bytes sent to each client each tick
 				if totalBytesSent > ServerNetworkGlobals.MAX_SENT_BYTES_PER_TICK:
 					break
+		NetworkManager.connection.flush()
 
 """
 CHUNK PIPELINE:
@@ -290,8 +291,7 @@ func getTile(pos : Vector2i, layer : int) -> int:
 func applyTerrainEdit(tEdit : TerrainEdit):
 	var ownerChunk : WorldChunk = chunks[tEdit.destinationChunkCoord]
 	ownerChunk.addTerrainEditToQueue(tEdit)
-
-
+	
 
 
 """--- All Terrain Changes go through here ---"""
@@ -311,35 +311,54 @@ func makeTerrainChange(
 		shape,
 		isDestructive
 	)
-	_makeTerrainChangeFromPacket(tChange)
 	
+	_makeTerrainChangeFromPacket(tChange) #Apply the terrain change imidietly
 	if NetworkManager.isServer:
-		pass
-	else: #sync with server
-		tChange.send(NetworkManager.server)
+		return
+	else:#batch packets
+		_addTerrainChangeToQueue(tChange)
 
+#Group together similar terrain changes into one packet
+func _addTerrainChangeToQueue(change : TerrainChange) -> void:
+	for queuedChange : TerrainChange in queuedTerrainChanges:
+		if queuedChange.canMerge(change):
+			queuedChange.mergeWith(change)
+			return
+	queuedTerrainChanges.append(change)
+
+func _sendQueuedTerrainChanges() -> void:
+	if queuedTerrainChanges.size() == 0: return
+	
+	for change : TerrainChange in queuedTerrainChanges:
+		if !NetworkManager.isServer:
+			change.send(NetworkManager.server)
+	queuedTerrainChanges.clear()
 
 func _makeTerrainChangeFromPacket(change : TerrainChange):
-	var tEdits : Dictionary[Vector2i, TerrainEdit] = {}
-	for x in range(-change.radius, change.radius + 1):
-		for y in range(-change.radius, change.radius + 1):
-			var offset = Vector2i(x, y)
-			
-			if change.shape == TerrainChange.SHAPE.SQUARE or _isInCircle(offset, change.radius):
-				var p : Vector2i = change.pos + offset
-				p = p.clamp(Vector2i(0, 0), Vector2i(PixelSandbox.mapSize) - Vector2i(1, 1))
+	var totalEdits : Array[TerrainEdit] = []
+	for i in range(change.points.size()):
+		var point := change.points[i]
+		var packetID := change.packetIDs[i]
+		var tEdits : Dictionary[Vector2i, TerrainEdit] = {} #Terrain Edits for this point
+		for x in range(-change.radius, change.radius + 1):
+			for y in range(-change.radius, change.radius + 1):
+				var offset = Vector2i(x, y)
 				
-				var pChunkCoord : Vector2i = worldToChunk(p)
-				if tEdits.has(pChunkCoord):
-					tEdits[pChunkCoord].appendTerrainChange(p, change.tile, change.layer, change.isDestructive)
-				else:
-					tEdits[pChunkCoord] = TerrainEdit.new(
-						pChunkCoord, change.authorID, change.packetID, change.applyOrder 
-					)
-					tEdits[pChunkCoord].appendTerrainChange(p, change.tile, change.layer, change.isDestructive)
-				
-	for k : Vector2i in tEdits.keys():
-		applyTerrainEdit(tEdits[k])
+				if change.shape == TerrainChange.SHAPE.SQUARE or _isInCircle(offset, change.radius):
+					var p : Vector2i = point + offset
+					p = p.clamp(Vector2i(0, 0), Vector2i(PixelSandbox.mapSize) - Vector2i(1, 1))
+					
+					var pChunkCoord : Vector2i = worldToChunk(p)
+					if tEdits.has(pChunkCoord):
+						tEdits[pChunkCoord].appendTerrainChange(p, change.tile, change.layer, change.isDestructive)
+					else:
+						tEdits[pChunkCoord] = TerrainEdit.new(
+							pChunkCoord, change.authorID, packetID, change.applyOrder 
+						)
+						tEdits[pChunkCoord].appendTerrainChange(p, change.tile, change.layer, change.isDestructive)
+		totalEdits.append_array(tEdits.values())
+	for tEdit : TerrainEdit in totalEdits:
+		applyTerrainEdit(tEdit)
 
 func _isInCircle(offset : Vector2i, radius : int) -> bool:
 	if offset.length() <= float(radius) + 0.5:
@@ -358,7 +377,15 @@ func sendChunkToClient(clientID : int, chunk : WorldChunk) -> int:
 	return snapshot.size()
 
 #Client ->
-func sendPlayerViewPostionToServer(newPos : Vector2):
+func sendPlayerViewPostionToServer():
+	if !activeWorldViews.has(ClientNetworkGlobals.id): return #No Worldview yet
+	if !is_instance_valid(get_viewport().get_camera_2d()): return
+	#Update the client worldview to be on the camera
+	activeWorldViews[ClientNetworkGlobals.id].position = (
+		get_viewport().get_camera_2d().get_screen_center_position()
+	)
+	var newPos = activeWorldViews[ClientNetworkGlobals.id].position
+	
 	PlayerViewPosition.create(
 		newPos
 	).send(NetworkManager.server)
