@@ -24,7 +24,7 @@ void fragment() {
 	
 	vec3 specularGI;
 	vec4 radiance = getRadianceWithNormals(SCREEN_UV, norm, spec, 1.0, 0.5, specularGI);
-	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 1.0, 1.0, 1.0); //brightness*exposure = gain, last arg = saturation
+	radiance.rgb = brightnessExposureLuminance(radiance.rgb, 2.0, 2.0, 2.0); //brightness*exposure = gain, last arg = saturation
 	radiance.rgb = pow(radiance.rgb, vec3(1.0 / 2.2));
 
 	//Specular on top of the albedo with its own tonemap, so it isn't squashed by the diffuse correction
@@ -33,7 +33,7 @@ void fragment() {
 	if(reflectiveness > 0.0){
 		vec3 adjustedNormal = norm.rgb * 2.0 - 1.0;
 		adjustedNormal.y *= -1.0;
-		vec2 dir = vec2(adjustedNormal.x, adjustedNormal.y);
+		vec2 dir = vec2(adjustedNormal.x, adjustedNormal.y); //normalize? more intense on softer normals, * 50 is too much
 		vec2 sampleOffset = (dir * 50.0) / PS_RENDER_QUADRANT_SIZE;
 		
 		vec4 foregroundReflection = texture(foregroundTexture, qUV + sampleOffset * 3.0);

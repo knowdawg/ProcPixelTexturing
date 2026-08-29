@@ -13,10 +13,11 @@ static var shaderGlobals : Dictionary[String, RenderingServer.GlobalShaderParame
 	
 	"PS_SCREEN_SIZE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_VEC2,
 	
-	#Cosine-convolved directional diffuse: one array layer per facing direction, plus the fluence ambient
+	#Cosine-convolvuted directional diffuse: one array layer per facing direction, plus the fluence ambient
 	"PS_DIFFUSE_DIRECTIONS" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2DARRAY,
 	"PS_FLUENCE" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 	
+	#All object that want to be reflected are drawn here
 	"PS_REFLECTION_BUFFER" : RenderingServer.GlobalShaderParameterType.GLOBAL_VAR_TYPE_SAMPLER2D,
 }
 
@@ -26,9 +27,9 @@ func _ready() -> void:
 static func addGlobals():
 	for s : String in shaderGlobals.keys():
 		RenderingServer.global_shader_parameter_add(s, shaderGlobals[s], null)
-		print("Shader Global : ", s, " Added")
+		#print("Shader Global : ", s, " Added")
 
 static func removeGlobals():
 	for s : String in shaderGlobals.keys():
 		RenderingServer.global_shader_parameter_remove(s)
-		print("Shader Global : ", s, " Removed")
+		#print("Shader Global : ", s, " Removed")

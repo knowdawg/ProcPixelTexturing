@@ -1,6 +1,9 @@
+"""
+Material pixels draw thier properties from.
+"""
+
 extends Resource
 class_name GenMaterial
-
 
 @export var texture : Texture2D #Greyscale image
 @export var normal : Texture2D #Specular intensity stored in the alpha channel

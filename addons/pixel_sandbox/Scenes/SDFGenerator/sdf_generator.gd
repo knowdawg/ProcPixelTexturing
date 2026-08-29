@@ -18,7 +18,7 @@ var pingpongIm : RID
 
 var workGroups : Vector3i
 func setupRenderingDevice():
-	var w : int = int(sqrt(float(TerrainRendering.renderSectionSize * TerrainRendering.renderSectionSize) / float(32 * 32)))
+	var w : int = int(sqrt(float(PixelSandbox.renderSectionSize * PixelSandbox.renderSectionSize) / float(32 * 32)))
 	workGroups = Vector3i(w, w, 1)
 	
 	rd = RenderingServer.get_rendering_device()
@@ -32,14 +32,14 @@ func setupRenderingDevice():
 	JFDistanceShader = rd.shader_create_from_spirv(JFDistanceFile.get_spirv())
 	pipelineDistance = rd.compute_pipeline_create(JFDistanceShader)
 	
-	var image1 = Image.create_empty(TerrainRendering.renderSectionSize, TerrainRendering.renderSectionSize, false, Image.FORMAT_RGBAF);
+	var image1 = Image.create_empty(PixelSandbox.renderSectionSize, PixelSandbox.renderSectionSize, false, Image.FORMAT_RGBAF);
 	image1.fill(Color.BLACK)
 	pingpongIm = TerrainRendering.getRIDImage(image1, rd)
 
 #Creates a sdf based on bitmapRID of the size of the render quadrant
 #Returns finalImage
 func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offsetByCameraPos : bool = true) -> RID: #Bitmaps check the red channel
-	var passes : int = ceil(log(TerrainRendering.renderSectionSize) / log(2.0))
+	var passes : int = ceil(log(PixelSandbox.renderSectionSize) / log(2.0))
 	
 	var imOrderArray : Array[RID] = [pingpongIm, finalImage]
 	if (passes - 1) % 2 == 0:
@@ -50,8 +50,8 @@ func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offse
 	
 	
 	var worldOffsetData := PackedInt32Array([
-	int(TerrainRendering.textureWrapCount.x * float(TerrainRendering.renderSectionSize)),
-	int(TerrainRendering.textureWrapCount.y * float(TerrainRendering.renderSectionSize))
+	int(TerrainRendering.textureWrapCount.x * float(PixelSandbox.renderSectionSize)),
+	int(TerrainRendering.textureWrapCount.y * float(PixelSandbox.renderSectionSize))
 	])
 	if !offsetByCameraPos:
 		worldOffsetData = PackedInt32Array([0, 0])
@@ -71,7 +71,7 @@ func createSDF(bitmapRID : RID, finalImage : RID, threshold : float = 0.0, offse
 	rd.free_rid(uniformSet)
 	
 	for i in passes:
-		var curOffset : int = int(TerrainRendering.renderSectionSize / (pow(2.0, i + 1)))
+		var curOffset : int = int(PixelSandbox.renderSectionSize / (pow(2.0, i + 1)))
 		#Standard Pass
 		var data := PackedInt32Array([curOffset])
 		var dataRID : RID = TerrainRendering.getRIDStorageBufferInt(data, rd)

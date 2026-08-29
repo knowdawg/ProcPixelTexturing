@@ -10,8 +10,8 @@ func _ready() -> void:
 	world2D.get_viewport().set_canvas_cull_mask_bit(visibilityLayer - 1, false) #-1 because layers start at 0
 	world_2d = world2D.get_viewport().world_2d
 	
-	size.x = TerrainRendering.renderSectionSize
-	size.y = TerrainRendering.renderSectionSize
+	size.x = PixelSandbox.renderSectionSize
+	size.y = PixelSandbox.renderSectionSize
 	
 	#get RID's once
 	if visibilityLayer == 10:

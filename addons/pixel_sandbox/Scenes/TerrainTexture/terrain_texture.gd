@@ -1,7 +1,7 @@
 extends Sprite2D
 class_name TerrainTexture
 
-@export var layer : TerrainRendering.LAYER_TYPE = TerrainRendering.LAYER_TYPE.FOREGROUND
+@export var layer : PixelSandbox.LAYER = PixelSandbox.LAYER.FOREGROUND
 
 var foregroundShader : String = "uid://dd6cxy2m7c1tb"
 var backgroundShader : String = "uid://b8dwypbrob4j4"
@@ -18,7 +18,7 @@ func _ready() -> void:
 	var backgroundTex2DRD : Texture2DRD = Texture2DRD.new()
 	backgroundTex2DRD.set_texture_rd_rid(TerrainRendering.worldVisualImageBackgroundRID)
 	
-	if layer == TerrainRendering.LAYER_TYPE.FOREGROUND:
+	if layer == PixelSandbox.LAYER.FOREGROUND:
 		t.diffuse_texture = foregroundTex2DRD
 		
 		var foregroundNormal2DRD : Texture2DRD = Texture2DRD.new()
@@ -33,7 +33,7 @@ func _ready() -> void:
 		m.shader = load(foregroundShader)
 		m.set_shader_parameter("backgroundTexture", backgroundTex2DRD)
 	
-	if layer == TerrainRendering.LAYER_TYPE.BACKGROUND:
+	if layer == PixelSandbox.LAYER.BACKGROUND:
 		t.diffuse_texture = backgroundTex2DRD
 		
 		var backgroundNormal2DRD : Texture2DRD = Texture2DRD.new()
